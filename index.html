@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Acceso al Asistente IA v9.3 (Completo y Corregido)</title>
+  <title>Acceso al Asistente IA v9.4</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,8 +16,6 @@
     }
     html, body {
       height: 100%; margin: 0; padding: 0; overflow: hidden;
-      /* --- LA CORRECCIÓN CLAVE --- */
-      /* Hacemos el body transparente para que se vea el div de fondo */
       background-color: transparent;
     }
     body {
@@ -29,13 +27,8 @@
       inset: 0; 
       z-index: -1;
       transition: opacity 1.5s;
-
-      /* Color de fondo de respaldo por si la imagen falla */
       background-color: #181622;
-
-      /* Apunta a tu imagen local */
       background-image: url('fondo-inicial.jpg'); 
-
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -46,7 +39,7 @@
       position: relative; z-index: 10;
     }
 
-    /* --- Orbe Futurista (Con transición más lenta) --- */
+    /* --- Orbe Futurista --- */
     .orbe {
         width: 100px; height: 100px; border-radius: 50%;
         position: relative; overflow: hidden;
@@ -60,84 +53,57 @@
         content: ''; position: absolute;
         transition: all 1.5s cubic-bezier(0.25, 1, 0.5, 1);
     }
-    .orbe::before {
-        width: 30px; height: 30px;
-        background: radial-gradient(circle, #ccc, #777 60%);
-        border-radius: 50%;
-        box-shadow: 0 0 15px 5px #777;
-    }
-    .orbe::after {
-        width: 150%; height: 150%;
-        background: conic-gradient(transparent 0%, #7777 30%, transparent 60%);
-        animation: rotate-energy 4s linear infinite;
-    }
-    .orbe .scanlines {
-        position: absolute; inset: 0; z-index: 2;
-        background: linear-gradient(rgba(0,0,0,0.5) 50%, transparent 50%);
-        background-size: 100% 4px;
-        animation: scanline-move 8s linear infinite;
-    }
-    .orbe.is-active {
-        background: radial-gradient(circle, #00bfff, #005f7f 70%);
-        box-shadow: 0 0 25px 8px #00bfff, inset 0 0 25px 12px #005f7f;
-        border-color: #00bfff;
-    }
-    .orbe.is-active::before {
-        background: radial-gradient(circle, #fff, #87ceeb 60%);
-        box-shadow: 0 0 25px 12px #87ceeb;
-        animation: pulse-core 2s infinite ease-in-out;
-    }
-    .orbe.is-active::after {
-        background: conic-gradient(transparent 0%, #00bfffaa 30%, transparent 60%);
-    }
+    .orbe::before { width: 30px; height: 30px; background: radial-gradient(circle, #ccc, #777 60%); border-radius: 50%; box-shadow: 0 0 15px 5px #777; }
+    .orbe::after { width: 150%; height: 150%; background: conic-gradient(transparent 0%, #7777 30%, transparent 60%); animation: rotate-energy 4s linear infinite; }
+    .orbe .scanlines { position: absolute; inset: 0; z-index: 2; background: linear-gradient(rgba(0,0,0,0.5) 50%, transparent 50%); background-size: 100% 4px; animation: scanline-move 8s linear infinite; }
+    .orbe.is-active { background: radial-gradient(circle, #00bfff, #005f7f 70%); box-shadow: 0 0 25px 8px #00bfff, inset 0 0 25px 12px #005f7f; border-color: #00bfff; }
+    .orbe.is-active::before { background: radial-gradient(circle, #fff, #87ceeb 60%); box-shadow: 0 0 25px 12px #87ceeb; animation: pulse-core 2s infinite ease-in-out; }
+    .orbe.is-active::after { background: conic-gradient(transparent 0%, #00bfffaa 30%, transparent 60%); }
     @keyframes pulse-core { 0%, 100% { transform: scale(0.9); } 50% { transform: scale(1.1); } }
     @keyframes rotate-energy { from { transform: translate(-16.66%, -16.66%) rotate(0deg); } to { transform: translate(-16.66%, -16.66%) rotate(360deg); } }
     @keyframes scanline-move { from { background-position: 0 0; } to { background-position: 0 -100px; } }
     .orbe-area { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; }
-    .orb-prompt {
-        font-family: 'Poppins', sans-serif;
-        font-size: 0.9em;
-        color: #ccc;
-        text-align: center;
-        width: 280px;
-        height: 3em;
-        text-shadow: 0 0 5px #fff;
-    }
-    .orb-prompt .type-cursor {
-        display: inline-block;
-        width: 1ch;
-        background: #ccc;
-        animation: blink 0.9s steps(1) infinite;
-        margin-left: 2px;
-    }
+    .orb-prompt { font-family: 'Poppins', sans-serif; font-size: 0.9em; color: #ccc; text-align: center; width: 280px; height: 3em; text-shadow: 0 0 5px #fff; }
+    .orb-prompt .type-cursor { display: inline-block; width: 1ch; background: #ccc; animation: blink 0.9s steps(1) infinite; margin-left: 2px; }
     @keyframes blink { 50% { opacity: 0; } }
-    .texto-dialogo { 
-        background: linear-gradient(135deg, #00bfffbb, #007acc 80%); 
-        border: 2px solid #00bfff;
-        border-radius: 13px; color: #fff; font-size: 1em; 
-        box-shadow: 0 0 10px #00bfff; padding: 13px 22px; 
-        text-shadow: 0 0 8px #fff; min-width: 180px; 
-        display: flex; align-items: center; justify-content: center; 
-        animation: fadeIn 0.7s forwards;
-    }
+    .texto-dialogo { background: linear-gradient(135deg, #00bfffbb, #007acc 80%); border: 2px solid #00bfff; border-radius: 13px; color: #fff; font-size: 1em; box-shadow: 0 0 10px #00bfff; padding: 13px 22px; text-shadow: 0 0 8px #fff; min-width: 180px; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.7s forwards; }
     @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
     .futuristic-box { background: linear-gradient(135deg, #2a0047cc 60%, #6500c2cc 100%); border: 2px solid #a500d2; border-radius: 15px; box-shadow: 0 0 16px 2px #a500d288, 0 0 2px #fff; padding: 25px 20px; min-width: 210px; display: flex; flex-direction: column; align-items: center; gap: 13px; animation: fadeIn 0.7s; backdrop-filter: blur(2px); }
     input[type="text"] { padding: 7px 12px; border-radius: 8px; border: 2px solid #a500d2; background: #25003cbb; color: #fff; font-size: 1em; outline: none; box-shadow: 0 0 7px #a500d2; transition: all 0.2s; } input[type="text"]:focus { border-color: #ff38e7; box-shadow: 0 0 10px #ff38e7; }
-    button { padding: 7px 18px; background: linear-gradient(90deg, #a500d2, #ff38e7); border: none; border-radius: 8px; color: #fff; font-weight: bold; font-size: 1em; box-shadow: 0 0 10px #a500d2; cursor: pointer; transition: all 0.2s; } button:hover { background: linear-gradient(90deg, #ff38e7, #a500d2); }
+    input[type="text"]:disabled { opacity: 0.5; cursor: not-allowed; }
+    button { padding: 7px 18px; background: linear-gradient(90deg, #a500d2, #ff38e7); border: none; border-radius: 8px; color: #fff; font-weight: bold; font-size: 1em; box-shadow: 0 0 10px #a500d2; cursor: pointer; transition: all 0.2s; } button:hover { background: linear-gradient(90deg, #ff38e7, #a500d2); } button:disabled { opacity: 0.5; cursor: not-allowed; background: #555; }
     
+    /* --- Big Bang Mejorado --- */
     #explosion-container { position: fixed; inset: 0; z-index: 9999; pointer-events: none; }
     .explosion-flash { position: absolute; inset: 0; background: #fff; opacity: 0; animation: flash 1.8s cubic-bezier(.7,0,.3,1) forwards; }
     .explosion-shockwave { position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 20px 10px #e6f7ff, 0 0 40px 20px #00bfff, 0 0 80px 40px #005f7f; opacity: 0; transform: translate(-50%, -50%); animation: shockwave 1.8s cubic-bezier(.2,1,.7,1) forwards; animation-delay: 0.05s; }
-    #explosion-particles { position: absolute; inset: 0; }
+    #explosion-particles, #energy-tendrils { position: absolute; inset: 0; }
     .particle { position: absolute; top: 50%; left: 50%; width: 4px; height: 4px; background-color: #00bfff; border-radius: 50%; opacity: 0; animation: fly-out 1.8s cubic-bezier(.3,.5,.5,1) forwards; animation-delay: 0.1s; }
+    .energy-tendril { position: absolute; top: 50%; left: 50%; width: 2px; height: 200%; background: linear-gradient(transparent, #87ceeb, transparent); opacity: 0; animation: tendril-burst 1s forwards; animation-delay: 0.1s; }
     @keyframes flash { 0% { opacity: 1; } 95% { opacity: 1; } 100% { opacity: 0; } }
-    @keyframes shockwave { 0% { transform: scale(0.1); opacity: 1; } 80% { opacity: 0.5; } 100% { transform: scale(200); opacity: 0; } }
+    @keyframes shockwave { 0% { transform: translate(-50%,-50%) scale(0.1); opacity: 1; } 80% { opacity: 0.5; } 100% { transform: translate(-50%,-50%) scale(200); opacity: 0; } }
     @keyframes fly-out { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; } 100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; } }
+    @keyframes tendril-burst { 0% { transform: translate(-50%, -50%) rotate(var(--angle)) scaleY(0); opacity: 0.8; } 100% { transform: translate(-50%, -50%) rotate(var(--angle)) scaleY(1); opacity: 0; } }
     
+    /* --- Estilos de la Escena Final --- */
     #final-scene { position: fixed; inset: 0; z-index: 1; opacity: 0; transition: opacity 2s ease-in; background-image: url('pixel-art-escena.png'); background-size: cover; background-position: center; image-rendering: pixelated; }
     #petal-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; }
     .content-wrapper { position: relative; z-index: 10; text-align: center; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%; animation: fadeIn 2s; animation-delay: 1s; }
-    h1.new-title { font-family: 'Press Start 2P', cursive; font-size: 2.5rem; font-weight: 400; margin-bottom: 2.5rem; color: #fff; text-shadow: 3px 3px 0px rgba(0,0,0,0.7); }
+    .final-orb { /* Orbe Rosa Cereza */
+        width: 80px; height: 80px; border-radius: 50%; position: relative; overflow: hidden;
+        background: radial-gradient(circle, #ffb3c1, #e75480 70%);
+        box-shadow: 0 0 25px 8px #e75480, inset 0 0 20px 10px #ffb3c1;
+        border: 2px solid #ffb3c1;
+        margin-bottom: 20px;
+        animation: fadeIn 1s;
+    }
+    .final-orb-dialog {
+        font-family: 'Press Start 2P', cursive;
+        font-size: 1rem; color: #fff;
+        text-shadow: 2px 2px 0px rgba(0,0,0,0.7);
+        width: 400px;
+        text-align: center;
+    }
     .input-container { width: 100%; max-width: 350px; }
     .name-input { background-color: #1e152a; border: 2px solid #e025a8; border-radius: 10px; color: #fff; font-size: 1rem; padding: 18px 30px; width: 100%; box-sizing: border-box; text-align: center; transition: all 0.3s ease; box-shadow: 0 0 10px 0px #e025a8; font-family: 'Poppins', sans-serif; }
     .name-input::placeholder { color: rgba(255, 255, 255, 0.6); }
@@ -146,7 +112,6 @@
 </head>
 <body>
   <div id="initial-background"></div>
-
   <div class="center-content" id="main-initial">
     <div class="orbe-area">
       <div class="orbe" id="main-orb"><div class="scanlines"></div></div>
@@ -159,18 +124,16 @@
       </div>
     </div>
   </div>
-
   <div id="transition-content" style="display: none;">
       <div class="orbe is-active"><div class="scanlines"></div></div>
       <div class="texto-dialogo" id="texto-dialogo"></div>
   </div>
-
   <div id="explosion-container" style="display:none">
     <div class="explosion-flash"></div>
     <div class="explosion-shockwave"></div>
     <div id="explosion-particles"></div>
+    <div id="energy-tendrils"></div>
   </div>
-  
   <div id="final-scene" style="display:none;">
     <canvas id="petal-canvas"></canvas>
     <div class="content-wrapper" id="new-content-wrapper"></div>
@@ -180,22 +143,10 @@
     let userName = '';
 
     function escribirTexto(element, text, speed, callback) {
-        let i = 0;
-        element.innerHTML = "";
-        const cursor = document.createElement('span');
-        cursor.className = 'type-cursor';
-        cursor.innerHTML = '&nbsp;';
-        
+        let i = 0; element.innerHTML = ""; const cursor = document.createElement('span'); cursor.className = 'type-cursor'; cursor.innerHTML = '&nbsp;';
         function write() {
-            if (i < text.length) {
-                element.innerHTML = text.substring(0, i + 1);
-                element.appendChild(cursor);
-                i++;
-                setTimeout(write, speed);
-            } else {
-                cursor.remove();
-                if (callback) callback();
-            }
+            if (i < text.length) { element.innerHTML = text.substring(0, i + 1); element.appendChild(cursor); i++; setTimeout(write, speed); }
+            else { cursor.remove(); if (callback) callback(); }
         }
         write();
     }
@@ -203,11 +154,10 @@
     document.addEventListener('DOMContentLoaded', () => {
         const orb = document.getElementById('main-orb');
         const promptText = document.getElementById('orb-prompt-text');
-
         setTimeout(() => {
             orb.classList.add('is-active');
             setTimeout(() => {
-                escribirTexto(promptText, "Para asegurarme de que usted es la persona que espero, introduzca su nombre.", 50);
+                escribirTexto(promptText, "Para asegurarme de que usted es la persona que espero, introduzca su nombre.", 30); // <-- Velocidad aumentada
             }, 500);
         }, 2200);
     });
@@ -217,23 +167,27 @@
 
     enviarBtn.onclick = () => {
       userName = nombreInput.value.trim();
-      if(userName) {
+      
+      if (userName.toLowerCase() === 'rei') {
+        // --- CAMINO DE ÉXITO ---
         document.getElementById('main-initial').style.display = 'none';
         const transitionContent = document.getElementById('transition-content');
-        transitionContent.style.display = 'flex';
-        transitionContent.style.flexDirection = 'column';
-        transitionContent.style.gap = '22px';
-        transitionContent.style.alignItems = 'center';
-        
+        transitionContent.style.display = 'flex'; transitionContent.style.flexDirection = 'column'; transitionContent.style.gap = '22px'; transitionContent.style.alignItems = 'center';
         const transitionDialog = document.getElementById('texto-dialogo');
-        escribirTexto(transitionDialog, "Creando nuevo mundo...", 45, () => {
+        escribirTexto(transitionDialog, "Iniciando secuencia...", 45, () => {
             setTimeout(() => {
                 transitionContent.style.display = 'none';
                 showExplosionAndSwitchDesign();
             }, 500);
         });
-      } else { 
-        nombreInput.focus(); 
+      } else {
+        // --- CAMINO DE ACCESO DENEGADO ---
+        const orb = document.getElementById('main-orb');
+        const promptText = document.getElementById('orb-prompt-text');
+        orb.classList.remove('is-active'); // Apagar el orbe
+        escribirTexto(promptText, "Lo siento, acceso denegado.", 40);
+        nombreInput.disabled = true; // Desactivar input
+        enviarBtn.disabled = true; // Desactivar botón
       }
     };
     nombreInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') enviarBtn.click(); });
@@ -243,22 +197,28 @@
         explosionContainer.style.display = 'flex';
         
         const particlesContainer = document.getElementById('explosion-particles');
-        particlesContainer.innerHTML = '';
+        const tendrilsContainer = document.getElementById('energy-tendrils');
+        particlesContainer.innerHTML = ''; tendrilsContainer.innerHTML = ''; // Limpiar
+        
+        // Generar partículas de explosión
         for (let i = 0; i < 50; i++) {
-            const p = document.createElement('div');
-            p.classList.add('particle');
-            const angle = Math.random() * 360 * (Math.PI / 180);
-            const dist = (Math.random() * 0.5 + 0.5) * window.innerWidth;
-            p.style.setProperty('--x', `${Math.cos(angle) * dist}px`);
-            p.style.setProperty('--y', `${Math.sin(angle) * dist}px`);
+            const p = document.createElement('div'); p.classList.add('particle');
+            const angle = Math.random() * 360 * (Math.PI / 180); const dist = (Math.random() * 0.5 + 0.5) * window.innerWidth;
+            p.style.setProperty('--x', `${Math.cos(angle) * dist}px`); p.style.setProperty('--y', `${Math.sin(angle) * dist}px`);
             particlesContainer.appendChild(p);
+        }
+        // Generar tendrils de energía
+        for (let i = 0; i < 10; i++) {
+            const t = document.createElement('div'); t.classList.add('energy-tendril');
+            t.style.setProperty('--angle', `${Math.random() * 360}deg`);
+            t.style.animationDelay = `${Math.random() * 0.2}s`;
+            tendrilsContainer.appendChild(t);
         }
 
         setTimeout(() => {
             document.getElementById('initial-background').style.opacity = '0';
             showNewDesign();
             explosionContainer.style.display = 'none';
-            particlesContainer.innerHTML = '';
         }, 1800);
     }
 
@@ -266,60 +226,43 @@
         const scene = document.getElementById('final-scene');
         scene.style.display = 'block';
         setTimeout(() => scene.style.opacity = '1', 50);
+        
         const newContent = document.getElementById('new-content-wrapper');
-        newContent.innerHTML = `<h1 class="new-title">Bienvenido, ${userName}.</h1><div class="input-container"><form><input type="text" class="name-input" placeholder="Respira hondo..." autocomplete="off"></form></div>`;
+        // --- CAMBIO: Se elimina el h1 y se añade el nuevo orbe y diálogo ---
+        newContent.innerHTML = `
+            <div class="final-orb">
+                <div class="scanlines"></div>
+            </div>
+            <div class="final-orb-dialog" id="final-dialog"></div>
+            <div class="input-container">
+                <form><input type="text" class="name-input" placeholder="Respira hondo..." autocomplete="off"></form>
+            </div>`;
+        
+        // Iniciar animación de pétalos
         initPetalAnimation();
+        
+        // El nuevo orbe da la bienvenida
+        setTimeout(() => {
+            const finalDialog = document.getElementById('final-dialog');
+            escribirTexto(finalDialog, "Bienvenida, señorita Rei.", 60);
+        }, 2000); // Esperar a que la escena aparezca
     }
 
     function initPetalAnimation() {
         const canvas = document.getElementById('petal-canvas');
         const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        ctx.imageSmoothingEnabled = false;
-        let petals = [];
-        const petalCount = 40;
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight; ctx.imageSmoothingEnabled = false;
+        let petals = []; const petalCount = 40;
         class Petal {
             constructor() { this.reset(); this.y = Math.random() * canvas.height; }
-            reset() {
-                this.x = Math.random() * canvas.width;
-                this.y = -10;
-                this.w = 4 + Math.random() * 4;
-                this.h = this.w;
-                this.opacity = 0.5 + (this.w / 8) * 0.5;
-                this.speedY = 0.5 + Math.random() * 0.5;
-                this.sway = 0.5 + Math.random();
-                this.swayAngle = Math.random() * Math.PI;
-            }
-            draw() {
-                ctx.fillStyle = `rgba(239, 194, 204, ${this.opacity})`;
-                ctx.fillRect(this.x, this.y, this.w, this.h);
-            }
-            update() {
-                this.y += this.speedY;
-                this.swayAngle += 0.05;
-                this.x += Math.sin(this.swayAngle) * this.sway;
-                if (this.y > canvas.height) { this.reset(); }
-                this.draw();
-            }
+            reset() { this.x = Math.random() * canvas.width; this.y = -10; this.w = 4 + Math.random() * 4; this.h = this.w; this.opacity = 0.5 + (this.w / 8) * 0.5; this.speedY = 0.5 + Math.random() * 0.5; this.sway = 0.5 + Math.random(); this.swayAngle = Math.random() * Math.PI; }
+            draw() { ctx.fillStyle = `rgba(239, 194, 204, ${this.opacity})`; ctx.fillRect(this.x, this.y, this.w, this.h); }
+            update() { this.y += this.speedY; this.swayAngle += 0.05; this.x += Math.sin(this.swayAngle) * this.sway; if (this.y > canvas.height) { this.reset(); } this.draw(); }
         }
-        function init() {
-            petals = [];
-            for (let i = 0; i < petalCount; i++) { petals.push(new Petal()); }
-        }
-        function animate() {
-            requestAnimationFrame(animate);
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let i = 0; i < petals.length; i++) { petals[i].update(); }
-        }
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            ctx.imageSmoothingEnabled = false;
-            init();
-        });
-        init();
-        animate();
+        function init() { petals = []; for (let i = 0; i < petalCount; i++) { petals.push(new Petal()); } }
+        function animate() { requestAnimationFrame(animate); ctx.clearRect(0, 0, canvas.width, canvas.height); for (let i = 0; i < petals.length; i++) { petals[i].update(); } }
+        window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; ctx.imageSmoothingEnabled = false; init(); });
+        init(); animate();
     }
   </script>
 </body>
