@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso al Asistente IA</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #0a0a1a;
+            font-family: 'Roboto', sans-serif;
+            color: white;
+        }
+        #particles-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            color: #e0e0ff; /* Azul claro para el título */
+            text-shadow: 0 0 10px #66aaff, 0 0 20px #66aaff; /* Sombra de texto azul */
+        }
+        #access-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #name-input {
+            padding: 1rem;
+            width: 300px;
+            border: 2px solid #66aaff; /* Borde azul */
+            background-color: rgba(10, 10, 26, 0.8);
+            color: white;
+            border-radius: 5px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        #name-input:focus {
+            outline: none;
+            box-shadow: 0 0 10px #66aaff; /* Sombra al enfocar en azul */
+        }
+        button {
+            padding: 1rem 2rem;
+            border: none;
+            background-color: #66aaff; /* Fondo azul */
+            color: #0a0a1a;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        button:hover {
+            background-color: #88ccff; /* Azul más claro al pasar el ratón */
+            box-shadow: 0 0 15px #88ccff; /* Sombra al pasar el ratón en azul */
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="particles-canvas"></canvas>
+
+    <div class="container">
+        <h1>¿Quién va a acceder?</h1>
+        <form id="access-form">
+            <input type="text" id="name-input" placeholder="Introduce tu nombre" autocomplete="off">
+            <button type="submit">Acceder</button>
+        </form>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particlesArray = [];
+        const particleCount = 200;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.5 + 0.5;
+                this.speedX = (Math.random() * 0.5 - 0.25) * 0.5;
+                this.speedY = (Math.random() * 0.5 - 0.25) * 0.5;
+                // Cambio de color a tonos azules (hsl(240, ...))
+                this.color = 'hsla(240, 100%, 70%, ' + (Math.random() * 0.7 + 0.2) + ')';
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x > canvas.width || this.x < 0) {
+                    this.x = Math.random() * canvas.width;
+                }
+                if (this.y > canvas.height || this.y < 0) {
+                    this.y = Math.random() * canvas.height;
+                }
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particlesArray = [];
+            for (let i = 0; i < particleCount; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+            }
+            requestAnimationFrame(animateParticles);
+        }
+
+        initParticles();
+        animateParticles();
+
+        window.addEventListener('resize', () => {
+            canvas.width = innerWidth;
+            canvas.height = innerHeight;
+            initParticles();
+        });
+
+        document.getElementById('access-form').addEventListener('submit', e => {
+            e.preventDefault();
+            const userName = document.getElementById('name-input').value.trim();
+            if (userName) {
+                // Aquí puedes redirigir a otra página si lo necesitas
+                console.log(`El usuario ${userName} ha accedido.`);
+                // window.location.href = `chat.html?name=${encodeURIComponent(userName)}`;
+            }
+        });
+    </script>
+
+</body>
+</html>
