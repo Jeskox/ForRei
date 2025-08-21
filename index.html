@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Acceso al Asistente IA v9.1</title>
+  <title>Acceso al Asistente IA v9.2</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,32 +29,32 @@
     }
     .center-content {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      min-height: 100vh; width: 100%; gap: 40px; /* Aumentamos el espacio */
+      min-height: 100vh; width: 100%; gap: 40px;
       position: relative; z-index: 10;
     }
 
-    /* --- Orbe Futurista (Actualizado con estados) --- */
+    /* --- Orbe Futurista (Con transición más lenta) --- */
     .orbe {
         width: 100px; height: 100px; border-radius: 50%;
         position: relative; overflow: hidden;
         display: flex; align-items: center; justify-content: center;
-        /* Estado APAGADO (Gris) por defecto */
         background: radial-gradient(circle, #555, #111 70%);
         box-shadow: 0 0 15px 5px #333, inset 0 0 20px 10px #111;
         border: 2px solid #444;
-        transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+        /* --- CAMBIO: Transición más lenta --- */
+        transition: all 1.5s cubic-bezier(0.25, 1, 0.5, 1);
     }
     .orbe::before, .orbe::after {
         content: ''; position: absolute;
-        transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+        transition: all 1.5s cubic-bezier(0.25, 1, 0.5, 1);
     }
-    .orbe::before { /* Núcleo */
+    .orbe::before {
         width: 30px; height: 30px;
         background: radial-gradient(circle, #ccc, #777 60%);
         border-radius: 50%;
         box-shadow: 0 0 15px 5px #777;
     }
-    .orbe::after { /* Energía giratoria */
+    .orbe::after {
         width: 150%; height: 150%;
         background: conic-gradient(transparent 0%, #7777 30%, transparent 60%);
         animation: rotate-energy 4s linear infinite;
@@ -65,8 +65,6 @@
         background-size: 100% 4px;
         animation: scanline-move 8s linear infinite;
     }
-    
-    /* Estado ENCENDIDO (Azul) */
     .orbe.is-active {
         background: radial-gradient(circle, #00bfff, #005f7f 70%);
         box-shadow: 0 0 25px 8px #00bfff, inset 0 0 25px 12px #005f7f;
@@ -80,24 +78,17 @@
     .orbe.is-active::after {
         background: conic-gradient(transparent 0%, #00bfffaa 30%, transparent 60%);
     }
-
     @keyframes pulse-core { 0%, 100% { transform: scale(0.9); } 50% { transform: scale(1.1); } }
     @keyframes rotate-energy { from { transform: translate(-16.66%, -16.66%) rotate(0deg); } to { transform: translate(-16.66%, -16.66%) rotate(360deg); } }
     @keyframes scanline-move { from { background-position: 0 0; } to { background-position: 0 -100px; } }
-    
-    .orbe-area { 
-        display: flex; flex-direction: column; align-items: center; 
-        justify-content: center; gap: 22px; 
-    }
-    
-    /* Nuevo texto del orbe */
+    .orbe-area { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; }
     .orb-prompt {
         font-family: 'Poppins', sans-serif;
         font-size: 0.9em;
         color: #ccc;
         text-align: center;
         width: 280px;
-        height: 3em; /* Espacio reservado para evitar saltos de layout */
+        height: 3em;
         text-shadow: 0 0 5px #fff;
     }
     .orb-prompt .type-cursor {
@@ -108,8 +99,6 @@
         margin-left: 2px;
     }
     @keyframes blink { 50% { opacity: 0; } }
-    
-    /* Texto de transición (antes púrpura) */
     .texto-dialogo { 
         background: linear-gradient(135deg, #00bfffbb, #007acc 80%); 
         border: 2px solid #00bfff;
@@ -119,24 +108,22 @@
         display: flex; align-items: center; justify-content: center; 
         animation: fadeIn 0.7s forwards;
     }
-    
     @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
-
-    .futuristic-box { 
-        background: linear-gradient(135deg, #2a0047cc 60%, #6500c2cc 100%); 
-        border: 2px solid #a500d2; border-radius: 15px; 
-        box-shadow: 0 0 16px 2px #a500d288, 0 0 2px #fff; 
-        padding: 25px 20px; /* Más padding vertical */
-        min-width: 210px; display: flex; 
-        flex-direction: column; align-items: center; gap: 13px; 
-        animation: fadeIn 0.7s; backdrop-filter: blur(2px); 
-    }
+    .futuristic-box { background: linear-gradient(135deg, #2a0047cc 60%, #6500c2cc 100%); border: 2px solid #a500d2; border-radius: 15px; box-shadow: 0 0 16px 2px #a500d288, 0 0 2px #fff; padding: 25px 20px; min-width: 210px; display: flex; flex-direction: column; align-items: center; gap: 13px; animation: fadeIn 0.7s; backdrop-filter: blur(2px); }
     input[type="text"] { padding: 7px 12px; border-radius: 8px; border: 2px solid #a500d2; background: #25003cbb; color: #fff; font-size: 1em; outline: none; box-shadow: 0 0 7px #a500d2; transition: all 0.2s; } input[type="text"]:focus { border-color: #ff38e7; box-shadow: 0 0 10px #ff38e7; }
     button { padding: 7px 18px; background: linear-gradient(90deg, #a500d2, #ff38e7); border: none; border-radius: 8px; color: #fff; font-weight: bold; font-size: 1em; box-shadow: 0 0 10px #a500d2; cursor: pointer; transition: all 0.2s; } button:hover { background: linear-gradient(90deg, #ff38e7, #a500d2); }
     
-    #explosion-container, #final-scene { display: none; } /* Ocultar el resto por defecto */
-
-    /* --- ESTILOS DE LA ESCENA FINAL (SIN CAMBIOS) --- */
+    /* --- Big Bang Dinámico (RESTAURADO) --- */
+    #explosion-container { position: fixed; inset: 0; z-index: 9999; pointer-events: none; }
+    .explosion-flash { position: absolute; inset: 0; background: #fff; opacity: 0; animation: flash 1.8s cubic-bezier(.7,0,.3,1) forwards; }
+    .explosion-shockwave { position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 20px 10px #e6f7ff, 0 0 40px 20px #00bfff, 0 0 80px 40px #005f7f; opacity: 0; transform: translate(-50%, -50%); animation: shockwave 1.8s cubic-bezier(.2,1,.7,1) forwards; animation-delay: 0.05s; }
+    #explosion-particles { position: absolute; inset: 0; }
+    .particle { position: absolute; top: 50%; left: 50%; width: 4px; height: 4px; background-color: #00bfff; border-radius: 50%; opacity: 0; animation: fly-out 1.8s cubic-bezier(.3,.5,.5,1) forwards; animation-delay: 0.1s; }
+    @keyframes flash { 0% { opacity: 1; } 95% { opacity: 1; } 100% { opacity: 0; } }
+    @keyframes shockwave { 0% { transform: scale(0.1); opacity: 1; } 80% { opacity: 0.5; } 100% { transform: scale(200); opacity: 0; } }
+    @keyframes fly-out { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; } 100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; } }
+    
+    /* --- Estilos de la Escena Final (SIN CAMBIOS) --- */
     #final-scene { position: fixed; inset: 0; z-index: 1; opacity: 0; transition: opacity 2s ease-in; background-image: url('pixel-art-escena.png'); background-size: cover; background-position: center; image-rendering: pixelated; }
     #petal-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; }
     .content-wrapper { position: relative; z-index: 10; text-align: center; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%; animation: fadeIn 2s; animation-delay: 1s; }
@@ -151,7 +138,7 @@
   <div id="initial-background"></div>
 
   <div class="center-content" id="main-initial">
-    <div class="orbe-area" id="orbe-area">
+    <div class="orbe-area">
       <div class="orbe" id="main-orb"><div class="scanlines"></div></div>
       <div class="orb-prompt" id="orb-prompt-text"></div>
     </div>
@@ -168,18 +155,20 @@
       <div class="texto-dialogo" id="texto-dialogo"></div>
   </div>
 
-  <div id="explosion-container">
-      <!-- ... (código de explosión sin cambios) ... -->
+  <div id="explosion-container" style="display:none">
+    <div class="explosion-flash"></div>
+    <div class="explosion-shockwave"></div>
+    <div id="explosion-particles"></div>
   </div>
   
-  <div id="final-scene">
-      <!-- ... (código de la escena final sin cambios) ... -->
+  <div id="final-scene" style="display:none;">
+    <canvas id="petal-canvas"></canvas>
+    <div class="content-wrapper" id="new-content-wrapper"></div>
   </div>
 
   <script>
     let userName = '';
 
-    // Función de escritura de texto reutilizable
     function escribirTexto(element, text, speed, callback) {
         let i = 0;
         element.innerHTML = "";
@@ -201,17 +190,17 @@
         write();
     }
     
-    // Lógica de la interfaz inicial
     document.addEventListener('DOMContentLoaded', () => {
         const orb = document.getElementById('main-orb');
         const promptText = document.getElementById('orb-prompt-text');
 
+        // --- CAMBIO: Tiempo de activación del orbe ---
         setTimeout(() => {
             orb.classList.add('is-active');
             setTimeout(() => {
                 escribirTexto(promptText, "Para asegurarme de que usted es la persona que espero, introduzca su nombre.", 50);
-            }, 500); // Pequeña espera tras encenderse para empezar a escribir
-        }, 1300);
+            }, 500);
+        }, 2200); // 2.2 segundos
     });
 
     const enviarBtn = document.getElementById('enviar-btn');
@@ -220,15 +209,13 @@
     enviarBtn.onclick = () => {
       userName = nombreInput.value.trim();
       if(userName) {
-        // Ocultar la primera interfaz y mostrar la de transición
         document.getElementById('main-initial').style.display = 'none';
         const transitionContent = document.getElementById('transition-content');
         transitionContent.style.display = 'flex';
         transitionContent.style.flexDirection = 'column';
         transitionContent.style.gap = '22px';
         transitionContent.style.alignItems = 'center';
-
-        // Iniciar la lógica de la transición a la explosión
+        
         const transitionDialog = document.getElementById('texto-dialogo');
         escribirTexto(transitionDialog, "Creando nuevo mundo...", 45, () => {
             setTimeout(() => {
@@ -242,27 +229,89 @@
     };
     nombreInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') enviarBtn.click(); });
 
-    // --- LÓGICA DE LA EXPLOSIÓN Y ESCENA FINAL (SIN CAMBIOS) ---
+    // --- LÓGICA DE LA EXPLOSIÓN (RESTAURADA) Y ESCENA FINAL ---
     function showExplosionAndSwitchDesign() {
         const explosionContainer = document.getElementById('explosion-container');
-        explosionContainer.style.display = 'flex';
-        // ... (código de partículas de explosión) ...
+        explosionContainer.style.display = 'flex'; // Usar flex para centrar
+        
+        const particlesContainer = document.getElementById('explosion-particles');
+        particlesContainer.innerHTML = ''; // Limpiar partículas viejas por si acaso
+        for (let i = 0; i < 50; i++) {
+            const p = document.createElement('div');
+            p.classList.add('particle');
+            const angle = Math.random() * 360 * (Math.PI / 180); // a radianes
+            const dist = (Math.random() * 0.5 + 0.5) * window.innerWidth;
+            p.style.setProperty('--x', `${Math.cos(angle) * dist}px`);
+            p.style.setProperty('--y', `${Math.sin(angle) * dist}px`);
+            particlesContainer.appendChild(p);
+        }
+
         setTimeout(() => {
             document.getElementById('initial-background').style.opacity = '0';
             showNewDesign();
             explosionContainer.style.display = 'none';
+            particlesContainer.innerHTML = '';
         }, 1800);
     }
+
     function showNewDesign() {
-      const scene = document.getElementById('final-scene');
-      scene.style.display = 'block';
-      setTimeout(() => scene.style.opacity = '1', 50);
-      const newContent = document.getElementById('new-content-wrapper');
-      newContent.innerHTML = `<h1 class="new-title">Bienvenido, ${userName}.</h1><div class="input-container"><form><input type="text" class="name-input" placeholder="Respira hondo..." autocomplete="off"></form></div>`;
-      initPetalAnimation();
+        const scene = document.getElementById('final-scene');
+        scene.style.display = 'block';
+        setTimeout(() => scene.style.opacity = '1', 50);
+        const newContent = document.getElementById('new-content-wrapper');
+        newContent.innerHTML = `<h1 class="new-title">Bienvenido, ${userName}.</h1><div class="input-container"><form><input type="text" class="name-input" placeholder="Respira hondo..." autocomplete="off"></form></div>`;
+        initPetalAnimation();
     }
+
     function initPetalAnimation() {
-      // ... (todo el código de la animación de pétalos va aquí, sin cambios) ...
+        const canvas = document.getElementById('petal-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        ctx.imageSmoothingEnabled = false;
+        let petals = [];
+        const petalCount = 40;
+        class Petal {
+            constructor() { this.reset(); this.y = Math.random() * canvas.height; }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = -10;
+                this.w = 4 + Math.random() * 4;
+                this.h = this.w;
+                this.opacity = 0.5 + (this.w / 8) * 0.5;
+                this.speedY = 0.5 + Math.random() * 0.5;
+                this.sway = 0.5 + Math.random();
+                this.swayAngle = Math.random() * Math.PI;
+            }
+            draw() {
+                ctx.fillStyle = `rgba(239, 194, 204, ${this.opacity})`;
+                ctx.fillRect(this.x, this.y, this.w, this.h);
+            }
+            update() {
+                this.y += this.speedY;
+                this.swayAngle += 0.05;
+                this.x += Math.sin(this.swayAngle) * this.sway;
+                if (this.y > canvas.height) { this.reset(); }
+                this.draw();
+            }
+        }
+        function init() {
+            petals = [];
+            for (let i = 0; i < petalCount; i++) { petals.push(new Petal()); }
+        }
+        function animate() {
+            requestAnimationFrame(animate);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < petals.length; i++) { petals[i].update(); }
+        }
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            ctx.imageSmoothingEnabled = false;
+            init();
+        });
+        init();
+        animate();
     }
   </script>
 </body>
