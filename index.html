@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Acceso al Asistente IA v9.4</title>
+  <title>Acceso al Asistente IA v9.5</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -89,25 +89,26 @@
     #final-scene { position: fixed; inset: 0; z-index: 1; opacity: 0; transition: opacity 2s ease-in; background-image: url('pixel-art-escena.png'); background-size: cover; background-position: center; image-rendering: pixelated; }
     #petal-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; }
     .content-wrapper { position: relative; z-index: 10; text-align: center; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%; animation: fadeIn 2s; animation-delay: 1s; }
-    .final-orb { /* Orbe Rosa Cereza */
+    .final-orb {
         width: 80px; height: 80px; border-radius: 50%; position: relative; overflow: hidden;
         background: radial-gradient(circle, #ffb3c1, #e75480 70%);
-        box-shadow: 0 0 25px 8px #e75480, inset 0 0 20px 10px #ffb3c1;
         border: 2px solid #ffb3c1;
         margin-bottom: 20px;
-        animation: fadeIn 1s;
+        animation: fadeIn 1s, pulse-final-orb 3s infinite ease-in-out;
+    }
+    .final-orb .scanlines { opacity: 0.3; }
+    @keyframes pulse-final-orb {
+        0%, 100% { transform: scale(1); box-shadow: 0 0 25px 8px #e75480, inset 0 0 20px 10px #ffb3c1; }
+        50% { transform: scale(1.05); box-shadow: 0 0 35px 12px #e75480, inset 0 0 20px 10px #ffb3c1; }
     }
     .final-orb-dialog {
         font-family: 'Press Start 2P', cursive;
         font-size: 1rem; color: #fff;
         text-shadow: 2px 2px 0px rgba(0,0,0,0.7);
-        width: 400px;
+        width: 450px;
         text-align: center;
+        min-height: 2.5em; /* Espacio para dos líneas de texto */
     }
-    .input-container { width: 100%; max-width: 350px; }
-    .name-input { background-color: #1e152a; border: 2px solid #e025a8; border-radius: 10px; color: #fff; font-size: 1rem; padding: 18px 30px; width: 100%; box-sizing: border-box; text-align: center; transition: all 0.3s ease; box-shadow: 0 0 10px 0px #e025a8; font-family: 'Poppins', sans-serif; }
-    .name-input::placeholder { color: rgba(255, 255, 255, 0.6); }
-    .name-input:focus { outline: none; box-shadow: 0 0 20px 5px #e025a8; }
   </style>
 </head>
 <body>
@@ -157,7 +158,7 @@
         setTimeout(() => {
             orb.classList.add('is-active');
             setTimeout(() => {
-                escribirTexto(promptText, "Para asegurarme de que usted es la persona que espero, introduzca su nombre.", 30); // <-- Velocidad aumentada
+                escribirTexto(promptText, "Para asegurarme de que usted es la persona que espero, introduzca su nombre.", 30);
             }, 500);
         }, 2200);
     });
@@ -169,7 +170,6 @@
       userName = nombreInput.value.trim();
       
       if (userName.toLowerCase() === 'rei') {
-        // --- CAMINO DE ÉXITO ---
         document.getElementById('main-initial').style.display = 'none';
         const transitionContent = document.getElementById('transition-content');
         transitionContent.style.display = 'flex'; transitionContent.style.flexDirection = 'column'; transitionContent.style.gap = '22px'; transitionContent.style.alignItems = 'center';
@@ -181,13 +181,16 @@
             }, 500);
         });
       } else {
-        // --- CAMINO DE ACCESO DENEGADO ---
         const orb = document.getElementById('main-orb');
         const promptText = document.getElementById('orb-prompt-text');
-        orb.classList.remove('is-active'); // Apagar el orbe
-        escribirTexto(promptText, "Lo siento, acceso denegado.", 40);
-        nombreInput.disabled = true; // Desactivar input
-        enviarBtn.disabled = true; // Desactivar botón
+        nombreInput.disabled = true;
+        enviarBtn.disabled = true;
+        escribirTexto(promptText, "Lo siento, acceso denegado.", 40, () => {
+            // --- CAMBIO: Apagar el orbe DESPUÉS de que el texto termine ---
+            setTimeout(() => {
+                orb.classList.remove('is-active');
+            }, 500); // Pequeña pausa antes de apagar
+        });
       }
     };
     nombreInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') enviarBtn.click(); });
@@ -198,16 +201,14 @@
         
         const particlesContainer = document.getElementById('explosion-particles');
         const tendrilsContainer = document.getElementById('energy-tendrils');
-        particlesContainer.innerHTML = ''; tendrilsContainer.innerHTML = ''; // Limpiar
+        particlesContainer.innerHTML = ''; tendrilsContainer.innerHTML = '';
         
-        // Generar partículas de explosión
         for (let i = 0; i < 50; i++) {
             const p = document.createElement('div'); p.classList.add('particle');
             const angle = Math.random() * 360 * (Math.PI / 180); const dist = (Math.random() * 0.5 + 0.5) * window.innerWidth;
             p.style.setProperty('--x', `${Math.cos(angle) * dist}px`); p.style.setProperty('--y', `${Math.sin(angle) * dist}px`);
             particlesContainer.appendChild(p);
         }
-        // Generar tendrils de energía
         for (let i = 0; i < 10; i++) {
             const t = document.createElement('div'); t.classList.add('energy-tendril');
             t.style.setProperty('--angle', `${Math.random() * 360}deg`);
@@ -228,24 +229,24 @@
         setTimeout(() => scene.style.opacity = '1', 50);
         
         const newContent = document.getElementById('new-content-wrapper');
-        // --- CAMBIO: Se elimina el h1 y se añade el nuevo orbe y diálogo ---
         newContent.innerHTML = `
             <div class="final-orb">
                 <div class="scanlines"></div>
             </div>
             <div class="final-orb-dialog" id="final-dialog"></div>
-            <div class="input-container">
-                <form><input type="text" class="name-input" placeholder="Respira hondo..." autocomplete="off"></form>
-            </div>`;
+        `;
         
-        // Iniciar animación de pétalos
         initPetalAnimation();
         
-        // El nuevo orbe da la bienvenida
         setTimeout(() => {
             const finalDialog = document.getElementById('final-dialog');
-            escribirTexto(finalDialog, "Bienvenida, señorita Rei.", 60);
-        }, 2000); // Esperar a que la escena aparezca
+            escribirTexto(finalDialog, "Bienvenida, señorita Rei.", 60, () => {
+                // --- CAMBIO: Diálogo secuencial ---
+                setTimeout(() => {
+                    escribirTexto(finalDialog, "Soy Sophi, asistente virtual de jesko.", 60);
+                }, 3300);
+            });
+        }, 2000);
     }
 
     function initPetalAnimation() {
