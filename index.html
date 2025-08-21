@@ -2,11 +2,10 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Acceso al Asistente IA v7.2</title>
+  <title>Acceso al Asistente IA v7.3</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <!-- AÑADIMOS LA FUENTE PIXELADA -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@400;500;600&family=Press+Start+2P&display=swap" rel="stylesheet">
 
   <style>
@@ -84,7 +83,7 @@
     }
     h1.new-title { 
         font-family: 'Press Start 2P', cursive;
-        font-size: 2.5rem; /* Ajustado para la nueva fuente */
+        font-size: 2.5rem;
         font-weight: 400; margin-bottom: 2rem;
         color: #fff;
         text-shadow: 3px 3px 0px rgba(0,0,0,0.7);
@@ -111,7 +110,6 @@
   <div id="initial-background"></div>
   <div class="center-content" id="main-initial">
     <div class="futuristic-box" id="entrada-box">
-      <!-- ... contenido inicial sin cambios ... -->
       <div class="prompt">Introduzca su nombre.</div>
       <div class="input-row">
         <input type="text" id="nombre-input" placeholder="Su nombre" autocomplete="off">
@@ -136,7 +134,7 @@
 
   <script>
     let userName = '';
-    // --- LÓGICA DE LA INTERFAZ INICIAL Y TRANSICIÓN (SIN CAMBIOS) ---
+    // --- LÓGICA DE LA INTERFAZ INICIAL Y TRANSICIÓN ---
     const enviarBtn = document.getElementById('enviar-btn');
     const nombreInput = document.getElementById('nombre-input');
     enviarBtn.onclick = () => {
@@ -196,13 +194,10 @@
         const ctx = canvas.getContext('2d');
         const img = new Image();
 
-        // FORZAR MODO PIXELADO
-        ctx.imageSmoothingEnabled = false;
-
         function drawScene() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            ctx.imageSmoothingEnabled = false;
+            ctx.imageSmoothingEnabled = false; // FORZAR MODO PIXELADO
 
             // 1. Dibujar Cielo
             const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
@@ -217,7 +212,7 @@
             const sunRadius = canvas.width * 0.1;
             ctx.fillStyle = '#f7f3e1';
             ctx.beginPath();
-            ctx.arc(canvas.width * 0.2, canvas.height * 0.9, sunRadius, 0, Math.PI * 2);
+            ctx.arc(canvas.width * 0.85, canvas.height * 0.8, sunRadius, 0, Math.PI * 2);
             ctx.fill();
 
             // 3. Dibujar Mar
@@ -225,10 +220,13 @@
             ctx.fillRect(0, canvas.height * 0.75, canvas.width, canvas.height * 0.25);
             
             // 4. Dibujar Imagen Principal
-            const aspectRatio = img.naturalWidth / img.naturalHeight;
-            const imgHeight = canvas.height;
-            const imgWidth = imgHeight * aspectRatio;
-            ctx.drawImage(img, 0, 0, imgWidth, imgHeight);
+            // Solo se dibuja si la imagen ya ha cargado
+            if (img.complete && img.naturalHeight !== 0) {
+                const aspectRatio = img.naturalWidth / img.naturalHeight;
+                const imgHeight = canvas.height;
+                const imgWidth = imgHeight * aspectRatio;
+                ctx.drawImage(img, 0, 0, imgWidth, imgHeight);
+            }
 
             // 5. Dibujar Niebla
             const fogGradient = ctx.createLinearGradient(0, canvas.height * 0.65, 0, canvas.height);
@@ -238,14 +236,13 @@
             ctx.fillRect(0, canvas.height * 0.65, canvas.width, canvas.height * 0.35);
         }
 
-        // Cargar la imagen y dibujarla cuando esté lista
         img.onload = drawScene;
         img.src = 'pixel-art-escena.png'; // <- USA EL ARCHIVO LOCAL
-
         window.addEventListener('resize', drawScene);
+        drawScene(); // Dibuja una primera vez el fondo sin la imagen
     }
 
-    // Lógica de animación de pétalos (adaptada para canvas pixelado)
+    // Lógica de animación de pétalos
     function initPetalAnimation() {
         const canvas = document.getElementById('petal-canvas');
         const ctx = canvas.getContext('2d');
@@ -287,11 +284,11 @@
             }
         }
         function animate() {
+            requestAnimationFrame(animate);
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             for (let i = 0; i < petals.length; i++) {
                 petals[i].update();
             }
-            requestAnimationFrame(animate);
         }
         window.addEventListener('resize', () => {
             canvas.width = window.innerWidth;
