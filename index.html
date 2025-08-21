@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Interfaz Futurista v2</title>
+  <title>Acceso al Asistente IA</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,23 +14,19 @@
       --accent-blue: #38b6ff;
       --accent-blue-dark: #007aff;
       --accent-blue-light: #e6f7ff;
-      --background-dark: #0a0a10;
-      --card-bg-dark: rgba(10, 10, 20, 0.5);
-      --text-light: #e0e6f5;
+      --background-dark: #000000; /* Fondo negro como en el original */
     }
 
-    /* --- ESTILOS GENERALES Y DE LA PRIMERA INTERFAZ --- */
+    /* --- ESTILOS GENERALES Y DE LA PRIMERA INTERFAZ (ORIGINALES) --- */
     html, body {
       height: 100%;
       margin: 0;
       padding: 0;
-      overflow: hidden; /* Evita barras de scroll durante animaciones */
+      overflow: hidden;
     }
     body {
-      background: url('img/fondo-ciudad.png') center/cover no-repeat fixed #000;
-      background-color: #181622;
-      min-height: 100vh;
-      color: #fff;
+      /* Fondo original de la primera interfaz, sin cambios */
+      background: url('img/fondo-ciudad.png') center/cover no-repeat fixed #181622;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -48,6 +44,7 @@
       position: relative;
       z-index: 10;
     }
+    /* ... (Resto de estilos de la primera interfaz sin cambios) ... */
     .orbe-area { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; opacity: 0; pointer-events: none; margin-bottom: 16px; }
     .orbe-area.show { opacity: 1; pointer-events: auto; animation: appearOrbe 0.7s; }
     @keyframes appearOrbe { 0% { opacity: 0; transform: scale(0.5) translateY(50px);} 100% { opacity: 1; transform: scale(1) translateY(0);} }
@@ -72,48 +69,20 @@
     button { padding: 7px 18px; background: linear-gradient(90deg, #a500d2, #ff38e7); border: none; border-radius: 8px; color: #fff; font-weight: bold; font-size: 1em; box-shadow: 0 0 10px #a500d2; cursor: pointer; transition: background 0.2s; font-family: inherit; }
     button:hover { background: linear-gradient(90deg, #ff38e7, #a500d2); }
 
-    /* --- NUEVO DISEÑO DE EXPLOSIÓN "BIG BANG" --- */
-    #explosion-container {
-        position: fixed; inset: 0; z-index: 9999; pointer-events: none;
-        display: flex; justify-content: center; align-items: center;
-    }
-    .explosion-flash {
-        position: absolute; inset: 0; background: #fff; opacity: 0;
-        animation: flash 1.5s cubic-bezier(.7,0,.3,1) forwards;
-    }
-    .explosion-shockwave {
-        width: 10px; height: 10px; border-radius: 50%;
-        box-shadow: 0 0 20px 10px var(--accent-blue-light), 0 0 40px 20px var(--accent-blue), 0 0 80px 40px var(--accent-blue-dark);
-        opacity: 0;
-        animation: shockwave 1.5s cubic-bezier(.2,1,.7,1) forwards;
-        animation-delay: 0.1s;
-    }
-    @keyframes flash {
-        0% { opacity: 1; }
-        90% { opacity: 1; }
-        100% { opacity: 0; }
-    }
-    @keyframes shockwave {
-        0% { transform: scale(0.1); opacity: 1; }
-        80% { opacity: 0.5; }
-        100% { transform: scale(300); opacity: 0; }
-    }
+    /* --- DISEÑO DE EXPLOSIÓN "BIG BANG" --- */
+    #explosion-container { position: fixed; inset: 0; z-index: 9999; pointer-events: none; display: flex; justify-content: center; align-items: center; }
+    .explosion-flash { position: absolute; inset: 0; background: #fff; opacity: 0; animation: flash 1.5s cubic-bezier(.7,0,.3,1) forwards; }
+    .explosion-shockwave { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 20px 10px var(--accent-blue-light), 0 0 40px 20px var(--accent-blue), 0 0 80px 40px var(--accent-blue-dark); opacity: 0; animation: shockwave 1.5s cubic-bezier(.2,1,.7,1) forwards; animation-delay: 0.1s; }
+    @keyframes flash { 0% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; } }
+    @keyframes shockwave { 0% { transform: scale(0.1); opacity: 1; } 80% { opacity: 0.5; } 100% { transform: scale(300); opacity: 0; } }
     
-    /* --- ESTILOS DEL NUEVO DISEÑO (AZUL) --- */
+    /* --- ESTILOS DEL NUEVO DISEÑO (IDÉNTICO AL 2DO HTML, PERO EN AZUL) --- */
     body.new-design {
       background: var(--background-dark);
-      color: var(--text-light);
+      color: #ffffff;
       font-family: 'Poppins', sans-serif;
     }
-    #main-new {
-      position: relative; z-index: 3; text-align: center;
-      padding: 20px; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; height: 100%;
-      width: 100%; animation: fadeIn 2s;
-    }
-    .background-layers {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; overflow: hidden;
-    }
+    .background-waves { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; overflow: hidden; }
     .wave { position: absolute; border-radius: 50%; opacity: 0.15; filter: blur(80px); }
     .wave-1 {
         width: 800px; height: 800px;
@@ -129,23 +98,30 @@
     }
     @keyframes wave-move-1 { from { transform: translate(-50%, -50%) rotate(0deg) scale(1); } to { transform: translate(-40%, -60%) rotate(360deg) scale(1.2); } }
     @keyframes wave-move-2 { from { transform: translate(-50%, -50%) rotate(0deg) scale(1.2); } to { transform: translate(-60%, -40%) rotate(-360deg) scale(1); } }
-    #particles-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; }
     
-    .title-new { font-size: 2.5rem; font-weight: 600; margin-bottom: 1.5rem; text-shadow: 0 0 15px var(--accent-blue); }
-    .desc-new { font-size: 1.5rem; margin-bottom: 2rem; color: var(--accent-blue-light); }
-    .input-container-new { width: 100%; max-width: 400px; }
-    .name-input-new {
+    #particles-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; }
+
+    .content-wrapper {
+        position: relative; z-index: 3; text-align: center;
+        padding: 20px; display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        height: 100%; width: 100%;
+        animation: fadeIn 2s;
+    }
+    h1.new-title { font-size: 3.5rem; font-weight: 600; margin-bottom: 2rem; }
+    .input-container { width: 100%; max-width: 400px; }
+    .name-input {
         background-color: rgba(255, 255, 255, 0.05);
         border: 1px solid rgba(255, 255, 255, 0.2);
         border-radius: 50px; color: #fff; font-size: 1.1rem;
         padding: 18px 30px; width: 100%; box-sizing: border-box;
         text-align: center; transition: all 0.3s ease;
     }
-    .name-input-new::placeholder { color: rgba(255, 255, 255, 0.5); }
-    .name-input-new:focus {
+    .name-input::placeholder { color: rgba(255, 255, 255, 0.5); }
+    .name-input:focus {
         outline: none;
         border-color: var(--accent-blue);
-        box-shadow: 0 0 20px rgba(56, 182, 255, 0.5);
+        box-shadow: 0 0 20px rgba(56, 182, 255, 0.5); /* Sombra azul */
     }
   </style>
 </head>
@@ -161,102 +137,72 @@
       </div>
     </div>
     <div class="orbe-area" id="orbe-area" style="display:none;">
-      <div class="orbe" id="orbe">
-        <svg id="ondas-svg" viewBox="0 0 90 90">
-          <path id="onda1" fill="#ff38e7bb"/><path id="onda2" fill="#a500d2bb"/>
-        </svg>
-      </div>
+      <div class="orbe"><svg id="ondas-svg" viewBox="0 0 90 90"><path id="onda1" fill="#ff38e7bb"/><path id="onda2" fill="#a500d2bb"/></svg></div>
       <div class="texto-dialogo" id="texto-dialogo"></div>
     </div>
   </div>
 
   <!-- CONTENEDOR DE LA EXPLOSIÓN -->
   <div id="explosion-container" style="display:none">
-    <div class="explosion-flash"></div>
-    <div class="explosion-shockwave"></div>
+    <div class="explosion-flash"></div><div class="explosion-shockwave"></div>
   </div>
   
-  <!-- NUEVA INTERFAZ (AZUL) -->
-  <div id="main-new" style="display:none">
-    <div class="background-layers">
-        <div class="wave wave-1"></div>
-        <div class="wave wave-2"></div>
-    </div>
-    <canvas id="particles-canvas"></canvas>
-    <!-- El contenido de esta interfaz se generará con JS -->
+  <!-- CONTENEDORES PARA LA NUEVA INTERFAZ (INVISIBLES INICIALMENTE) -->
+  <div class="background-waves" id="new-background-waves" style="display:none;">
+      <div class="wave wave-1"></div><div class="wave wave-2"></div>
+  </div>
+  <canvas id="particles-canvas" style="display:none;"></canvas>
+  <div class="content-wrapper" id="new-content-wrapper" style="display:none;">
+      <!-- El contenido se generará con JS -->
   </div>
 
   <script>
+    let userName = ''; // Variable global para guardar el nombre
+
     // --- LÓGICA DE LA PRIMERA INTERFAZ ---
     const onda1 = document.getElementById('onda1');
     const onda2 = document.getElementById('onda2');
     let ondaPhase = 0, animating = false;
 
-    function drawOndas(phase, active = false) {
+    function drawOndas(phase) { /* ... (función de ondas sin cambios) ... */
       let path1 = 'M0 60 ';
-      for (let x = 0; x <= 90; x += 5) {
-        let y = 60 + 8 * Math.sin((x/18) + phase);
-        if(active) y += 5 * Math.cos((x/11) + phase*2);
-        path1 += `L${x} ${y} `;
-      }
+      for (let x = 0; x <= 90; x += 5) { path1 += `L${x} ${60 + 8 * Math.sin((x/18) + phase)} `; }
       path1 += 'L90 90 L0 90 Z';
       onda1.setAttribute('d', path1);
-
       let path2 = 'M0 40 ';
-      for (let x = 0; x <= 90; x += 5) {
-        let y = 40 + 6 * Math.cos((x/14) - phase*1.2);
-        if(active) y += 4 * Math.sin((x/8) - phase*2);
-        path2 += `L${x} ${y} `;
-      }
+      for (let x = 0; x <= 90; x += 5) { path2 += `L${x} ${40 + 6 * Math.cos((x/14) - phase*1.2)} `; }
       path2 += 'L90 90 L0 90 Z';
       onda2.setAttribute('d', path2);
     }
-    function animateOndas() {
-      if(animating) {
-        ondaPhase += 0.04;
-        drawOndas(ondaPhase);
-        requestAnimationFrame(animateOndas);
-      }
-    }
-    function escribirTexto(element, texto, velocidad = 35, callback) {
+    function animateOndas() { if(animating) { ondaPhase += 0.04; drawOndas(ondaPhase); requestAnimationFrame(animateOndas); } }
+    function escribirTexto(element, texto, velocidad = 35, callback) { /* ... (función de escribir sin cambios) ... */
       element.innerHTML = ""; let i = 0;
-      let cursor = document.createElement("span");
-      cursor.className = "type-cursor"; cursor.textContent = "|";
+      let cursor = document.createElement("span"); cursor.className = "type-cursor"; cursor.textContent = "|";
       function escribir() {
         if(i <= texto.length) {
-          element.textContent = texto.slice(0, i);
-          element.appendChild(cursor); i++;
-          setTimeout(escribir, velocidad);
-        } else {
-          cursor.remove();
-          if(callback) callback();
-        }
+          element.textContent = texto.slice(0, i); element.appendChild(cursor); i++; setTimeout(escribir, velocidad);
+        } else { cursor.remove(); if(callback) callback(); }
       }
       escribir();
     }
-    function mostrarPuntosSuspensivos(element, duracion = 1500, callback) {
+    function mostrarPuntosSuspensivos(element, duracion = 1500, callback) { /* ... (función de puntos sin cambios) ... */
       element.innerHTML = `<span class="dots-thinking"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>`;
       setTimeout(() => { element.innerHTML = ""; if(callback) callback(); }, duracion);
     }
 
     const enviarBtn = document.getElementById('enviar-btn');
     const nombreInput = document.getElementById('nombre-input');
-    const entradaBox = document.getElementById('entrada-box');
-    const orbeArea = document.getElementById('orbe-area');
-    const textoDialogo = document.getElementById('texto-dialogo');
-    const mainInitial = document.getElementById('main-initial');
-    const explosionContainer = document.getElementById('explosion-container');
-    const mainNew = document.getElementById('main-new');
     
     enviarBtn.onclick = () => {
-      const nombre = nombreInput.value.trim();
-      if(nombre) {
-        entradaBox.style.display = "none";
+      userName = nombreInput.value.trim();
+      if(userName) {
+        document.getElementById('entrada-box').style.display = "none";
+        const orbeArea = document.getElementById('orbe-area');
         orbeArea.style.display = "flex";
         setTimeout(() => {
           orbeArea.classList.add("show");
           setTimeout(() => {
-            flujoDialogo(textoDialogo, nombre, showExplosionAndSwitchDesign);
+            flujoDialogo(document.getElementById('texto-dialogo'), showExplosionAndSwitchDesign);
           }, 400);
         }, 80);
         animating = true; animateOndas();
@@ -266,58 +212,62 @@
     };
     nombreInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') enviarBtn.click(); });
 
-    function flujoDialogo(element, nombre, triggerExplosion) {
+    function flujoDialogo(element, triggerExplosion) {
       mostrarPuntosSuspensivos(element, 1500, () => {
         escribirTexto(element, "Interesante.", 35, () => {
-          setTimeout(() => {
-            if (typeof triggerExplosion === "function") triggerExplosion(nombre);
-          }, 500);
+          setTimeout(() => { if (typeof triggerExplosion === "function") triggerExplosion(); }, 500);
         });
       });
     }
 
     // --- LÓGICA DE TRANSICIÓN Y NUEVA INTERFAZ ---
-    function showExplosionAndSwitchDesign(userName) {
-      explosionContainer.style.display = "flex";
+    function showExplosionAndSwitchDesign() {
+      document.getElementById('explosion-container').style.display = "flex";
       setTimeout(() => {
+        document.getElementById('main-initial').style.display = "none";
         document.body.classList.add("new-design");
-        mainInitial.style.display = "none";
-        explosionContainer.style.display = "none";
-        showNewDesign(userName);
-      }, 1600); // Duración de la explosión
+        showNewDesign();
+        document.getElementById('explosion-container').style.display = "none";
+      }, 1600);
     }
 
-    function showNewDesign(userName) {
-      mainNew.style.display = "flex";
-      mainNew.innerHTML += `
-        <div class="content-wrapper">
-          <h1 class="title-new">Bienvenido, ${userName}.</h1>
-          <p class="desc-new">Estoy lista para ayudar.</p>
-          <div class="input-container-new">
-              <input type="text" class="name-input-new" placeholder="Hazme una pregunta..." required autocomplete="off">
-          </div>
+    function showNewDesign() {
+      // Muestra los contenedores de la nueva interfaz
+      const newBackground = document.getElementById('new-background-waves');
+      const newCanvas = document.getElementById('particles-canvas');
+      const newContent = document.getElementById('new-content-wrapper');
+
+      newBackground.style.display = 'block';
+      newCanvas.style.display = 'block';
+      newContent.style.display = 'flex';
+
+      // Genera el HTML interno de la nueva interfaz
+      newContent.innerHTML = `
+        <h1 class="new-title">Hola, ${userName}.</h1>
+        <div class="input-container">
+            <form id="interaction-form">
+                <input type="text" class="name-input" placeholder="Interactúa conmigo..." required autocomplete="off">
+            </form>
         </div>
       `;
-      initParticles(); // Iniciar animación de partículas para la nueva interfaz
+      
+      // Inicia las partículas ahora que el canvas es visible
+      initParticles();
       animateParticles();
     }
 
     // --- LÓGICA DE PARTÍCULAS (MODIFICADA A AZUL) ---
     const canvas = document.getElementById('particles-canvas');
     const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
     let particlesArray = [];
     const particleCount = 200;
 
     class Particle {
       constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
+        this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
         this.size = Math.random() * 1.5 + 0.5;
-        this.speedX = (Math.random() * 0.5 - 0.25) * 0.5;
-        this.speedY = (Math.random() * 0.5 - 0.25) * 0.5;
-        // Tono HSL cambiado de 45 (amarillo) a 205 (azul)
+        this.speedX = (Math.random() * 0.5 - 0.25) * 0.5; this.speedY = (Math.random() * 0.5 - 0.25) * 0.5;
+        // Tono HSL cambiado a 205 (azul)
         this.color = 'hsla(205, 100%, 70%, ' + (Math.random() * 0.7 + 0.2) + ')';
       }
       update() {
@@ -325,26 +275,12 @@
         if (this.x > canvas.width || this.x < 0) this.x = Math.random() * canvas.width;
         if (this.y > canvas.height || this.y < 0) this.y = Math.random() * canvas.height;
       }
-      draw() {
-        ctx.fillStyle = this.color; ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
-      }
+      draw() { ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
     }
     function initParticles() {
+      canvas.width = window.innerWidth; canvas.height = window.innerHeight;
       particlesArray = [];
       for (let i = 0; i < particleCount; i++) particlesArray.push(new Particle());
     }
     function animateParticles() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (let i = 0; i < particlesArray.length; i++) {
-        particlesArray[i].update(); particlesArray[i].draw();
-      }
-      requestAnimationFrame(animateParticles);
-    }
-    window.addEventListener('resize', () => {
-      canvas.width = innerWidth; canvas.height = innerHeight;
-      initParticles();
-    });
-  </script>
-</body>
-</html>
+      ctx.clearRect(0, 0, canvas.width, canvas.he
