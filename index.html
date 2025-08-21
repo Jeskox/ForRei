@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Acceso al Asistente IA v7.3</title>
+  <title>Acceso al Asistente IA v9</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -10,21 +10,17 @@
 
   <style>
     :root {
-      /* Paleta de colores extraída de la imagen */
-      --pixel-sky-dark: #2c214d;
-      --pixel-sky-light: #523a59;
-      --pixel-sunset-orange: #d48a6a;
-      --pixel-sunset-yellow: #f5d8a9;
-      --pixel-sun: #f7f3e1;
+      /* Paleta de colores para la UI */
+      --input-glow-color: #e025a8;
+      --input-bg-color: #1e152a;
     }
     html, body {
       height: 100%; margin: 0; padding: 0; overflow: hidden;
-      background-color: var(--pixel-sky-dark);
+      background-color: #2c214d; /* Color de fondo de respaldo */
     }
     body {
       display: flex; justify-content: center; align-items: center;
       font-family: 'Orbitron', 'Segoe UI', Arial, sans-serif;
-      transition: background-color 2s;
     }
     #initial-background {
         position: fixed; inset: 0; z-index: -1;
@@ -63,19 +59,22 @@
     @keyframes shockwave { 0% { transform: scale(0.1); opacity: 1; } 80% { opacity: 0.5; } 100% { transform: scale(200); opacity: 0; } }
     @keyframes fly-out { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; } 100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; } }
     
-    /* --- Estilos de la Nueva Interfaz (Pixel Art) --- */
-    #pixel-art-scene {
+    /* --- Estilos de la Nueva Interfaz (Pixel Art Combinado) --- */
+    #final-scene {
         position: fixed; inset: 0; z-index: 1;
         opacity: 0; transition: opacity 2s ease-in;
-    }
-    #scene-canvas, #petal-canvas {
-        position: absolute; top: 0; left: 0;
-        width: 100%; height: 100%;
+        background-image: url('pixel-art-escena.png');
+        background-size: cover;
+        background-position: center;
         image-rendering: pixelated;
     }
-    #petal-canvas { z-index: 5; }
+    #petal-canvas {
+        position: absolute; top: 0; left: 0;
+        width: 100%; height: 100%;
+        z-index: 5;
+    }
     .content-wrapper { 
-        position: relative; z-index: 3; text-align: center;
+        position: relative; z-index: 10; text-align: center;
         padding: 20px; display: flex; flex-direction: column;
         align-items: center; justify-content: center;
         height: 100%; width: 100%;
@@ -84,25 +83,27 @@
     h1.new-title { 
         font-family: 'Press Start 2P', cursive;
         font-size: 2.5rem;
-        font-weight: 400; margin-bottom: 2rem;
+        font-weight: 400; margin-bottom: 2.5rem;
         color: #fff;
         text-shadow: 3px 3px 0px rgba(0,0,0,0.7);
     }
+    .input-container {
+        width: 100%; max-width: 350px;
+    }
     .name-input { 
-        background-color: rgba(44, 33, 77, 0.5); 
-        border: 2px solid #523a59;
+        background-color: var(--input-bg-color);
+        border: 2px solid var(--input-glow-color);
         border-radius: 10px; color: #fff; font-size: 1rem; 
-        padding: 18px 30px; width: 100%; max-width: 400px;
+        padding: 18px 30px; width: 100%;
         box-sizing: border-box; text-align: center;
         transition: all 0.3s ease;
-        backdrop-filter: blur(5px);
-        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        box-shadow: 0 0 10px 0px var(--input-glow-color);
         font-family: 'Poppins', sans-serif;
     }
     .name-input::placeholder { color: rgba(255, 255, 255, 0.6); }
     .name-input:focus { 
-        outline: none; border-color: var(--pixel-sunset-yellow); 
-        box-shadow: 0 0 15px rgba(245, 216, 169, 0.5);
+        outline: none;
+        box-shadow: 0 0 20px 5px var(--input-glow-color);
     }
   </style>
 </head>
@@ -126,8 +127,7 @@
     <div id="explosion-particles"></div>
   </div>
   
-  <div id="pixel-art-scene" style="display:none;">
-    <canvas id="scene-canvas"></canvas>
+  <div id="final-scene" style="display:none;">
     <canvas id="petal-canvas"></canvas>
     <div class="content-wrapper" id="new-content-wrapper"></div>
   </div>
@@ -176,91 +176,37 @@
       }, 1800);
     }
 
-    // --- LÓGICA DE LA NUEVA INTERFAZ (PIXEL ART CON CANVAS) ---
+    // --- LÓGICA DE LA NUEVA INTERFAZ (IMAGEN DE FONDO + CANVAS) ---
     function showNewDesign() {
-      const scene = document.getElementById('pixel-art-scene');
+      const scene = document.getElementById('final-scene');
       scene.style.display = 'block';
       setTimeout(() => scene.style.opacity = '1', 50);
+      
       const newContent = document.getElementById('new-content-wrapper');
       newContent.innerHTML = `<h1 class="new-title">Bienvenido, ${userName}.</h1><div class="input-container"><form><input type="text" class="name-input" placeholder="Respira hondo..." autocomplete="off"></form></div>`;
       
-      initPixelScene();
       initPetalAnimation();
     }
-    
-    // Función para dibujar la escena de fondo
-    function initPixelScene() {
-        const canvas = document.getElementById('scene-canvas');
-        const ctx = canvas.getContext('2d');
-        const img = new Image();
 
-        function drawScene() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            ctx.imageSmoothingEnabled = false; // FORZAR MODO PIXELADO
-
-            // 1. Dibujar Cielo
-            const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            skyGradient.addColorStop(0, '#2c214d');
-            skyGradient.addColorStop(0.5, '#523a59');
-            skyGradient.addColorStop(0.85, '#d48a6a');
-            skyGradient.addColorStop(1, '#f5d8a9');
-            ctx.fillStyle = skyGradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // 2. Dibujar Sol
-            const sunRadius = canvas.width * 0.1;
-            ctx.fillStyle = '#f7f3e1';
-            ctx.beginPath();
-            ctx.arc(canvas.width * 0.85, canvas.height * 0.8, sunRadius, 0, Math.PI * 2);
-            ctx.fill();
-
-            // 3. Dibujar Mar
-            ctx.fillStyle = '#40335f';
-            ctx.fillRect(0, canvas.height * 0.75, canvas.width, canvas.height * 0.25);
-            
-            // 4. Dibujar Imagen Principal
-            // Solo se dibuja si la imagen ya ha cargado
-            if (img.complete && img.naturalHeight !== 0) {
-                const aspectRatio = img.naturalWidth / img.naturalHeight;
-                const imgHeight = canvas.height;
-                const imgWidth = imgHeight * aspectRatio;
-                ctx.drawImage(img, 0, 0, imgWidth, imgHeight);
-            }
-
-            // 5. Dibujar Niebla
-            const fogGradient = ctx.createLinearGradient(0, canvas.height * 0.65, 0, canvas.height);
-            fogGradient.addColorStop(0, 'transparent');
-            fogGradient.addColorStop(1, 'rgba(82, 58, 89, 0.7)');
-            ctx.fillStyle = fogGradient;
-            ctx.fillRect(0, canvas.height * 0.65, canvas.width, canvas.height * 0.35);
-        }
-
-        img.onload = drawScene;
-        img.src = 'pixel-art-escena.png'; // <- USA EL ARCHIVO LOCAL
-        window.addEventListener('resize', drawScene);
-        drawScene(); // Dibuja una primera vez el fondo sin la imagen
-    }
-
-    // Lógica de animación de pétalos
+    // Lógica de animación de pétalos/partículas
     function initPetalAnimation() {
         const canvas = document.getElementById('petal-canvas');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        ctx.imageSmoothingEnabled = false; // FORZAR MODO PIXELADO
+        ctx.imageSmoothingEnabled = false;
 
         let petals = [];
-        const petalCount = 100;
+        const petalCount = 40; // <-- CANTIDAD REDUCIDA
 
         class Petal {
             constructor() { this.reset(); this.y = Math.random() * canvas.height; }
             reset() {
                 this.x = Math.random() * canvas.width;
-                this.y = -20;
-                this.w = 5 + Math.random() * 5;
-                this.h = 4 + Math.random() * 4;
-                this.opacity = this.w / 10;
+                this.y = -10;
+                this.w = 4 + Math.random() * 4; // Ligeramente más pequeños
+                this.h = this.w;
+                this.opacity = 0.5 + (this.w / 8) * 0.5;
                 this.speedY = 0.5 + Math.random() * 0.5;
                 this.sway = 0.5 + Math.random();
                 this.swayAngle = Math.random() * Math.PI;
