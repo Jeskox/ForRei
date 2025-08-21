@@ -1,0 +1,9 @@
+/* Pega aquí todo el contenido de la etiqueta <style>... */
+:root {
+  --accent-blue: #00bfff;
+  /* ...etc... */
+}
+html, body {
+  /* ...etc... */
+}
+/* ...hasta el final de los estilos. */
