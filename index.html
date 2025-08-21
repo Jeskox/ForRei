@@ -2,75 +2,14 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Acceso al Asistente IA v4</title>
+  <title>Acceso al Asistente IA</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-
-  <style>
-    :root {
-      --accent-blue: #00bfff;
-      --accent-blue-dark: #005f7f;
-      --background-dark: #000000;
-    }
-    html, body {
-      height: 100%; margin: 0; padding: 0; overflow: hidden; background-color: var(--background-dark);
-    }
-    body {
-      display: flex; justify-content: center; align-items: center;
-      font-family: 'Orbitron', 'Segoe UI', Arial, sans-serif;
-      transition: background 1.2s cubic-bezier(.7,0,.3,1);
-    }
-    #initial-background {
-        position: fixed; inset: 0; z-index: -1;
-        background: url('img/fondo-ciudad.png') center/cover no-repeat fixed #181622;
-        transition: opacity 1.5s;
-    }
-    .center-content {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      min-height: 100vh; width: 100%; gap: 32px; position: relative; z-index: 10;
-    }
-
-    /* --- Orbe Futurista (Sin cambios) --- */
-    .orbe { width: 100px; height: 100px; border-radius: 50%; background: radial-gradient(circle at 50% 50%, #2a0047, #10001a 70%); box-shadow: 0 0 15px 5px #a500d2a0, inset 0 0 20px 10px #2a0047; position: relative; overflow: hidden; border: 2px solid #a500d288; display: flex; align-items: center; justify-content: center; }
-    .orbe::before { content: ''; position: absolute; width: 30px; height: 30px; background: radial-gradient(circle, #ffccff, #ff38e7 60%); border-radius: 50%; box-shadow: 0 0 15px 5px #ff38e7; animation: pulse-core 2s infinite ease-in-out; }
-    .orbe::after { content: ''; position: absolute; width: 150%; height: 150%; background: conic-gradient(transparent 0%, #a500d2aa 30%, transparent 60%); animation: rotate-energy 4s linear infinite; }
-    .orbe .scanlines { position: absolute; inset: 0; z-index: 2; background: linear-gradient(rgba(0,0,0,0.5) 50%, transparent 50%); background-size: 100% 4px; animation: scanline-move 8s linear infinite; }
-    @keyframes pulse-core { 0%, 100% { transform: scale(0.9); box-shadow: 0 0 15px 5px #ff38e7; } 50% { transform: scale(1.1); box-shadow: 0 0 25px 12px #ff38e7; } }
-    @keyframes rotate-energy { from { transform: translate(-16.66%, -16.66%) rotate(0deg); } to { transform: translate(-16.66%, -16.66%) rotate(360deg); } }
-    @keyframes scanline-move { from { background-position: 0 0; } to { background-position: 0 -100px; } }
-    .orbe-area { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; opacity: 0; pointer-events: none; margin-bottom: 16px; animation: fadeIn 0.7s forwards; }
-    .texto-dialogo { background: linear-gradient(135deg, #ff38e7bb, #a500d2cc 80%); border: 2px solid #a500d2; border-radius: 13px; color: #fff; font-size: 1em; box-shadow: 0 0 10px #a500d2; padding: 13px 22px; text-shadow: 0 0 8px #fff, 0 0 4px #a500d2; min-width: 180px; min-height: 1.2em; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; animation: fadeIn 0.7s forwards; animation-delay: 0.3s; opacity:0; }
-    .dots-thinking { display: flex; justify-content: center; font-size: 1.4em; color: #fff; letter-spacing: 0.22em; animation: fadeIn 0.4s; }
-    .dot { opacity: 0.2; animation: dotFade 1.2s infinite; } .dot:nth-child(1) { animation-delay: 0s; } .dot:nth-child(2) { animation-delay: 0.14s; } .dot:nth-child(3) { animation-delay: 0.28s; }
-    @keyframes dotFade { 0%, 80%, 100% { opacity: 0.2; } 30%, 60% { opacity: 1; } }
-    @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
-    .futuristic-box { background: linear-gradient(135deg, #2a0047cc 60%, #6500c2cc 100%); border: 2px solid #a500d2; border-radius: 15px; box-shadow: 0 0 16px 2px #a500d288, 0 0 2px #fff; padding: 18px 20px; min-width: 210px; display: flex; flex-direction: column; align-items: center; gap: 13px; animation: fadeIn 0.7s; backdrop-filter: blur(2px); }
-    .prompt { color: #fff; font-size: 1em; text-shadow: 0 0 8px #a500d2; } .input-row { display: flex; align-items: center; gap: 10px; }
-    input[type="text"] { padding: 7px 12px; border-radius: 8px; border: 2px solid #a500d2; background: #25003cbb; color: #fff; font-size: 1em; outline: none; box-shadow: 0 0 7px #a500d2; transition: all 0.2s; } input[type="text"]:focus { border-color: #ff38e7; box-shadow: 0 0 10px #ff38e7; }
-    button { padding: 7px 18px; background: linear-gradient(90deg, #a500d2, #ff38e7); border: none; border-radius: 8px; color: #fff; font-weight: bold; font-size: 1em; box-shadow: 0 0 10px #a500d2; cursor: pointer; transition: all 0.2s; } button:hover { background: linear-gradient(90deg, #ff38e7, #a500d2); }
-
-    /* --- Big Bang Dinámico (Sin cambios) --- */
-    #explosion-container { position: fixed; inset: 0; z-index: 9999; pointer-events: none; display: flex; justify-content: center; align-items: center; }
-    .explosion-flash { position: absolute; inset: 0; background: #fff; opacity: 0; animation: flash 1.8s cubic-bezier(.7,0,.3,1) forwards; }
-    .explosion-shockwave { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 20px 10px #e6f7ff, 0 0 40px 20px var(--accent-blue), 0 0 80px 40px var(--accent-blue-dark); opacity: 0; animation: shockwave 1.8s cubic-bezier(.2,1,.7,1) forwards; animation-delay: 0.05s; }
-    #explosion-particles { position: absolute; inset: 0; }
-    .particle { position: absolute; top: 50%; left: 50%; width: 4px; height: 4px; background-color: var(--accent-blue); border-radius: 50%; opacity: 0; animation: fly-out 1.8s cubic-bezier(.3,.5,.5,1) forwards; animation-delay: 0.1s; }
-    @keyframes flash { 0% { opacity: 1; } 95% { opacity: 1; } 100% { opacity: 0; } }
-    @keyframes shockwave { 0% { transform: scale(0.1); opacity: 1; } 80% { opacity: 0.5; } 100% { transform: scale(200); opacity: 0; } }
-    @keyframes fly-out { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; } 100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; } }
-    
-    /* --- Estilos de la Nueva Interfaz --- */
-    #wave-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0; transition: opacity 2s; }
-    #particles-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; opacity: 0; transition: opacity 2s;}
-    .content-wrapper { position: relative; z-index: 3; text-align: center; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%; animation: fadeIn 2s; }
-    h1.new-title { font-size: 3.5rem; font-weight: 600; margin-bottom: 2rem; }
-    .input-container { width: 100%; max-width: 400px; }
-    .name-input { background-color: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 50px; color: #fff; font-size: 1.1rem; padding: 18px 30px; width: 100%; box-sizing: border-box; text-align: center; transition: all 0.3s ease; }
-    .name-input::placeholder { color: rgba(255, 255, 255, 0.5); }
-    .name-input:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 20px rgba(0, 191, 255, 0.5); }
-  </style>
+  
+  <!-- Enlazamos nuestra hoja de estilos -->
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
   <div id="initial-background"></div>
@@ -90,7 +29,8 @@
   </div>
 
   <div id="explosion-container" style="display:none">
-    <div class="explosion-flash"></div><div class="explosion-shockwave"></div>
+    <div class="explosion-flash"></div>
+    <div class="explosion-shockwave"></div>
     <div id="explosion-particles"></div>
   </div>
   
@@ -98,215 +38,7 @@
   <canvas id="wave-canvas"></canvas>
   <div class="content-wrapper" id="new-content-wrapper" style="display:none;"></div>
 
-  <!-- Three.js y módulos de post-procesamiento -->
-  <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
-  <script type="importmap">
-    { "imports": { 
-        "three": "https://unpkg.com/three@0.150.1/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.150.1/examples/jsm/"
-      } 
-    }
-  </script>
-
-  <script type="module">
-    import * as THREE from 'three';
-    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-
-    let userName = '';
-
-    const enviarBtn = document.getElementById('enviar-btn');
-    const nombreInput = document.getElementById('nombre-input');
-    
-    enviarBtn.onclick = () => {
-      userName = nombreInput.value.trim();
-      if(userName) {
-        document.getElementById('entrada-box').style.display = "none";
-        document.getElementById('orbe-area').style.display = "flex";
-        flujoDialogo(document.getElementById('texto-dialogo'), showExplosionAndSwitchDesign);
-      } else {
-        nombreInput.focus();
-      }
-    };
-    nombreInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') enviarBtn.click(); });
-
-    function flujoDialogo(element, trigger) {
-        mostrarPuntosSuspensivos(element, 1500, () => {
-            escribirTexto(element, "Procesando...", 45, () => setTimeout(trigger, 500));
-        });
-    }
-    function escribirTexto(element, text, speed, callback) { /* ... sin cambios ... */
-        element.innerHTML = ""; let i = 0; function write() { if (i < text.length) { element.innerHTML += text.charAt(i); i++; setTimeout(write, speed); } else if (callback) callback(); } write();
-    }
-    function mostrarPuntosSuspensivos(element, duration, callback) { /* ... sin cambios ... */
-        element.innerHTML = `<span class="dots-thinking"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>`; setTimeout(() => { element.innerHTML = ""; if (callback) callback(); }, duration);
-    }
-
-    function showExplosionAndSwitchDesign() {
-      const explosionContainer = document.getElementById('explosion-container');
-      explosionContainer.style.display = "flex";
-      
-      const particlesContainer = document.getElementById('explosion-particles');
-      for (let i = 0; i < 50; i++) {
-        const p = document.createElement('div'); p.classList.add('particle');
-        const angle = Math.random() * 360, dist = (Math.random()*0.5+0.5)*window.innerWidth;
-        p.style.setProperty('--x', `${Math.cos(angle)*dist}px`); p.style.setProperty('--y', `${Math.sin(angle)*dist}px`);
-        particlesContainer.appendChild(p);
-      }
-
-      setTimeout(() => {
-        document.getElementById('initial-background').style.opacity = '0';
-        document.getElementById('main-initial').style.display = "none";
-        showNewDesign();
-        explosionContainer.style.display = "none";
-        particlesContainer.innerHTML = '';
-      }, 1800);
-    }
-
-    function showNewDesign() {
-      document.getElementById('particles-canvas').style.opacity = '1';
-      document.getElementById('wave-canvas').style.opacity = '1';
-      const newContent = document.getElementById('new-content-wrapper');
-      newContent.style.display = 'flex';
-      newContent.innerHTML = `<h1 class="new-title">Hola, ${userName}.</h1><div class="input-container"><form><input type="text" class="name-input" placeholder="Interactúa conmigo..." autocomplete="off"></form></div>`;
-      initParticles();
-      initThreeJSWaves();
-    }
-    
-    // --- LÓGICA DE PARTÍCULAS (SIN CAMBIOS) ---
-    const p_canvas = document.getElementById('particles-canvas'), p_ctx = p_canvas.getContext('2d');
-    let p_array = [];
-    function initParticles(){ p_canvas.width=window.innerWidth; p_canvas.height=window.innerHeight; p_array=[]; for(let i=0;i<100;i++)p_array.push(new Particle()); animateParticles(); }
-    function animateParticles(){ p_ctx.clearRect(0,0,p_canvas.width,p_canvas.height); for(let i=0;i<p_array.length;i++){p_array[i].update();p_array[i].draw();} requestAnimationFrame(animateParticles); }
-    class Particle{ constructor(){this.x=Math.random()*p_canvas.width;this.y=Math.random()*p_canvas.height;this.size=Math.random()*1.5+0.5;this.speedX=(Math.random()*0.2-0.1);this.speedY=(Math.random()*0.2-0.1);this.color='hsla(205,100%,70%,'+(Math.random()*0.5+0.2)+')';} update(){this.x+=this.speedX;this.y+=this.speedY;if(this.x<0)this.x=p_canvas.width;if(this.x>p_canvas.width)this.x=0;if(this.y<0)this.y=p_canvas.height;if(this.y>p_canvas.height)this.y=0;} draw(){p_ctx.fillStyle=this.color;p_ctx.beginPath();p_ctx.arc(this.x,this.y,this.size,0,Math.PI*2);p_ctx.fill();}}
-
-    // --- LÓGICA DE ONDAS 3D CON SHADERS ---
-    let scene, camera, renderer, composer, uniforms, clock;
-
-    function initThreeJSWaves() {
-        const canvas = document.getElementById('wave-canvas');
-        scene = new THREE.Scene();
-        clock = new THREE.Clock();
-        camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 1, 2000);
-        camera.position.set(0, 15, 70);
-        camera.rotation.x = -0.2;
-
-        renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-
-        uniforms = {
-            u_time: { value: 0.0 },
-            u_color: { value: new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--accent-blue')) },
-            u_frequency: { value: new THREE.Vector2(0.015, 0.05) },
-            u_amplitude: { value: 12.0 }
-        };
-
-        const createWavePlane = (isReflection) => {
-            const geometry = new THREE.PlaneGeometry(500, 500, 150, 150);
-            const material = new THREE.ShaderMaterial({
-                uniforms: uniforms,
-                vertexShader: vertexShader,
-                fragmentShader: fragmentShader,
-                transparent: true,
-                blending: THREE.AdditiveBlending,
-                depthWrite: false,
-            });
-            const plane = new THREE.Mesh(geometry, material);
-            if(isReflection) {
-                plane.position.y = -18;
-                plane.rotation.x = Math.PI;
-                material.uniforms.u_amplitude.value = 5.0; // Less amplitude for reflection
-            }
-            scene.add(plane);
-        };
-        
-        createWavePlane(false);
-        createWavePlane(true); // Reflection
-
-        const renderScene = new RenderPass(scene, camera);
-        const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.2, 0.6, 0.4);
-        composer = new EffectComposer(renderer);
-        composer.addPass(renderScene);
-        composer.addPass(bloomPass);
-
-        animateWaves();
-    }
-
-    const vertexShader = `
-      uniform float u_time;
-      uniform vec2 u_frequency;
-      uniform float u_amplitude;
-      varying vec2 vUv;
-
-      // 2D Simplex Noise
-      vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-      vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-      vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
-      float snoise(vec2 v) {
-        const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
-        vec2 i  = floor(v + dot(v, C.yy) );
-        vec2 x0 = v -   i + dot(i, C.xx);
-        vec2 i1;
-        i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-        vec4 x12 = x0.xyxy + C.xxzz;
-        x12.xy -= i1;
-        i = mod289(i);
-        vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 )) + i.x + vec3(0.0, i1.x, 1.0 ));
-        vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
-        m = m*m; m = m*m;
-        vec3 x = 2.0 * fract(p * C.www) - 1.0;
-        vec3 h = abs(x) - 0.5;
-        vec3 ox = floor(x + 0.5);
-        vec3 a0 = x - ox;
-        m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
-        vec3 g;
-        g.x  = a0.x  * x0.x  + h.x  * x0.y;
-        g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-        return 130.0 * dot(m, g);
-      }
-
-      void main() {
-        vUv = uv;
-        vec3 pos = position;
-        float noise = snoise(vec2(pos.x * u_frequency.x + u_time * 0.1, pos.y * u_frequency.y));
-        pos.z += noise * u_amplitude;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-      }
-    `;
-
-    const fragmentShader = `
-      uniform vec3 u_color;
-      varying vec2 vUv;
-
-      void main() {
-        float line = fract(vUv.y * 150.0);
-        float intensity = 1.0 - smoothstep(0.45, 0.5, abs(line - 0.5)) * 2.0;
-        
-        float fade = smoothstep(0.0, 0.3, vUv.y) * (1.0 - smoothstep(0.7, 1.0, vUv.y));
-
-        if (intensity < 0.1 || fade < 0.1) {
-            discard;
-        }
-
-        gl_FragColor = vec4(u_color, intensity * fade);
-      }
-    `;
-
-    function animateWaves() {
-        requestAnimationFrame(animateWaves);
-        uniforms.u_time.value = clock.getElapsedTime();
-        composer.render();
-    }
-
-    window.addEventListener('resize', () => {
-        initParticles();
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        composer.setSize(window.innerWidth, window.innerHeight);
-    });
-
-  </script>
+  <!-- Enlazamos nuestro script principal como un módulo -->
+  <script type="module" src="/main.js"></script>
 </body>
 </html>
