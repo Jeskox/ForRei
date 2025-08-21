@@ -23,10 +23,20 @@
       font-family: 'Orbitron', 'Segoe UI', Arial, sans-serif;
     }
     #initial-background {
-        position: fixed; inset: 0; z-index: -1;
-        background: url('img/fondo-ciudad.png') center/cover no-repeat fixed #181622;
-        transition: opacity 1.5s;
-    }
+    position: fixed; 
+    inset: 0; 
+    z-index: -1;
+    transition: opacity 1.5s;
+
+    /* --- ESTA ES LA PARTE QUE DEBES CAMBIAR --- */
+    /* Apunta a tu nueva imagen local */
+    background-image: url('fondo-inicial.jpg'); 
+
+    /* Propiedades recomendadas para un buen fondo */
+    background-size: cover;       /* Asegura que la imagen cubra toda la pantalla sin deformarse */
+    background-position: center;  /* Centra la imagen */
+    background-repeat: no-repeat; /* Evita que la imagen se repita si es pequeña */
+}
     .center-content {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       min-height: 100vh; width: 100%; gap: 40px;
