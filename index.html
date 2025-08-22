@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Acceso al Asistente IA v9.5</title>
+  <title>Acceso al Asistente IA v9.6</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -73,7 +73,7 @@
     input[type="text"]:disabled { opacity: 0.5; cursor: not-allowed; }
     button { padding: 7px 18px; background: linear-gradient(90deg, #a500d2, #ff38e7); border: none; border-radius: 8px; color: #fff; font-weight: bold; font-size: 1em; box-shadow: 0 0 10px #a500d2; cursor: pointer; transition: all 0.2s; } button:hover { background: linear-gradient(90deg, #ff38e7, #a500d2); } button:disabled { opacity: 0.5; cursor: not-allowed; background: #555; }
     
-    /* --- Big Bang Mejorado --- */
+    /* --- Big Bang --- */
     #explosion-container { position: fixed; inset: 0; z-index: 9999; pointer-events: none; }
     .explosion-flash { position: absolute; inset: 0; background: #fff; opacity: 0; animation: flash 1.8s cubic-bezier(.7,0,.3,1) forwards; }
     .explosion-shockwave { position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 20px 10px #e6f7ff, 0 0 40px 20px #00bfff, 0 0 80px 40px #005f7f; opacity: 0; transform: translate(-50%, -50%); animation: shockwave 1.8s cubic-bezier(.2,1,.7,1) forwards; animation-delay: 0.05s; }
@@ -89,25 +89,39 @@
     #final-scene { position: fixed; inset: 0; z-index: 1; opacity: 0; transition: opacity 2s ease-in; background-image: url('pixel-art-escena.png'); background-size: cover; background-position: center; image-rendering: pixelated; }
     #petal-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; }
     .content-wrapper { position: relative; z-index: 10; text-align: center; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%; animation: fadeIn 2s; animation-delay: 1s; }
-    .final-orb {
-        width: 80px; height: 80px; border-radius: 50%; position: relative; overflow: hidden;
-        background: radial-gradient(circle, #ffb3c1, #e75480 70%);
-        border: 2px solid #ffb3c1;
-        margin-bottom: 20px;
-        animation: fadeIn 1s, pulse-final-orb 3s infinite ease-in-out;
-    }
+    .final-orb { width: 80px; height: 80px; border-radius: 50%; position: relative; overflow: hidden; background: radial-gradient(circle, #ffb3c1, #e75480 70%); border: 2px solid #ffb3c1; margin-bottom: 20px; animation: fadeIn 1s, pulse-final-orb 3s infinite ease-in-out; }
     .final-orb .scanlines { opacity: 0.3; }
-    @keyframes pulse-final-orb {
-        0%, 100% { transform: scale(1); box-shadow: 0 0 25px 8px #e75480, inset 0 0 20px 10px #ffb3c1; }
-        50% { transform: scale(1.05); box-shadow: 0 0 35px 12px #e75480, inset 0 0 20px 10px #ffb3c1; }
+    @keyframes pulse-final-orb { 0%, 100% { transform: scale(1); box-shadow: 0 0 25px 8px #e75480, inset 0 0 20px 10px #ffb3c1; } 50% { transform: scale(1.05); box-shadow: 0 0 35px 12px #e75480, inset 0 0 20px 10px #ffb3c1; } }
+    .final-orb-dialog { font-family: 'Press Start 2P', cursive; font-size: 1rem; color: #fff; text-shadow: 2px 2px 0px rgba(0,0,0,0.7); width: 600px; text-align: center; min-height: 2.5em; }
+
+    /* --- ESTILOS PARA LA SECUENCIA NARRATIVA --- */
+    #story-overlay {
+        position: fixed; inset: 0;
+        z-index: 20;
+        background-color: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.5s;
     }
-    .final-orb-dialog {
-        font-family: 'Press Start 2P', cursive;
-        font-size: 1rem; color: #fff;
-        text-shadow: 2px 2px 0px rgba(0,0,0,0.7);
-        width: 450px;
-        text-align: center;
-        min-height: 2.5em; /* Espacio para dos líneas de texto */
+    #story-overlay.is-visible {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    #story-image {
+        max-width: 90vw;
+        max-height: 90vh;
+        border: 2px solid #fff;
+        box-shadow: 0 0 20px #000;
+        opacity: 0;
+        transform: scale(0.95);
+        transition: opacity 0.5s, transform 0.5s;
+    }
+    #story-image.is-visible {
+        opacity: 1;
+        transform: scale(1);
     }
   </style>
 </head>
@@ -137,6 +151,7 @@
   </div>
   <div id="final-scene" style="display:none;">
     <canvas id="petal-canvas"></canvas>
+    <div id="story-overlay"><img id="story-image"></div>
     <div class="content-wrapper" id="new-content-wrapper"></div>
   </div>
 
@@ -186,10 +201,7 @@
         nombreInput.disabled = true;
         enviarBtn.disabled = true;
         escribirTexto(promptText, "Lo siento, acceso denegado.", 40, () => {
-            // --- CAMBIO: Apagar el orbe DESPUÉS de que el texto termine ---
-            setTimeout(() => {
-                orb.classList.remove('is-active');
-            }, 500); // Pequeña pausa antes de apagar
+            setTimeout(() => { orb.classList.remove('is-active'); }, 500);
         });
       }
     };
@@ -238,15 +250,73 @@
         
         initPetalAnimation();
         
-        setTimeout(() => {
-            const finalDialog = document.getElementById('final-dialog');
-            escribirTexto(finalDialog, "Bienvenida, señorita Rei.", 60, () => {
-                // --- CAMBIO: Diálogo secuencial ---
-                setTimeout(() => {
-                    escribirTexto(finalDialog, "Soy Sophi, asistente virtual de jesko.", 60);
-                }, 3300);
-            });
-        }, 2000);
+        setTimeout(iniciarSecuenciaNarrativa, 2000);
+    }
+
+    // --- LÓGICA DE LA SECUENCIA NARRATIVA ---
+    const historia = [
+        { 
+            dialogo: ["Bienvenida, señorita Rei.", "Soy Sophi, asistente virtual de jesko."],
+            imagenes: [] // Sin imágenes en la introducción
+        },
+        {
+            dialogo: ["Este lugar fue hecho para usted,", "pero debería saber el contexto del porqué.", "Así que déjeme explicarle..."],
+            imagenes: [
+                'screenshots/img1p1.png',
+                'screenshots/img1p2.png',
+                'screenshots/img1p3.png',
+                'screenshots/img1p4.png'
+            ]
+        },
+        {
+            dialogo: ["...o por qué mejor no lo ve usted misma?"],
+            imagenes: [
+                'screenshots/img2p2.png',
+                'screenshots/img2p4.png',
+                'screenshots/img3p2.png',
+                'screenshots/img3p4.png',
+                'screenshots/img4p2.png'
+            ]
+        },
+        {
+            dialogo: ["Espero que este lugar le traiga paz."],
+            imagenes: [] // Sin imágenes al final
+        }
+    ];
+
+    async function manejarSecuenciaNarrativa() {
+        const dialogEl = document.getElementById('final-dialog');
+        const overlayEl = document.getElementById('story-overlay');
+        const imageEl = document.getElementById('story-image');
+        
+        for (const parte of historia) {
+            // Escribir el diálogo de esta parte
+            for (const linea of parte.dialogo) {
+                await new Promise(resolve => escribirTexto(dialogEl, linea, 60, resolve));
+                await new Promise(resolve => setTimeout(resolve, 1500)); // Pausa entre líneas
+            }
+            
+            // Mostrar las imágenes de esta parte
+            if (parte.imagenes.length > 0) {
+                overlayEl.classList.add('is-visible');
+                await new Promise(resolve => setTimeout(resolve, 500)); // Esperar a que el fondo se oscurezca
+
+                for (const imgSrc of parte.imagenes) {
+                    imageEl.src = imgSrc;
+                    await new Promise(resolve => {
+                        imageEl.onload = () => { // Esperar a que la imagen cargue
+                            imageEl.classList.add('is-visible');
+                            resolve();
+                        };
+                    });
+                    await new Promise(resolve => setTimeout(resolve, 4000)); // Tiempo de visionado
+                    imageEl.classList.remove('is-visible');
+                    await new Promise(resolve => setTimeout(resolve, 500)); // Esperar a que desaparezca
+                }
+                overlayEl.classList.remove('is-visible');
+                await new Promise(resolve => setTimeout(resolve, 500)); // Esperar a que se aclare
+            }
+        }
     }
 
     function initPetalAnimation() {
