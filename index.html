@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Acceso al Asistente IA v9.6</title>
+  <title>Acceso al Asistente IA v9.7</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,20 +39,9 @@
       position: relative; z-index: 10;
     }
 
-    /* --- Orbe Futurista --- */
-    .orbe {
-        width: 100px; height: 100px; border-radius: 50%;
-        position: relative; overflow: hidden;
-        display: flex; align-items: center; justify-content: center;
-        background: radial-gradient(circle, #555, #111 70%);
-        box-shadow: 0 0 15px 5px #333, inset 0 0 20px 10px #111;
-        border: 2px solid #444;
-        transition: all 1.5s cubic-bezier(0.25, 1, 0.5, 1);
-    }
-    .orbe::before, .orbe::after {
-        content: ''; position: absolute;
-        transition: all 1.5s cubic-bezier(0.25, 1, 0.5, 1);
-    }
+    /* --- Orbe Futurista y UI Inicial (Sin cambios) --- */
+    .orbe { width: 100px; height: 100px; border-radius: 50%; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle, #555, #111 70%); box-shadow: 0 0 15px 5px #333, inset 0 0 20px 10px #111; border: 2px solid #444; transition: all 1.5s cubic-bezier(0.25, 1, 0.5, 1); }
+    .orbe::before, .orbe::after { content: ''; position: absolute; transition: all 1.5s cubic-bezier(0.25, 1, 0.5, 1); }
     .orbe::before { width: 30px; height: 30px; background: radial-gradient(circle, #ccc, #777 60%); border-radius: 50%; box-shadow: 0 0 15px 5px #777; }
     .orbe::after { width: 150%; height: 150%; background: conic-gradient(transparent 0%, #7777 30%, transparent 60%); animation: rotate-energy 4s linear infinite; }
     .orbe .scanlines { position: absolute; inset: 0; z-index: 2; background: linear-gradient(rgba(0,0,0,0.5) 50%, transparent 50%); background-size: 100% 4px; animation: scanline-move 8s linear infinite; }
@@ -89,40 +78,48 @@
     #final-scene { position: fixed; inset: 0; z-index: 1; opacity: 0; transition: opacity 2s ease-in; background-image: url('pixel-art-escena.png'); background-size: cover; background-position: center; image-rendering: pixelated; }
     #petal-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; }
     .content-wrapper { position: relative; z-index: 10; text-align: center; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%; animation: fadeIn 2s; animation-delay: 1s; }
-    .final-orb { width: 80px; height: 80px; border-radius: 50%; position: relative; overflow: hidden; background: radial-gradient(circle, #ffb3c1, #e75480 70%); border: 2px solid #ffb3c1; margin-bottom: 20px; animation: fadeIn 1s, pulse-final-orb 3s infinite ease-in-out; }
-    .final-orb .scanlines { opacity: 0.3; }
-    @keyframes pulse-final-orb { 0%, 100% { transform: scale(1); box-shadow: 0 0 25px 8px #e75480, inset 0 0 20px 10px #ffb3c1; } 50% { transform: scale(1.05); box-shadow: 0 0 35px 12px #e75480, inset 0 0 20px 10px #ffb3c1; } }
-    .final-orb-dialog { font-family: 'Press Start 2P', cursive; font-size: 1rem; color: #fff; text-shadow: 2px 2px 0px rgba(0,0,0,0.7); width: 600px; text-align: center; min-height: 2.5em; }
+    
+    /* --- Orbe Rosa Rediseñado --- */
+    .final-orb-container {
+        position: absolute;
+        top: 40%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 15;
+        opacity: 0;
+        animation: fadeIn 2s 1s forwards;
+    }
+    .final-orb {
+        width: 80px; height: 80px; border-radius: 50%;
+        background: radial-gradient(circle, #ffc0cb, #ff69b4 60%);
+        animation: pulse-final-orb 4s infinite ease-in-out;
+    }
+    @keyframes pulse-final-orb {
+        0%, 100% { transform: scale(1); box-shadow: 0 0 30px 10px #ff69b4, inset 0 0 15px 5px #ffc0cb; }
+        50% { transform: scale(1.05); box-shadow: 0 0 45px 18px #ff69b4, inset 0 0 15px 5px #ffc0cb; }
+    }
+    
+    .final-orb-dialog {
+        position: absolute;
+        top: calc(40% + 60px); /* Posicionado debajo del orbe */
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 15;
+        opacity: 0;
+        animation: fadeIn 2s 1s forwards;
+        font-family: 'Press Start 2P', cursive;
+        font-size: 1rem; color: #fff;
+        text-shadow: 2px 2px 0px rgba(0,0,0,0.7);
+        width: 600px;
+        text-align: center;
+        min-height: 2.5em;
+    }
 
-    /* --- ESTILOS PARA LA SECUENCIA NARRATIVA --- */
-    #story-overlay {
-        position: fixed; inset: 0;
-        z-index: 20;
-        background-color: rgba(0, 0, 0, 0.8);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.5s;
-    }
-    #story-overlay.is-visible {
-        opacity: 1;
-        pointer-events: auto;
-    }
-    #story-image {
-        max-width: 90vw;
-        max-height: 90vh;
-        border: 2px solid #fff;
-        box-shadow: 0 0 20px #000;
-        opacity: 0;
-        transform: scale(0.95);
-        transition: opacity 0.5s, transform 0.5s;
-    }
-    #story-image.is-visible {
-        opacity: 1;
-        transform: scale(1);
-    }
+    /* --- Estilos para la Secuencia Narrativa --- */
+    #story-overlay { position: fixed; inset: 0; z-index: 20; background-color: rgba(0, 0, 0, 0.8); display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.5s; }
+    #story-overlay.is-visible { opacity: 1; pointer-events: auto; }
+    #story-image { max-width: 90vw; max-height: 90vh; border: 2px solid #fff; box-shadow: 0 0 20px #000; opacity: 0; transform: scale(0.95); transition: opacity 0.5s, transform 0.5s; }
+    #story-image.is-visible { opacity: 1; transform: scale(1); }
   </style>
 </head>
 <body>
@@ -152,7 +149,8 @@
   <div id="final-scene" style="display:none;">
     <canvas id="petal-canvas"></canvas>
     <div id="story-overlay"><img id="story-image"></div>
-    <div class="content-wrapper" id="new-content-wrapper"></div>
+    <!-- El orbe y el diálogo ahora se inyectan aquí con JS -->
+    <div id="final-ui-container"></div>
   </div>
 
   <script>
@@ -240,10 +238,10 @@
         scene.style.display = 'block';
         setTimeout(() => scene.style.opacity = '1', 50);
         
-        const newContent = document.getElementById('new-content-wrapper');
-        newContent.innerHTML = `
-            <div class="final-orb">
-                <div class="scanlines"></div>
+        const uiContainer = document.getElementById('final-ui-container');
+        uiContainer.innerHTML = `
+            <div class="final-orb-container">
+                <div class="final-orb"></div>
             </div>
             <div class="final-orb-dialog" id="final-dialog"></div>
         `;
@@ -257,7 +255,7 @@
     const historia = [
         { 
             dialogo: ["Bienvenida, señorita Rei.", "Soy Sophi, asistente virtual de jesko."],
-            imagenes: [] // Sin imágenes en la introducción
+            imagenes: []
         },
         {
             dialogo: ["Este lugar fue hecho para usted,", "pero debería saber el contexto del porqué.", "Así que déjeme explicarle..."],
@@ -280,7 +278,7 @@
         },
         {
             dialogo: ["Espero que este lugar le traiga paz."],
-            imagenes: [] // Sin imágenes al final
+            imagenes: []
         }
     ];
 
@@ -290,31 +288,24 @@
         const imageEl = document.getElementById('story-image');
         
         for (const parte of historia) {
-            // Escribir el diálogo de esta parte
             for (const linea of parte.dialogo) {
                 await new Promise(resolve => escribirTexto(dialogEl, linea, 60, resolve));
-                await new Promise(resolve => setTimeout(resolve, 1500)); // Pausa entre líneas
+                await new Promise(resolve => setTimeout(resolve, 1500));
             }
-            
-            // Mostrar las imágenes de esta parte
             if (parte.imagenes.length > 0) {
                 overlayEl.classList.add('is-visible');
-                await new Promise(resolve => setTimeout(resolve, 500)); // Esperar a que el fondo se oscurezca
-
+                await new Promise(resolve => setTimeout(resolve, 500));
                 for (const imgSrc of parte.imagenes) {
                     imageEl.src = imgSrc;
                     await new Promise(resolve => {
-                        imageEl.onload = () => { // Esperar a que la imagen cargue
-                            imageEl.classList.add('is-visible');
-                            resolve();
-                        };
+                        imageEl.onload = () => { imageEl.classList.add('is-visible'); resolve(); };
                     });
-                    await new Promise(resolve => setTimeout(resolve, 4000)); // Tiempo de visionado
+                    await new Promise(resolve => setTimeout(resolve, 4000));
                     imageEl.classList.remove('is-visible');
-                    await new Promise(resolve => setTimeout(resolve, 500)); // Esperar a que desaparezca
+                    await new Promise(resolve => setTimeout(resolve, 500));
                 }
                 overlayEl.classList.remove('is-visible');
-                await new Promise(resolve => setTimeout(resolve, 500)); // Esperar a que se aclare
+                await new Promise(resolve => setTimeout(resolve, 500));
             }
         }
     }
