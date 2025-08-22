@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Acceso al Asistente IA v9.8</title>
+  <title>Acceso al Asistente IA v9.9</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -87,7 +87,7 @@
     .explosion-shockwave { position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 20px 10px #0d1a26, 0 0 40px 20px #00bfff, 0 0 80px 40px #005f7f; opacity: 0; transform: translate(-50%, -50%); animation: shockwave 1.8s cubic-bezier(.2,1,.7,1) forwards; animation-delay: 0.05s; }
     #explosion-particles, #energy-tendrils { position: absolute; inset: 0; }
     .particle { position: absolute; top: 50%; left: 50%; width: 4px; height: 4px; background-color: #00bfff; border-radius: 50%; opacity: 0; animation: fly-out 1.8s cubic-bezier(.3,.5,.5,1) forwards; animation-delay: 0.1s; }
-    .energy-tendril { position: absolute; top: 50%; left: 50%; width: 2px; height: 200%; background: linear-gradient(transparent, #87ceeb, transparent); opacity: 0; animation: tendril-burst 1s forwards; animation-delay: 0.1s; }
+    .energy-tendril { position: absolute; top: 50%; left: 50%; width: 2px; height: 200%; background: linear-gradient(transparent, #87ceeb, transparent); opacity: 0; animation: tendril-burst 1.2s forwards; animation-delay: 0.1s; }
     @keyframes flash { 0% { opacity: 1; } 95% { opacity: 1; } 100% { opacity: 0; } }
     @keyframes shockwave { 0% { transform: translate(-50%,-50%) scale(0.1); opacity: 1; } 80% { opacity: 0.5; } 100% { transform: translate(-50%,-50%) scale(200); opacity: 0; } }
     @keyframes fly-out { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; } 100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; } }
@@ -101,9 +101,6 @@
     .final-orb .scanlines { opacity: 0.3; }
     @keyframes pulse-final-orb { 0%, 100% { transform: scale(1); box-shadow: 0 0 30px 10px #e75480, inset 0 0 15px 5px #ffc0cb; } 50% { transform: scale(1.05); box-shadow: 0 0 45px 18px #e75480, inset 0 0 15px 5px #ffc0cb; } }
     .final-orb-dialog { position: absolute; top: calc(40% + 60px); left: 50%; transform: translateX(-50%); z-index: 15; opacity: 0; animation: fadeIn 2s 1s forwards; font-family: 'Press Start 2P', cursive; font-size: 1rem; color: #fff; text-shadow: 2px 2px 0px rgba(0,0,0,0.7); width: 600px; text-align: center; min-height: 2.5em; }
-    #story-overlay { position: fixed; inset: 0; z-index: 20; background-color: rgba(0, 0, 0, 0.8); display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.5s; }
-    #story-overlay.is-visible { opacity: 1; pointer-events: auto; }
-    #story-image { max-width: 90vw; max-height: 90vh; border: 2px solid #fff; box-shadow: 0 0 20px #000; opacity: 0; transform: scale(0.95); transition: opacity 0.5s, transform 0.5s; }
   </style>
 </head>
 <body>
@@ -138,7 +135,6 @@
   </div>
   <div id="final-scene" style="display:none;">
     <canvas id="petal-canvas"></canvas>
-    <div id="story-overlay"><img id="story-image"></div>
     <div id="final-ui-container"></div>
   </div>
 
@@ -210,7 +206,7 @@
             p.style.setProperty('--x', `${Math.cos(angle) * dist}px`); p.style.setProperty('--y', `${Math.sin(angle) * dist}px`);
             particlesContainer.appendChild(p);
         }
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < 25; i++) { // Más tendrils para mayor dinamismo
             const t = document.createElement('div'); t.classList.add('energy-tendril');
             t.style.setProperty('--angle', `${Math.random() * 360}deg`);
             t.style.animationDelay = `${Math.random() * 0.2}s`;
@@ -239,57 +235,21 @@
         
         initPetalAnimation();
         
-        setTimeout(iniciarSecuenciaNarrativa, 2000);
+        setTimeout(iniciarDialogoFinal, 2000);
     }
 
-    // --- LÓGICA DE LA SECUENCIA NARRATIVA ---
-    const historia = [
-        { 
-            dialogo: ["Bienvenida, señorita Rei.", "Es un gusto por fin conocerla.", "Mi nombre es Sophi, asistente virtual de Jesko."],
-            pausas: [1800, 1000, 3000],
-            imagenes: []
-        },
-        {
-            dialogo: ["Este lugar fue hecho para usted,", "pero debería saber el contexto del porqué.", "Así que déjeme explicarle..."],
-            pausas: [1500, 1500, 2000],
-            imagenes: [ 'screenshots/img1p1.png', 'screenshots/img1p2.png', 'screenshots/img1p3.png', 'screenshots/img1p4.png' ]
-        },
-        {
-            dialogo: ["...o por qué mejor no lo ve usted misma?"],
-            pausas: [2000],
-            imagenes: [ 'screenshots/img2p2.png', 'screenshots/img2p4.png', 'screenshots/img3p2.png', 'screenshots/img3p4.png', 'screenshots/img4p2.png' ]
-        },
-        {
-            dialogo: ["Espero que este lugar le traiga paz."],
-            pausas: [],
-            imagenes: []
-        }
-    ];
-
-    async function manejarSecuenciaNarrativa() {
+    // --- LÓGICA DE DIÁLOGO FINAL RESTAURADA ---
+    async function iniciarDialogoFinal() {
         const dialogEl = document.getElementById('final-dialog');
-        const overlayEl = document.getElementById('story-overlay');
-        const imageEl = document.getElementById('story-image');
         
-        for (const parte of historia) {
-            for (let i = 0; i < parte.dialogo.length; i++) {
-                await new Promise(resolve => escribirTexto(dialogEl, parte.dialogo[i], 60, resolve));
-                await new Promise(resolve => setTimeout(resolve, parte.pausas[i] || 1500));
-            }
-            if (parte.imagenes.length > 0) {
-                overlayEl.classList.add('is-visible');
-                await new Promise(resolve => setTimeout(resolve, 500));
-                for (const imgSrc of parte.imagenes) {
-                    imageEl.src = imgSrc;
-                    await new Promise(resolve => { imageEl.onload = () => { imageEl.classList.add('is-visible'); resolve(); }; });
-                    await new Promise(resolve => setTimeout(resolve, 4000));
-                    imageEl.classList.remove('is-visible');
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                }
-                overlayEl.classList.remove('is-visible');
-                await new Promise(resolve => setTimeout(resolve, 500));
-            }
-        }
+        await new Promise(resolve => escribirTexto(dialogEl, "Bienvenida, señorita Rei.", 60, resolve));
+        await new Promise(resolve => setTimeout(resolve, 1800));
+        
+        await new Promise(resolve => escribirTexto(dialogEl, "Es un gusto por fin conocerla.", 60, resolve));
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        await new Promise(resolve => escribirTexto(dialogEl, "Mi nombre es Sophi, asistente virtual de Jesko.", 60, resolve));
+        // Aquí iría la llamada a la secuencia de imágenes si la restauramos
     }
 
     // --- ANIMACIÓN DE PARTÍCULAS DEL ORBE INICIAL ---
@@ -300,10 +260,44 @@
         const radius = 50;
         canvas.width = radius * 2; canvas.height = radius * 2;
         let particles = [];
-        class Particle { /* ... */ } // Lógica de partículas del orbe
-        function init() { /* ... */ }
-        function animate() { /* ... */ }
-        // ... (resto del código de partículas del orbe, sin cambios)
+        const particleCount = 40;
+
+        class Particle {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = radius; this.y = radius;
+                this.size = Math.random() * 2 + 1;
+                const angle = Math.random() * 360 * (Math.PI / 180);
+                const speed = Math.random() * 0.5 + 0.2;
+                this.speedX = Math.cos(angle) * speed;
+                this.speedY = Math.sin(angle) * speed;
+                this.life = 100 + Math.random() * 50;
+                this.sway = Math.random() - 0.5;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(135, 206, 250, ${this.life / 100 * 0.5})`;
+                ctx.fill();
+            }
+            update() {
+                this.life--;
+                if(this.life <= 0) this.reset();
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.speedX += this.sway * 0.01; // Movimiento más curvo
+                const dist = Math.sqrt(Math.pow(this.x - radius, 2) + Math.pow(this.y - radius, 2));
+                if (dist > radius - this.size) this.reset();
+                this.draw();
+            }
+        }
+        function init() { particles = []; for (let i = 0; i < particleCount; i++) { particles.push(new Particle()); } }
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particles.length; i++) { particles[i].update(); }
+            requestAnimationFrame(animate);
+        }
+        init(); animate();
     }
 
     // --- ANIMACIÓN DE PÉTALOS DE LA ESCENA FINAL ---
