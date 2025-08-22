@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Acceso al Asistente IA v11.0 (Final)</title>
+  <title>Acceso al Asistente IA v11.0 (Final y Robusto)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -352,11 +352,20 @@
         const ctx = canvas.getContext('2d');
         ctx.imageSmoothingEnabled = false;
 
-        const assets = {
-            background: await loadImage('assets/salon.png'),
-            jesko: await loadImage('assets/jesko-sprite.png'),
-            sophi: await loadImage('assets/sophi-sprite.png')
-        };
+        let assets;
+        try {
+             assets = {
+                background: await loadImage('assets/salon.png'),
+                jesko: await loadImage('assets/jesko-sprite.png'),
+                sophi: await loadImage('assets/sophi-sprite.png')
+            };
+        } catch (error) {
+            alert(error);
+            // Opcional: volver a la escena anterior si falla la carga
+            document.getElementById('cinematic-scene').classList.remove('is-visible');
+            document.getElementById('final-scene').style.opacity = 1;
+            return;
+        }
         
         const characters = {
             jesko: { img: assets.jesko, x: 0, y: 0, visible: false, yOffset: 0 },
@@ -367,6 +376,7 @@
         let scriptIndex = 0;
         let dialogueText = '';
         let dialogueProgress = 0;
+        let animationFrameId;
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -389,7 +399,7 @@
                 drawSpeechBubble(characters[currentAction.personaje], dialogueText.substring(0, Math.floor(dialogueProgress)));
             }
 
-            requestAnimationFrame(draw);
+            animationFrameId = requestAnimationFrame(draw);
         }
 
         function drawSpeechBubble(character, text) {
@@ -437,6 +447,7 @@
                     await new Promise(r => setTimeout(r, duration));
                     break;
                 case 'fin':
+                    cancelAnimationFrame(animationFrameId);
                     document.getElementById('cinematic-scene').classList.remove('is-visible');
                     document.getElementById('final-scene').style.opacity = 1;
                     return;
@@ -456,10 +467,7 @@
             return new Promise((resolve, reject) => {
                 const img = new Image();
                 img.onload = () => resolve(img);
-                img.onerror = (err) => {
-                    console.error("Error al cargar la imagen:", src);
-                    reject(err);
-                };
+                img.onerror = () => reject(`ERROR: No se pudo cargar la imagen '${src}'. Revisa que el archivo exista en la carpeta 'assets' y que el nombre sea exacto (mayúsculas/minúsculas).`);
                 img.src = src;
             });
         }
