@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Acceso al Asistente IA v11.0 (Final y Robusto)</title>
+  <title>Acceso al Asistente IA v11.1</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -354,14 +354,14 @@
 
         let assets;
         try {
+             // ASSETS DE CINEMÁTICA CON MANEJO DE ERRORES
              assets = {
                 background: await loadImage('assets/salon.png'),
-                jesko: await loadImage('assets/jesko-sprite-1.png'),
-                sophi: await loadImage('assets/sophi-sprite-1.png')
+                jesko: await loadImage('assets/jesko-sprite.png'),
+                sophi: await loadImage('assets/sophi-sprite.png')
             };
         } catch (error) {
             alert(error);
-            // Opcional: volver a la escena anterior si falla la carga
             document.getElementById('cinematic-scene').classList.remove('is-visible');
             document.getElementById('final-scene').style.opacity = 1;
             return;
