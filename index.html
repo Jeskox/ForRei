@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Acceso al Asistente IA v10.1</title>
+  <title>Acceso al Asistente IA v10.2 (Final)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -101,10 +101,9 @@
     @keyframes pulse-final-orb { 0%, 100% { transform: scale(1); box-shadow: 0 0 30px 10px #e75480, inset 0 0 15px 5px #ffc0cb; } 50% { transform: scale(1.05); box-shadow: 0 0 45px 18px #e75480, inset 0 0 15px 5px #ffc0cb; } }
     .final-orb-dialog { position: absolute; top: calc(40% + 60px); left: 50%; transform: translateX(-50%); z-index: 15; opacity: 0; animation: fadeIn 2s 1s forwards; font-family: 'Press Start 2P', cursive; font-size: 1rem; color: #fff; text-shadow: 2px 2px 0px rgba(0,0,0,0.7); width: 600px; text-align: center; min-height: 2.5em; }
     
-    /* --- Botón Iniciar y su contenedor --- */
     #start-button-container {
         position: absolute;
-        bottom: 5%; /* Posicionado en la parte inferior */
+        bottom: 5%;
         left: 50%;
         transform: translateX(-50%);
         z-index: 20;
@@ -128,7 +127,6 @@
         transform: scale(1.05);
     }
 
-    /* --- ESTILOS PARA LA ESCENA CINEMÁTICA --- */
     #cinematic-scene {
         position: fixed; inset: 0;
         z-index: 50;
@@ -354,10 +352,11 @@
         const ctx = canvas.getContext('2d');
         ctx.imageSmoothingEnabled = false;
 
+        // --- CORRECCIÓN DE RUTAS DE ARCHIVOS ---
         const assets = {
-            background: await loadImage('salon.png'),
-            jesko: await loadImage('jesko-sprite.png'),
-            sophi: await loadImage('sophi-sprite.png')
+            background: await loadImage('assets/salon.png'),
+            jesko: await loadImage('assets/jesko-sprite.png'),
+            sophi: await loadImage('assets/sophi-sprite.png')
         };
         
         const characters = {
@@ -380,7 +379,7 @@
             for (const charName in characters) {
                 const char = characters[charName];
                 if (char.visible) {
-                    ctx.drawImage(char.img, char.x - char.img.width, char.y - char.img.height + char.yOffset);
+                    ctx.drawImage(char.img, char.x - char.img.width/2, char.y - char.img.height/2 + char.yOffset);
                 }
             }
             
@@ -388,23 +387,24 @@
                 if (dialogueProgress < dialogueText.length) {
                     dialogueProgress += 0.5;
                 }
-                drawSpeechBubble(characters[currentAction.personaje], dialogueText.substring(0, dialogueProgress));
+                drawSpeechBubble(characters[currentAction.personaje], dialogueText.substring(0, Math.floor(dialogueProgress)));
             }
 
             requestAnimationFrame(draw);
         }
 
         function drawSpeechBubble(character, text) {
+            if (!text) return;
             ctx.font = "16px 'Press Start 2P'";
             const textWidth = ctx.measureText(text).width;
             const bubbleWidth = textWidth + 20;
             const bubbleHeight = 40;
             const bubbleX = character.x - bubbleWidth / 2;
-            const bubbleY = character.y - character.img.height - bubbleHeight - 10;
+            const bubbleY = character.y - (character.img.height/2) - bubbleHeight - 20;
             
             ctx.fillStyle = 'white';
             ctx.strokeStyle = 'black';
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 3;
             
             ctx.beginPath();
             ctx.rect(bubbleX, bubbleY, bubbleWidth, bubbleHeight);
@@ -429,11 +429,12 @@
                     characters[action.personaje].y = canvas.height * action.pos.y;
                     break;
                 case 'esperar':
+                    currentAction = null;
                     await new Promise(r => setTimeout(r, action.duracion));
                     break;
                 case 'dialogo':
                     dialogueText = action.texto;
-                    const duration = dialogueText.length * 50 + action.texto.length > 50 ? 2000 : 1000;
+                    const duration = dialogueText.length * 50 + (dialogueText.length > 50 ? 2000 : 1000);
                     await new Promise(r => setTimeout(r, duration));
                     break;
                 case 'fin':
@@ -457,7 +458,7 @@
                 const img = new Image();
                 img.onload = () => resolve(img);
                 img.onerror = (err) => {
-                    console.error("Failed to load image:", src);
+                    console.error("Error al cargar la imagen:", src);
                     reject(err);
                 };
                 img.src = src;
