@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Acceso al Asistente IA v10.0</title>
+  <title>Acceso al Asistente IA v10.1</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -98,9 +98,17 @@
     #petal-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; }
     .final-orb-container { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); z-index: 15; opacity: 0; animation: fadeIn 2s 1s forwards; }
     .final-orb { width: 80px; height: 80px; border-radius: 50%; position: relative; overflow: hidden; background: radial-gradient(circle, #ffb3c1, #e75480 70%); border: 2px solid #ffb3c1; animation: pulse-final-orb 4s infinite ease-in-out; }
-    .final-orb .scanlines { opacity: 0.3; }
     @keyframes pulse-final-orb { 0%, 100% { transform: scale(1); box-shadow: 0 0 30px 10px #e75480, inset 0 0 15px 5px #ffc0cb; } 50% { transform: scale(1.05); box-shadow: 0 0 45px 18px #e75480, inset 0 0 15px 5px #ffc0cb; } }
     .final-orb-dialog { position: absolute; top: calc(40% + 60px); left: 50%; transform: translateX(-50%); z-index: 15; opacity: 0; animation: fadeIn 2s 1s forwards; font-family: 'Press Start 2P', cursive; font-size: 1rem; color: #fff; text-shadow: 2px 2px 0px rgba(0,0,0,0.7); width: 600px; text-align: center; min-height: 2.5em; }
+    
+    /* --- Botón Iniciar y su contenedor --- */
+    #start-button-container {
+        position: absolute;
+        bottom: 5%; /* Posicionado en la parte inferior */
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 20;
+    }
     #start-cinematic-btn {
         font-family: 'Press Start 2P', cursive;
         font-size: 1rem;
@@ -266,9 +274,10 @@
         const uiContainer = document.getElementById('final-ui-container');
         uiContainer.innerHTML = `
             <div class="final-orb-container">
-                <div class="final-orb"><div class="scanlines"></div></div>
+                <div class="final-orb"></div>
             </div>
             <div class="final-orb-dialog" id="final-dialog"></div>
+            <div id="start-button-container"></div> 
         `;
         
         initPetalAnimation();
@@ -278,7 +287,7 @@
 
     async function iniciarDialogoFinal() {
         const dialogEl = document.getElementById('final-dialog');
-        const uiContainer = document.getElementById('final-ui-container');
+        const buttonContainer = document.getElementById('start-button-container');
         
         await new Promise(resolve => escribirTexto(dialogEl, "Bienvenida, señorita Rei.", 60, resolve));
         await new Promise(resolve => setTimeout(resolve, 900));
@@ -301,14 +310,16 @@
         const startButton = document.createElement('button');
         startButton.id = 'start-cinematic-btn';
         startButton.innerText = 'Iniciar';
-        uiContainer.appendChild(startButton);
+        buttonContainer.appendChild(startButton);
         
         startButton.onclick = () => {
             document.getElementById('final-scene').style.opacity = 0;
             const cinematicScene = document.getElementById('cinematic-scene');
             cinematicScene.style.display = 'block';
-            setTimeout(() => cinematicScene.classList.add('is-visible'), 50);
-            initCinematic();
+            setTimeout(() => {
+                cinematicScene.classList.add('is-visible');
+                initCinematic();
+            }, 50);
         };
     }
     
@@ -319,7 +330,7 @@
       { tipo: 'esperar', duracion: 1500 },
       { tipo: 'dialogo', personaje: 'jesko', texto: "vamos a conquistar el mundo sophi" },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Suena a algo muy ambicioso, señor, ¿o solo es alguna expresión retórica suya?" },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Suena a algo muy ambicioso, señor..." },
       { tipo: 'esperar', duracion: 500 },
       { tipo: 'dialogo', personaje: 'jesko', texto: "hare un viaje fuera del país" },
       { tipo: 'esperar', duracion: 500 },
@@ -329,7 +340,7 @@
       { tipo: 'esperar', duracion: 500 },
       { tipo: 'dialogo', personaje: 'sophi', texto: "Por supuesto, pero he de recordarle que solo puedo ayudarle en todo lo que esté a mi alcance." },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "lo se, por eso voy a integrarte mas herramientas que puedas llevarlo" },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "lo se, por eso voy a integrarte mas herramientas..." },
       { tipo: 'esperar', duracion: 500 },
       { tipo: 'dialogo', personaje: 'jesko', texto: "haz una lista de cosas pendientes que debo hacer antes de irme" },
       { tipo: 'esperar', duracion: 500 },
@@ -344,9 +355,9 @@
         ctx.imageSmoothingEnabled = false;
 
         const assets = {
-            background: await loadImage('assets/salon.png'),
-            jesko: await loadImage('assets/jesko-sprite.png'),
-            sophi: await loadImage('assets/sophi-sprite.png')
+            background: await loadImage('salon.png'),
+            jesko: await loadImage('jesko-sprite.png'),
+            sophi: await loadImage('sophi-sprite.png')
         };
         
         const characters = {
@@ -356,24 +367,28 @@
         
         let currentAction = null;
         let scriptIndex = 0;
+        let dialogueText = '';
+        let dialogueProgress = 0;
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(assets.background, 0, 0, canvas.width, canvas.height);
 
-            // Animar personajes
             characters.jesko.yOffset = Math.sin(Date.now() * 0.002) * 2;
             characters.sophi.yOffset = Math.sin(Date.now() * 0.003) * 3;
 
             for (const charName in characters) {
                 const char = characters[charName];
                 if (char.visible) {
-                    ctx.drawImage(char.img, char.x - char.img.width/2, char.y - char.img.height/2 + char.yOffset);
+                    ctx.drawImage(char.img, char.x - char.img.width, char.y - char.img.height + char.yOffset);
                 }
             }
             
             if (currentAction && currentAction.tipo === 'dialogo') {
-                drawSpeechBubble(characters[currentAction.personaje], currentAction.texto);
+                if (dialogueProgress < dialogueText.length) {
+                    dialogueProgress += 0.5;
+                }
+                drawSpeechBubble(characters[currentAction.personaje], dialogueText.substring(0, dialogueProgress));
             }
 
             requestAnimationFrame(draw);
@@ -385,7 +400,7 @@
             const bubbleWidth = textWidth + 20;
             const bubbleHeight = 40;
             const bubbleX = character.x - bubbleWidth / 2;
-            const bubbleY = character.y - character.img.height/2 - bubbleHeight - 10;
+            const bubbleY = character.y - character.img.height - bubbleHeight - 10;
             
             ctx.fillStyle = 'white';
             ctx.strokeStyle = 'black';
@@ -404,6 +419,8 @@
             if (scriptIndex >= guion.length) return;
             const action = guion[scriptIndex];
             currentAction = action;
+            dialogueText = '';
+            dialogueProgress = 0;
 
             switch (action.tipo) {
                 case 'entrar':
@@ -415,14 +432,14 @@
                     await new Promise(r => setTimeout(r, action.duracion));
                     break;
                 case 'dialogo':
-                    // El texto se dibuja en el loop, solo esperamos a que termine
-                    const duration = action.texto.length * 50 + 1000; // Estimar duración
+                    dialogueText = action.texto;
+                    const duration = dialogueText.length * 50 + action.texto.length > 50 ? 2000 : 1000;
                     await new Promise(r => setTimeout(r, duration));
                     break;
                 case 'fin':
                     document.getElementById('cinematic-scene').classList.remove('is-visible');
                     document.getElementById('final-scene').style.opacity = 1;
-                    return; // Detener script
+                    return;
             }
             
             scriptIndex++;
@@ -439,7 +456,10 @@
             return new Promise((resolve, reject) => {
                 const img = new Image();
                 img.onload = () => resolve(img);
-                img.onerror = reject;
+                img.onerror = (err) => {
+                    console.error("Failed to load image:", src);
+                    reject(err);
+                };
                 img.src = src;
             });
         }
@@ -450,7 +470,6 @@
         processScript();
     }
     
-    // --- ANIMACIÓN DE PARTÍCULAS DEL ORBE INICIAL ---
     function initOrbParticles(canvasId) {
         const canvas = document.getElementById(canvasId);
         if (!canvas) return;
@@ -469,7 +488,6 @@
         init(); animate();
     }
 
-    // --- ANIMACIÓN DE PÉTALOS DE LA ESCENA FINAL ---
     function initPetalAnimation() {
         const canvas = document.getElementById('petal-canvas');
         const ctx = canvas.getContext('2d');
