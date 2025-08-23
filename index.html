@@ -69,11 +69,9 @@
     .orbe.is-active::after { background: conic-gradient(transparent 0%, #8A2BE2aa 30%, transparent 60%); }
     .orbe.is-active #orb-particles-canvas { opacity: 1; }
     
-    /* --- CAMBIO: Se desactiva la onda de energía SÓLO para el orbe inicial --- */
     #main-orb.is-active::after {
         background: none;
     }
-    /* --- FIN CAMBIO --- */
 
     @keyframes pulse-core { 0%, 100% { transform: scale(0.9); } 50% { transform: scale(1.1); } }
     @keyframes rotate-energy { from { transform: translate(-16.66%, -16.66%) rotate(0deg); } to { transform: translate(-16.66%, -16.66%) rotate(360deg); } }
@@ -129,7 +127,7 @@
         z-index: 20;
         cursor: pointer;
         animation: gift-appear 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        transition: all 1.2s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        transition: top 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55), left 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
     }
     @keyframes gift-appear {
         from { transform: translate(-50%, -50%) scale(0); }
@@ -137,6 +135,7 @@
     }
     #gift-icon-container.is-claimed {
         top: 88%;
+        left: 50%;
         cursor: default;
     }
     #gift-icon-container.is-claimed svg {
@@ -193,7 +192,7 @@
     .close-modal-btn {
         position: absolute; top: 10px; right: 10px;
         background: transparent; border: none;
-        color: white; font-size: 24px; cursor: pointer;
+        color: white; font-size: 24px; cursor: pointer; z-index: 10;
     }
 
     /* Estilos específicos del modal de regalos */
@@ -253,6 +252,76 @@
         background: #888;
         color: white;
     }
+    
+    /* --- NUEVO: ESTILOS PARA GALERÍA DE IMÁGENES --- */
+    #gallery-modal-content {
+        display: flex;
+        flex-direction: column;
+        width: 80vw;
+        height: 85vh;
+        max-width: 1200px;
+        padding: 20px;
+    }
+    #main-image-container {
+        flex-grow: 1;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 15px;
+        overflow: hidden;
+    }
+    #gallery-main-image {
+        max-width: 100%;
+        max-height: 100%;
+        display: block;
+        transition: opacity 0.3s ease;
+        user-select: none;
+    }
+    .nav-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: rgba(0, 0, 0, 0.4);
+        color: white;
+        border: none;
+        font-size: 2rem;
+        padding: 10px 15px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        z-index: 5;
+        border-radius: 5px;
+    }
+    .nav-arrow:hover { background-color: rgba(0, 0, 0, 0.7); }
+    #prev-btn { left: 10px; }
+    #next-btn { right: 10px; }
+
+    #thumbnail-container {
+        flex-shrink: 0;
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 10px; /* Para la barra de scroll */
+        text-align: center;
+    }
+    .thumbnail-img {
+        width: 80px;
+        height: 60px;
+        object-fit: cover;
+        margin: 0 5px;
+        cursor: pointer;
+        border: 2px solid transparent;
+        border-radius: 5px;
+        transition: border-color 0.3s, transform 0.3s;
+    }
+    .thumbnail-img:hover {
+        transform: scale(1.05);
+    }
+    .thumbnail-img.active {
+        border-color: var(--gift-border-color);
+        box-shadow: 0 0 10px var(--gift-border-color);
+    }
+    /* --- FIN DE ESTILOS NUEVOS --- */
   </style>
 </head>
 <body>
@@ -323,13 +392,26 @@
       </div>
   </div>
 
+  <!-- NUEVO: Modal de Galería -->
+  <div id="gallery-modal-overlay" class="modal-overlay">
+      <div id="gallery-modal-content" class="modal-content">
+          <button class="close-modal-btn" id="close-gallery-modal-btn">&times;</button>
+          <div id="main-image-container">
+              <button id="prev-btn" class="nav-arrow">&lt;</button>
+              <img src="" alt="Imagen de la galería" id="gallery-main-image">
+              <button id="next-btn" class="nav-arrow">&gt;</button>
+          </div>
+          <div id="thumbnail-container">
+              <!-- Las miniaturas se generarán aquí con JS -->
+          </div>
+      </div>
+  </div>
 
   <script>
     let userName = '';
     let hasCinematicPlayed = false;
     let regaloElegido = false;
     let pendingChoice = null;
-    // NUEVO: Contador para el icono de regalo juguetón
     let giftClickCount = 0;
 
     function escribirTexto(element, text, speed, callback, clearAfter = 0) {
@@ -356,10 +438,7 @@
         const promptText = document.getElementById('orb-prompt-text');
         setTimeout(() => {
             orb.classList.add('is-active');
-            // CAMBIO: Ya no se inician las partículas del orbe inicial
-            // initOrbParticles('orb-particles-canvas'); 
             setTimeout(() => {
-                // CAMBIO: El texto ahora aparece directamente, sin animación de escritura
                 promptText.textContent = "Para asegurarme de que usted es la persona que espero, introduzca su nombre.";
             }, 500);
         }, 2200);
@@ -407,11 +486,9 @@
     function showExplosionAndSwitchDesign() {
         const explosionContainer = document.getElementById('explosion-container');
         explosionContainer.style.display = 'flex';
-        
         const particlesContainer = document.getElementById('explosion-particles');
         const tendrilsContainer = document.getElementById('energy-tendrils');
         particlesContainer.innerHTML = ''; tendrilsContainer.innerHTML = '';
-        
         for (let i = 0; i < 50; i++) {
             const p = document.createElement('div'); p.classList.add('particle');
             const angle = Math.random() * 360 * (Math.PI / 180); const dist = (Math.random() * 0.5 + 0.5) * window.innerWidth;
@@ -424,7 +501,6 @@
             t.style.animationDelay = `${Math.random() * 0.2}s`;
             tendrilsContainer.appendChild(t);
         }
-
         setTimeout(() => {
             document.getElementById('initial-background').style.opacity = '0';
             showNewDesign();
@@ -444,17 +520,14 @@
             </div>
             <div class="final-orb-dialog" id="final-dialog"></div>
             <div id="start-button-container"></div> 
-            
             <div id="gift-icon-container" style="display: none;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="#ffb3c1" stroke="#fff" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
             </div>
-
             <div id="heart-icon-container" class="extra-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#a955c4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                 </svg>
             </div>
-
             <div id="folder-icon-container" class="extra-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ffb3c1" stroke="#fff" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M4 5a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5z"/>
@@ -481,7 +554,6 @@
     async function iniciarDialogoFinal() {
         const dialogEl = document.getElementById('final-dialog');
         const buttonContainer = document.getElementById('start-button-container');
-        
         await new Promise(resolve => escribirTexto(dialogEl, "Bienvenida, señorita Rei.", 60, resolve));
         await new Promise(resolve => setTimeout(resolve, 900));
         await new Promise(resolve => escribirTexto(dialogEl, "Mi nombre es Sophi, asistente virtual de Jesko.", 60, resolve));
@@ -494,12 +566,10 @@
         await new Promise(resolve => setTimeout(resolve, 900));
         await new Promise(resolve => escribirTexto(dialogEl, "He preparado una manera dinámica para ponerla en contexto.", 60, resolve));
         await new Promise(resolve => setTimeout(resolve, 500));
-        
         const startButton = document.createElement('button');
         startButton.id = 'start-cinematic-btn';
         startButton.innerText = 'Iniciar';
         buttonContainer.appendChild(startButton);
-        
         startButton.onclick = () => {
             document.getElementById('final-scene').style.opacity = 0;
             const cinematicScene = document.getElementById('cinematic-scene');
@@ -511,11 +581,10 @@
         };
     }
 
-    // NUEVO: Función para mover el icono del regalo
     function moveGiftIconRandomly() {
         const container = document.getElementById('gift-icon-container');
-        const newTop = Math.floor(Math.random() * 70) + 15; // Rango: 15% a 85%
-        const newLeft = Math.floor(Math.random() * 80) + 10; // Rango: 10% a 90%
+        const newTop = Math.floor(Math.random() * 70) + 15;
+        const newLeft = Math.floor(Math.random() * 80) + 10;
         container.style.top = `${newTop}%`;
         container.style.left = `${newLeft}%`;
     }
@@ -542,11 +611,8 @@
         dialogEl.innerHTML = '';
         if (giftContainer) {
             giftContainer.style.display = 'block';
-            
-            // CAMBIO: Lógica del icono juguetón
             giftContainer.onclick = () => {
                 if (regaloElegido) return;
-
                 if (giftClickCount < 3) {
                     giftClickCount++;
                     moveGiftIconRandomly();
@@ -558,192 +624,52 @@
     }
     
     // --- DIÁLOGO DE LA CINEMÁTICA (DESCOMPRIMIDO) ---
-    const guion = [
-      { tipo: 'entrar', personaje: 'jesko', pos: { x: 0.30, y: 0.65 } },
-      { tipo: 'entrar', personaje: 'sophi', pos: { x: 0.75, y: 0.55 } },
-      { tipo: 'esperar', duracion: 1500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Vamos a conquistar el mundo, Sophi." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Suena a algo muy ambicioso, señor..." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Haré un viaje fuera del país." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Entiendo, ¿necesita que lo actualice en su calendario?" },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "De hecho, necesitaré que te hagas cargo de todo aquí los días que estaré fuera." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Por supuesto, pero he de recordarle que solo puedo ayudarle en todo lo que esté a mi alcance." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Lo sé, por eso voy a integrarte más herramientas..." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Haz una lista de cosas pendientes que debo hacer antes de irme." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Si ese es el caso, cuente con mi ayuda. Estoy lista para tomar nota." },
-      { tipo: 'esperar', duracion: 3000 },
-      { tipo: 'timeskip', texto: 'Más tarde' },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "¿Ya ha considerado comunicarle una despedida a sus familiares y cercanos? De no ser así, puedo programar un mensaje automatizado." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "¿Es necesario?" },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Las proyecciones futuras siempre contienen un margen de incertidumbre. No es posible garantizar el resultado de todos los eventos, eso incluye un viaje." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Caramba, suena como si me fuera a morir." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "No puedo morir, Sophi." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "¿No hasta que la muerte se lo gane, verdad?" },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Exacto." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Bueno, igual mis padres ya están enterados." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Entiendo, ¿qué hay de la señorita Rei? ¿Ya ha tenido tiempo de hacérselo saber?" },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Rei ya debe estar cansada de mí." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "La verdad, viniendo de usted, no me sorprende en absoluto. ¿Tuvieron alguna discusión? Porque si necesita un árbitro con lógica impecable, solo tiene que decirlo." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "No, ninguna." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Bueno, me he comportado como un idiota estos días. He estado muy distante por lo ocupado y pensativo que estoy." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Comprendo la situación. La planificación de un viaje pudo haber incrementado la carga de su poca capacidad cognitiva. Sin embargo, siempre hay tiempo para una comunicación breve." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "¿Me llamas descerebrado y luego te haces la psicóloga?" },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Solo intento ser su salvavidas lógico en ese océano de irracionalidad que llama 'pensar'. Dejarlo solo podría causar un error de sistema en su cerebro." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Joder, qué graciosa. Bueno, tampoco es que no tengas razón." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "¿Qué sugieres entonces?" },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Le sugiero que intente esa cosa que los humanos hacen: hablar. Podría ser revolucionario explicarle por qué su comportamiento se asemeja al de un electrodoméstico desconectado." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Carajo, Sophi." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "¿Y si estoy ocupado?" },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Dato interesante: El tiempo que ha invertido en esa pregunta podría haber sido utilizado para enviar 4.7 mensajes de texto. Si eso es demasiado exigente, intente con un regalo." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Soy muy malo dando regalos, sugiere. Y evita darme diabetes con tus respuestas." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Una buena idea sería darle un regalo que hable por usted. Algo personal: un peluche, una pulsera o un collar." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Claro, seguro se sorprendería... pero de cómo es que yo sabría dónde vive para que le llegue un regalo." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Mencionaste un regalo que hable por mí. Partamos de ahí." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Podría hacerle una página web dedicada a ella. Un gesto detallista y moderno. Demostraría una dedicación y un cariño muy profundos." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Me gusta. Te encargo el HTML y agrégalo a tasks." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Excelente. Ya lo agendo. Es un gesto precioso, y me aseguraré de recordárselo, señor." },
-      { tipo: 'esperar', duracion: 3000 },
-      { tipo: 'timeskip', texto: 'Al día siguiente' },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Para mantenerlo al día, señor: cubrimos el 79% de las tareas. Sigue el Proyecto 'Ciber-Romeo', la página para la señorita Rei." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "¿Quién le puso ese nombre? 'Ciber-Romeo', jajaja." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Bueno, te encargo eso, Sophi. Es una oportunidad para ver qué tan autónoma puedes ser ahora." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Pídeme ayuda si es algo que no está a tu alcance, encárgate del resto tú." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Me pondré en ello entonces." },
-      { tipo: 'esperar', duracion: 3000 },
-      { tipo: 'timeskip', texto: 'Hasta luego, Insensible' },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Hoy es el día, Sophi." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Muy bien, y se ha asegurado de completar todo lo pendiente. Sería buena idea usar estas horas para una última revisión." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "¿Qué hay de lo 'Ciber-Romeo'?" },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Dado que se trata de mí, el resultado es increíble. Como último detalle, un mensaje personal suyo la haría aún más especial." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "¿En serio?" },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Así es, solo dígame cuándo esté listo." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Está bien, ahí voy." },
-      { tipo: 'esperar', duracion: 1000 },
-      { tipo: 'salir', personaje: 'sophi' },
-      { tipo: 'mover', personaje: 'jesko', pos: { x: 0.5, y: 0.65 } },
-      { tipo: 'esperar', duracion: 1500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Te quiero mucho, princesa." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Perdón por la actitud de electrodoméstico desconectado." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Recuerda no amargarte mucho." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Y cuídense las 3." },
-      { tipo: 'esperar', duracion: 1500 },
-      { tipo: 'mover', personaje: 'jesko', pos: { x: 0.30, y: 0.65 } },
-      { tipo: 'entrar', personaje: 'sophi', pos: { x: 0.75, y: 0.55 } },
-      { tipo: 'esperar', duracion: 1000 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Perfecto. Me encargaré de transmitir su... particular estilo de comunicación. Por otro lado, ¿tienen hijos o mascotas?" },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Jajaja. Solo díselo." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Confío en que entenderá sus razones, señor. Es un gesto muy sincero." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Sobre eso, Sophi..." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Utilizaré este viaje para hacer un cambio de aire. Si todo regresa a la normalidad o no, tendrá que verse cuando vuelva." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "De todas maneras, te encargo hacérselo llegar." },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Vaya... Siento de pronto que todo el esfuerzo que hemos puesto en esto ha sido en vano. Pero está bien, lo entiendo. Me encargaré de que reciba este presente." },
-      { tipo: 'esperar', duracion: 1000 },
-      { tipo: 'animacion_final' },
-      { tipo: 'fin' }
-    ];
-
+    const guion = [ { tipo: 'entrar', personaje: 'jesko', pos: { x: 0.30, y: 0.65 } }, { tipo: 'entrar', personaje: 'sophi', pos: { x: 0.75, y: 0.55 } }, { tipo: 'esperar', duracion: 1500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Vamos a conquistar el mundo, Sophi." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Suena a algo muy ambicioso, señor..." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Haré un viaje fuera del país." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Entiendo, ¿necesita que lo actualice en su calendario?" }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "De hecho, necesitaré que te hagas cargo de todo aquí los días que estaré fuera." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Por supuesto, pero he de recordarle que solo puedo ayudarle en todo lo que esté a mi alcance." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Lo sé, por eso voy a integrarte más herramientas..." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Haz una lista de cosas pendientes que debo hacer antes de irme." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Si ese es el caso, cuente con mi ayuda. Estoy lista para tomar nota." }, { tipo: 'esperar', duracion: 3000 }, { tipo: 'timeskip', texto: 'Más tarde' }, { tipo: 'dialogo', personaje: 'sophi', texto: "¿Ya ha considerado comunicarle una despedida a sus familiares y cercanos? De no ser así, puedo programar un mensaje automatizado." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "¿Es necesario?" }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Las proyecciones futuras siempre contienen un margen de incertidumbre. No es posible garantizar el resultado de todos los eventos, eso incluye un viaje." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Caramba, suena como si me fuera a morir." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "No puedo morir, Sophi." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "¿No hasta que la muerte se lo gane, verdad?" }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Exacto." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Bueno, igual mis padres ya están enterados." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Entiendo, ¿qué hay de la señorita Rei? ¿Ya ha tenido tiempo de hacérselo saber?" }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Rei ya debe estar cansada de mí." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "La verdad, viniendo de usted, no me sorprende en absoluto. ¿Tuvieron alguna discusión? Porque si necesita un árbitro con lógica impecable, solo tiene que decirlo." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "No, ninguna." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Bueno, me he comportado como un idiota estos días. He estado muy distante por lo ocupado y pensativo que estoy." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Comprendo la situación. La planificación de un viaje pudo haber incrementado la carga de su poca capacidad cognitiva. Sin embargo, siempre hay tiempo para una comunicación breve." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "¿Me llamas descerebrado y luego te haces la psicóloga?" }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Solo intento ser su salvavidas lógico en ese océano de irracionalidad que llama 'pensar'. Dejarlo solo podría causar un error de sistema en su cerebro." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Joder, qué graciosa. Bueno, tampoco es que no tengas razón." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "¿Qué sugieres entonces?" }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Le sugiero que intente esa cosa que los humanos hacen: hablar. Podría ser revolucionario explicarle por qué su comportamiento se asemeja al de un electrodoméstico desconectado." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Carajo, Sophi." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "¿Y si estoy ocupado?" }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Dato interesante: El tiempo que ha invertido en esa pregunta podría haber sido utilizado para enviar 4.7 mensajes de texto. Si eso es demasiado exigente, intente con un regalo." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Soy muy malo dando regalos, sugiere. Y evita darme diabetes con tus respuestas." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Una buena idea sería darle un regalo que hable por usted. Algo personal: un peluche, una pulsera o un collar." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Claro, seguro se sorprendería... pero de cómo es que yo sabría dónde vive para que le llegue un regalo." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Mencionaste un regalo que hable por mí. Partamos de ahí." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Podría hacerle una página web dedicada a ella. Un gesto detallista y moderno. Demostraría una dedicación y un cariño muy profundos." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Me gusta. Te encargo el HTML y agrégalo a tasks." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Excelente. Ya lo agendo. Es un gesto precioso, y me aseguraré de recordárselo, señor." }, { tipo: 'esperar', duracion: 3000 }, { tipo: 'timeskip', texto: 'Al día siguiente' }, { tipo: 'dialogo', personaje: 'sophi', texto: "Para mantenerlo al día, señor: cubrimos el 79% de las tareas. Sigue el Proyecto 'Ciber-Romeo', la página para la señorita Rei." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "¿Quién le puso ese nombre? 'Ciber-Romeo', jajaja." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Bueno, te encargo eso, Sophi. Es una oportunidad para ver qué tan autónoma puedes ser ahora." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Pídeme ayuda si es algo que no está a tu alcance, encárgate del resto tú." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Me pondré en ello entonces." }, { tipo: 'esperar', duracion: 3000 }, { tipo: 'timeskip', texto: 'Hasta luego, Insensible' }, { tipo: 'dialogo', personaje: 'jesko', texto: "Hoy es el día, Sophi." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Muy bien, y se ha asegurado de completar todo lo pendiente. Sería buena idea usar estas horas para una última revisión." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "¿Qué hay de lo 'Ciber-Romeo'?" }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Dado que se trata de mí, el resultado es increíble. Como último detalle, un mensaje personal suyo la haría aún más especial." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "¿En serio?" }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Así es, solo dígame cuándo esté listo." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Está bien, ahí voy." }, { tipo: 'esperar', duracion: 1000 }, { tipo: 'salir', personaje: 'sophi' }, { tipo: 'mover', personaje: 'jesko', pos: { x: 0.5, y: 0.65 } }, { tipo: 'esperar', duracion: 1500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Te quiero mucho, princesa." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Perdón por la actitud de electrodoméstico desconectado." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Recuerda no amargarte mucho." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Y cuídense las 3." }, { tipo: 'esperar', duracion: 1500 }, { tipo: 'mover', personaje: 'jesko', pos: { x: 0.30, y: 0.65 } }, { tipo: 'entrar', personaje: 'sophi', pos: { x: 0.75, y: 0.55 } }, { tipo: 'esperar', duracion: 1000 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Perfecto. Me encargaré de transmitir su... particular estilo de comunicación. Por otro lado, ¿tienen hijos o mascotas?" }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Jajaja. Solo díselo." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Confío en que entenderá sus razones, señor. Es un gesto muy sincero." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Sobre eso, Sophi..." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Utilizaré este viaje para hacer un cambio de aire. Si todo regresa a la normalidad o no, tendrá que verse cuando vuelva." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "De todas maneras, te encargo hacérselo llegar." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Vaya... Siento de pronto que todo el esfuerzo que hemos puesto en esto ha sido en vano. Pero está bien, lo entiendo. Me encargaré de que reciba este presente." }, { tipo: 'esperar', duracion: 1000 }, { tipo: 'animacion_final' }, { tipo: 'fin' } ];
     async function initCinematic(startIndex = 0) { const canvas = document.getElementById('cinematic-canvas'); const ctx = canvas.getContext('2d'); ctx.imageSmoothingEnabled = false; let assets; try { assets = { background: await loadImage('assets/salon.png'), jesko: await loadImage('assets/jesko-sprite-1.png'), sophi: await loadImage('assets/sophi-sprite-1.png') }; } catch (error) { alert(error); document.getElementById('cinematic-scene').classList.remove('is-visible'); document.getElementById('final-scene').style.opacity = 1; return; } let animationFrameId; function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; ctx.imageSmoothingEnabled = false; } window.addEventListener('resize', resizeCanvas); resizeCanvas(); const jeskoTargetHeight = canvas.height * 0.54; const jeskoScale = jeskoTargetHeight / assets.jesko.height; const sophiTargetHeight = canvas.height * 0.20; const sophiScale = sophiTargetHeight / assets.sophi.height; const characters = { jesko: { img: assets.jesko, x: 0, y: 0, visible: false, yOffset: 0, w: assets.jesko.width * jeskoScale, h: assets.jesko.height * jeskoScale }, sophi: { img: assets.sophi, x: 0, y: 0, visible: false, yOffset: 0, w: assets.sophi.width * sophiScale, h: assets.sophi.height * sophiScale } }; let currentAction = null; let scriptIndex = startIndex; let dialogueText = ''; let dialogueProgress = 0; function draw() { ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.drawImage(assets.background, 0, 0, canvas.width, canvas.height); characters.jesko.yOffset = Math.sin(Date.now() * 0.002) * 2; characters.sophi.yOffset = Math.sin(Date.now() * 0.003) * 3; for (const charName in characters) { const char = characters[charName]; if (char.visible) { ctx.drawImage(char.img, char.x - char.w/2, char.y - char.h/2 + char.yOffset, char.w, char.h); } } if (currentAction && currentAction.tipo === 'dialogo') { if (dialogueProgress < dialogueText.length) { dialogueProgress += 0.5; } drawSpeechBubble(characters[currentAction.personaje], dialogueText.substring(0, Math.floor(dialogueProgress))); } animationFrameId = requestAnimationFrame(draw); } function drawSpeechBubble(character, text) { if (!text) return; const fontSize = 23; const padding = 20; const bubbleMaxWidth = 350; const lineHeight = 30; ctx.font = `${fontSize}px 'VT323', monospace`; const lines = wrapText(ctx, text, bubbleMaxWidth - (padding * 2)); const textHeight = (lines.length * lineHeight); let textWidth = 0; for (const line of lines) { textWidth = Math.max(textWidth, ctx.measureText(line).width); } const bubbleWidth = textWidth + (padding * 2); const bubbleHeight = textHeight + padding; let bubbleX = character.x - bubbleWidth / 2; const bubbleY = character.y - (character.h / 2) - bubbleHeight - 20; if (bubbleX < 10) bubbleX = 10; if (bubbleX + bubbleWidth > canvas.width - 10) bubbleX = canvas.width - bubbleWidth - 10; ctx.fillStyle = 'white'; ctx.strokeStyle = 'black'; ctx.lineWidth = 3; ctx.fillRect(bubbleX, bubbleY, bubbleWidth, bubbleHeight); ctx.strokeRect(bubbleX, bubbleY, bubbleWidth, bubbleHeight); ctx.beginPath(); ctx.moveTo(character.x - 10, bubbleY + bubbleHeight); ctx.lineTo(character.x, bubbleY + bubbleHeight + 10); ctx.lineTo(character.x + 10, bubbleY + bubbleHeight); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle = 'black'; for (let i = 0; i < lines.length; i++) { ctx.fillText(lines[i], bubbleX + padding, bubbleY + padding + 5 + (i * lineHeight)); } } function wrapText(context, text, maxWidth) { const words = text.split(' '); let lines = []; let currentLine = words[0] || ''; for (let i = 1; i < words.length; i++) { const word = words[i]; const width = context.measureText(currentLine + " " + word).width; if (width < maxWidth) { currentLine += " " + word; } else { lines.push(currentLine); currentLine = word; } } lines.push(currentLine); return lines; } async function processScript() { if (scriptIndex >= guion.length) return; const action = guion[scriptIndex]; currentAction = action; dialogueText = ''; dialogueProgress = 0; switch (action.tipo) { case 'entrar': characters[action.personaje].visible = true; characters[action.personaje].x = canvas.width * action.pos.x; characters[action.personaje].y = canvas.height * action.pos.y; break; case 'salir': characters[action.personaje].visible = false; break; case 'mover': characters[action.personaje].x = canvas.width * action.pos.x; characters[action.personaje].y = canvas.height * action.pos.y; break; case 'esperar': currentAction = null; await new Promise(r => setTimeout(r, action.duracion)); break; case 'dialogo': dialogueText = action.texto; const duration = dialogueText.length * 50 + (dialogueText.length > 50 ? 2000 : 1000); await new Promise(r => setTimeout(r, duration)); break; case 'timeskip': const cinematicScene = document.getElementById('cinematic-scene'); const timeskipOverlay = document.getElementById('timeskip-overlay'); const timeskipText = document.getElementById('timeskip-text'); timeskipText.innerText = action.texto; cinematicScene.style.opacity = 0; await new Promise(r => setTimeout(r, 800)); timeskipOverlay.style.display = 'flex'; setTimeout(() => timeskipOverlay.classList.add('is-visible'), 10); await new Promise(r => setTimeout(r, 2500)); timeskipOverlay.classList.remove('is-visible'); await new Promise(r => setTimeout(r, 800)); timeskipOverlay.style.display = 'none'; cinematicScene.style.opacity = 1; await new Promise(r => setTimeout(r, 800)); break; case 'animacion_final': currentAction = null; await playFinalAnimation(); break; case 'fin': cancelAnimationFrame(animationFrameId); hasCinematicPlayed = true; const sceneEl = document.getElementById('cinematic-scene'); sceneEl.classList.remove('is-visible'); document.getElementById('final-scene').style.opacity = 1; showNewDesign(); setTimeout(() => sceneEl.style.display = 'none', 1000); return; } scriptIndex++; processScript(); } async function playFinalAnimation() { characters.jesko.visible = false; characters.sophi.visible = false; await new Promise(r => setTimeout(r, 500)); let opacity = 0; const fadeDuration = 1500; const intervalTime = 1000 / 60; const step = 1 / (fadeDuration / intervalTime); return new Promise(resolve => { const fadeInterval = setInterval(() => { opacity += step; ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`; ctx.fillRect(0, 0, canvas.width, canvas.height); if (opacity >= 1) { clearInterval(fadeInterval); resolve(); } }, intervalTime); }); } function loadImage(src) { return new Promise((resolve, reject) => { const img = new Image(); img.onload = () => resolve(img); img.onerror = () => reject(`ERROR: No se pudo cargar la imagen '${src}'. Revisa la carpeta 'assets'.`); img.src = src; }); } draw(); processScript(); }
-    
     function initOrbParticles(canvasId) { const canvas = document.getElementById(canvasId); if (!canvas) return; const ctx = canvas.getContext('2d'); const radius = 50; canvas.width = radius * 2; canvas.height = radius * 2; let particles = []; const particleCount = 50; class Particle { constructor() { this.reset(); } reset() { this.x = radius; this.y = radius; this.size = Math.random() * 2 + 1; const angle = Math.random() * 360 * (Math.PI/180); const speed = Math.random() * 0.8 + 0.2; this.speedX = Math.cos(angle) * speed; this.speedY = Math.sin(angle) * speed; this.life = 100 + Math.random() * 50; this.sway = (Math.random() - 0.5) * 0.1; } draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fillStyle = `rgba(135, 206, 250, ${this.life / 100 * 0.5})`; ctx.fill(); } update() { this.life--; if(this.life <= 0) this.reset(); this.x += this.speedX; this.y += this.speedY; this.speedX += this.sway; this.speedY += this.sway; const dist = Math.sqrt(Math.pow(this.x - radius, 2) + Math.pow(this.y - radius, 2)); if (dist > radius - this.size) this.reset(); this.draw(); } } function init() { particles = []; for (let i = 0; i < particleCount; i++) { particles.push(new Particle()); } } function animate() { requestAnimationFrame(animate); ctx.clearRect(0, 0, canvas.width, canvas.height); for (let i = 0; i < particles.length; i++) { particles[i].update(); } } init(); animate(); }
-
     function initPetalAnimation() { const canvas = document.getElementById('petal-canvas'); const ctx = canvas.getContext('2d'); canvas.width = window.innerWidth; canvas.height = window.innerHeight; ctx.imageSmoothingEnabled = false; let petals = []; const petalCount = 40; class Petal { constructor() { this.reset(); this.y = Math.random() * canvas.height; } reset() { this.x = Math.random() * canvas.width; this.y = -10; this.w = 4 + Math.random() * 4; this.h = this.w; this.opacity = 0.5 + (this.w / 8) * 0.5; this.speedY = 0.5 + Math.random() * 0.5; this.sway = 0.5 + Math.random(); this.swayAngle = Math.random() * Math.PI; } draw() { ctx.fillStyle = `rgba(239, 194, 204, ${this.opacity})`; ctx.fillRect(this.x, this.y, this.w, this.h); } update() { this.y += this.speedY; this.swayAngle += 0.05; this.x += Math.sin(this.swayAngle) * this.sway; if (this.y > canvas.height) { this.reset(); } this.draw(); } } function init() { petals = []; for (let i = 0; i < petalCount; i++) { petals.push(new Petal()); } } function animate() { requestAnimationFrame(animate); ctx.clearRect(0, 0, canvas.width, canvas.height); for (let i = 0; i < petals.length; i++) { petals[i].update(); } } window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; ctx.imageSmoothingEnabled = false; init(); }); init(); animate(); }
     
+    // --- LÓGICA DE MODALES Y GALERÍA ---
     document.addEventListener('DOMContentLoaded', () => {
+        // Elementos de modales
         const giftModal = document.getElementById('gift-modal-overlay');
         const closeGiftModalBtn = document.getElementById('close-gift-modal-btn');
         const choices = document.querySelectorAll('.choice-card');
-        
         const confirmationModal = document.getElementById('confirmation-modal-overlay');
         const choiceTextEl = document.getElementById('choice-text');
         const confirmChoiceBtn = document.getElementById('confirm-choice-btn');
         const cancelChoiceBtn = document.getElementById('cancel-choice-btn');
-
+        const galleryModal = document.getElementById('gallery-modal-overlay');
+        const closeGalleryModalBtn = document.getElementById('close-gallery-modal-btn');
+        
+        // Cierre de modales
         const closeGiftModal = () => giftModal.classList.remove('is-visible');
         closeGiftModalBtn.onclick = closeGiftModal;
-        giftModal.onclick = (event) => {
-            if (event.target === giftModal) closeGiftModal();
-        };
+        giftModal.onclick = (event) => { if (event.target === giftModal) closeGiftModal(); };
+        
+        const closeConfirmationModal = () => { confirmationModal.classList.remove('is-visible'); pendingChoice = null; };
+        cancelChoiceBtn.onclick = closeConfirmationModal;
 
+        const closeGalleryModal = () => galleryModal.classList.remove('is-visible');
+        closeGalleryModalBtn.onclick = closeGalleryModal;
+        galleryModal.onclick = (event) => { if (event.target === galleryModal) closeGalleryModal(); };
+
+        // Lógica de elección de regalo
         choices.forEach(card => {
             card.onclick = () => {
                 if (regaloElegido) return;
-                
                 pendingChoice = card;
                 choiceTextEl.textContent = card.dataset.choice;
                 confirmationModal.classList.add('is-visible');
             };
         });
 
-        const closeConfirmationModal = () => {
-            confirmationModal.classList.remove('is-visible');
-            pendingChoice = null;
-        };
-        
-        cancelChoiceBtn.onclick = closeConfirmationModal;
-
+        // Lógica de confirmación de regalo
         confirmChoiceBtn.onclick = async () => {
             if (!pendingChoice) return;
-
             regaloElegido = true;
-            
             choices.forEach(c => c.classList.add('is-disabled'));
             pendingChoice.classList.add('is-selected');
-
             closeGiftModal();
             closeConfirmationModal();
 
@@ -751,6 +677,9 @@
             const heartIcon = document.getElementById('heart-icon-container');
             const folderIcon = document.getElementById('folder-icon-container');
             
+            // CAMBIO: Quitar estilos en línea para permitir la transición de CSS
+            giftContainer.style.top = '';
+            giftContainer.style.left = '';
             giftContainer.classList.add('is-claimed');
             
             setTimeout(() => {
@@ -759,12 +688,83 @@
             }, 600);
 
             await new Promise(resolve => setTimeout(resolve, 500));
-            
             const dialogEl = document.getElementById('final-dialog');
             await new Promise(resolve => escribirTexto(dialogEl, "¡Muy bien!", 60, resolve));
             await new Promise(resolve => setTimeout(resolve, 900));
             await new Promise(resolve => escribirTexto(dialogEl, "Me encargaré de la lógica para que reciba su regalo en 20 minutos como max.", 50, resolve, 2500));
         };
+
+        // --- LÓGICA DE LA GALERÍA ---
+        const imagePaths = [ "screenshots/img1p1.png", "screenshots/img1p2.png", "screenshots/img2p2.png", "screenshots/img3p2.png", "screenshots/img4p2.png", "screenshots/img1p3.png", "screenshots/img1p4.png", "screenshots/img2p4.png", "screenshots/img3p4.png" ];
+        let currentImageIndex = 0;
+
+        const mainImage = document.getElementById('gallery-main-image');
+        const thumbnailContainer = document.getElementById('thumbnail-container');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+
+        function showImage(index) {
+            if (index < 0 || index >= imagePaths.length) return;
+            currentImageIndex = index;
+            
+            mainImage.style.opacity = 0;
+            setTimeout(() => {
+                mainImage.src = imagePaths[currentImageIndex];
+                mainImage.style.opacity = 1;
+            }, 300);
+
+            document.querySelectorAll('.thumbnail-img').forEach((img, i) => {
+                img.classList.toggle('active', i === currentImageIndex);
+                if (i === currentImageIndex) {
+                    img.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }
+            });
+            prevBtn.style.display = (index === 0) ? 'none' : 'block';
+            nextBtn.style.display = (index === imagePaths.length - 1) ? 'none' : 'block';
+        }
+
+        imagePaths.forEach((path, index) => {
+            const thumb = document.createElement('img');
+            thumb.src = path;
+            thumb.classList.add('thumbnail-img');
+            thumb.onclick = () => showImage(index);
+            thumbnailContainer.appendChild(thumb);
+        });
+
+        prevBtn.onclick = () => showImage(currentImageIndex - 1);
+        nextBtn.onclick = () => showImage(currentImageIndex + 1);
+        
+        document.addEventListener('keydown', (e) => {
+            if (galleryModal.classList.contains('is-visible')) {
+                if (e.key === 'ArrowLeft') showImage(currentImageIndex - 1);
+                if (e.key === 'ArrowRight') showImage(currentImageIndex + 1);
+                if (e.key === 'Escape') closeGalleryModal();
+            }
+        });
+        
+        // Lógica de swipe/arrastre
+        let isDragging = false, startX, diffX;
+        const imageContainer = document.getElementById('main-image-container');
+        
+        const dragStart = (e) => { isDragging = true; startX = e.pageX || e.touches[0].pageX; imageContainer.style.cursor = 'grabbing'; };
+        const dragMove = (e) => { if (!isDragging) return; e.preventDefault(); const currentX = e.pageX || e.touches[0].pageX; diffX = startX - currentX; };
+        const dragEnd = () => { isDragging = false; imageContainer.style.cursor = 'grab'; if (Math.abs(diffX) > 50) { if (diffX > 0) nextBtn.click(); else prevBtn.click(); } };
+
+        imageContainer.addEventListener('mousedown', dragStart);
+        imageContainer.addEventListener('mousemove', dragMove);
+        imageContainer.addEventListener('mouseup', dragEnd);
+        imageContainer.addEventListener('mouseleave', dragEnd);
+        imageContainer.addEventListener('touchstart', dragStart);
+        imageContainer.addEventListener('touchmove', dragMove);
+        imageContainer.addEventListener('touchend', dragEnd);
+
+        // Abrir la galería al hacer clic en la carpeta
+        document.addEventListener('click', (e) => {
+            if(e.target.closest('#folder-icon-container')) {
+                showImage(0); // Inicia en la primera imagen
+                galleryModal.classList.add('is-visible');
+            }
+        });
     });
   </script>
 </body>
