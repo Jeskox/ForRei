@@ -182,6 +182,21 @@
         background: transparent; border: none;
         color: white; font-size: 24px; cursor: pointer;
     }
+
+    /* --- ESTILOS AÑADIDOS PARA LA SELECCIÓN DE REGALO --- */
+    .choice-card.is-selected {
+        border-color: var(--gift-border-color);
+        box-shadow: 0 0 15px 5px var(--gift-glow-color);
+        transform: scale(1.05);
+    }
+    .choice-card.is-disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        pointer-events: none; /* Bloquea futuros clics */
+    }
+    .choice-card.is-disabled:not(.is-selected) {
+        filter: grayscale(80%);
+    }
   </style>
 </head>
 <body>
@@ -246,6 +261,7 @@
   <script>
     let userName = '';
     let hasCinematicPlayed = false;
+    let regaloElegido = false; // <-- VARIABLE DE CONTROL AÑADIDA
 
     function escribirTexto(element, text, speed, callback) {
         let i = 0; element.innerHTML = ""; const cursor = document.createElement('span'); cursor.className = 'type-cursor'; cursor.innerHTML = '&nbsp;';
@@ -789,7 +805,8 @@
         window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; ctx.imageSmoothingEnabled = false; init(); });
         init(); animate();
     }
-
+    
+    // --- BLOQUE DE CÓDIGO MODIFICADO PARA LA LÓGICA DEL REGALO ---
     document.addEventListener('DOMContentLoaded', () => {
         const modal = document.getElementById('gift-modal-overlay');
         const closeModalBtn = document.getElementById('close-modal-btn');
@@ -807,9 +824,45 @@
         };
 
         choices.forEach(card => {
-            card.onclick = () => {
-                alert(`Has elegido: ${card.dataset.choice}`);
-                closeModal();
+            // La función ahora es 'async' para poder usar 'await' y secuenciar los diálogos
+            card.onclick = async () => {
+                // 1. Si ya se eligió un regalo, no hace nada más.
+                if (regaloElegido) {
+                    return;
+                }
+
+                const eleccion = card.dataset.choice;
+
+                // 2. Muestra un cuadro de confirmación nativo del navegador.
+                if (confirm(`¿Está segura de que desea escoger ${eleccion}?`)) {
+                    // Si el usuario presiona "Aceptar":
+
+                    // 3. Marca que ya se ha elegido un regalo.
+                    regaloElegido = true;
+                    
+                    // 4. Deshabilita visualmente todas las tarjetas.
+                    choices.forEach(c => {
+                        c.classList.add('is-disabled');
+                        if (c !== card) {
+                            c.classList.remove('is-selected');
+                        }
+                    });
+                    // Marca la tarjeta seleccionada.
+                    card.classList.add('is-selected');
+
+                    // Cierra la ventana modal.
+                    closeModal();
+
+                    // Espera un momento antes de empezar el nuevo diálogo.
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    // 5. Inicia el nuevo diálogo en el orbe final.
+                    const dialogEl = document.getElementById('final-dialog');
+                    await new Promise(resolve => escribirTexto(dialogEl, "¡Muy bien!", 60, resolve));
+                    await new Promise(resolve => setTimeout(resolve, 900));
+                    await new Promise(resolve => escribirTexto(dialogEl, "Me encargaré de la lógica para que reciba su regalo en 20 minutos como max.", 50, resolve));
+                }
+                // Si el usuario presiona "Cancelar", no ocurre nada.
             };
         });
     });
