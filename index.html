@@ -357,8 +357,7 @@
              assets = {
                 background: await loadImage('assets/salon.png'),
                 jesko: await loadImage('assets/jesko-sprite-1.png'),
-                sophi: await loadImage('assets/sophi-sprite-1.png'),
-                speechBubble: await loadImage('assets/burbuja-chat.png')
+                sophi: await loadImage('assets/sophi-sprite-1.png')
             };
         } catch (error) {
             alert(error);
@@ -383,58 +382,70 @@
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(assets.background, 0, 0, canvas.width, canvas.height);
+
             characters.jesko.yOffset = Math.sin(Date.now() * 0.002) * 2;
             characters.sophi.yOffset = Math.sin(Date.now() * 0.003) * 3;
+            
             for (const charName in characters) {
                 const char = characters[charName];
                 if (char.visible) {
                     ctx.drawImage(char.img, char.x - char.w/2, char.y - char.h/2 + char.yOffset, char.w, char.h);
                 }
             }
+            
             if (currentAction && currentAction.tipo === 'dialogo') {
                 if (dialogueProgress < dialogueText.length) {
                     dialogueProgress += 0.5;
                 }
                 drawSpeechBubble(characters[currentAction.personaje], dialogueText.substring(0, Math.floor(dialogueProgress)));
             }
+
             animationFrameId = requestAnimationFrame(draw);
         }
 
         function drawSpeechBubble(character, text) {
             if (!text) return;
-            const bubbleImg = assets.speechBubble;
-            const borderSize = 12; // Tamaño en píxeles de los bordes/esquinas de la imagen de la burbuja
-
-            ctx.font = "16px 'Press Start 2P'";
             
-            const { textWidth, lineCount } = wrapText(ctx, text, 0, 0, 300, 20, true);
-            const bubbleWidth = textWidth + 40;
-            const bubbleHeight = (lineCount * 20) + 30;
+            const fontSize = 16;
+            const padding = 10;
+            const bubbleMaxWidth = 300;
+            const lineHeight = 20;
+            ctx.font = `${fontSize}px 'Press Start 2P'`;
+            
+            const lines = wrapText(ctx, text, bubbleMaxWidth);
+            const textHeight = lines.length * lineHeight;
+            let textWidth = 0;
+            for (const line of lines) {
+                textWidth = Math.max(textWidth, ctx.measureText(line).width);
+            }
 
+            const bubbleWidth = textWidth + (padding * 2);
+            const bubbleHeight = textHeight + (padding * 2) - 5;
+            
             const bubbleX = character.x - bubbleWidth / 2;
             const bubbleY = character.y - (character.h / 2) - bubbleHeight - 20;
 
-            // 9-slice rendering
-            const sx = [0, borderSize, bubbleImg.width - borderSize];
-            const sy = [0, borderSize, bubbleImg.height - borderSize];
-            const sw = [borderSize, bubbleImg.width - 2 * borderSize, borderSize];
-            const sh = [borderSize, bubbleImg.height - 2 * borderSize, borderSize];
-            const dx = [bubbleX, bubbleX + borderSize, bubbleX + bubbleWidth - borderSize];
-            const dy = [bubbleY, bubbleY + borderSize, bubbleY + bubbleHeight - borderSize];
-            const dw = [borderSize, bubbleWidth - 2 * borderSize, borderSize];
-            const dh = [borderSize, bubbleHeight - 2 * borderSize, borderSize];
-
-            for (let i = 0; i < 3; i++) {
-                for (let j = 0; j < 3; j++) {
-                    ctx.drawImage(bubbleImg, sx[j], sy[i], sw[j], sh[i], dx[j], dy[i], dw[j], dh[i]);
-                }
-            }
+            ctx.fillStyle = 'white';
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 3;
+            ctx.fillRect(bubbleX, bubbleY, bubbleWidth, bubbleHeight);
+            ctx.strokeRect(bubbleX, bubbleY, bubbleWidth, bubbleHeight);
+            
+            ctx.beginPath();
+            ctx.moveTo(character.x - 10, bubbleY + bubbleHeight);
+            ctx.lineTo(character.x, bubbleY + bubbleHeight + 10);
+            ctx.lineTo(character.x + 10, bubbleY + bubbleHeight);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
 
             ctx.fillStyle = 'black';
-            wrapText(ctx, text, bubbleX + 20, bubbleY + 25, 300, 20, false);
+            for (let i = 0; i < lines.length; i++) {
+                ctx.fillText(lines[i], bubbleX + padding, bubbleY + padding + (i * lineHeight) + 5);
+            }
         }
 
-        function wrapText(context, text, x, y, maxWidth, lineHeight, measureOnly = false) {
+        function wrapText(context, text, maxWidth) {
             const words = text.split(' ');
             let lines = [];
             let currentLine = words[0];
@@ -450,18 +461,7 @@
                 }
             }
             lines.push(currentLine);
-
-            if (measureOnly) {
-                let maxWidthSoFar = 0;
-                for (const line of lines) {
-                    maxWidthSoFar = Math.max(maxWidthSoFar, context.measureText(line).width);
-                }
-                return { textWidth: maxWidthSoFar, lineCount: lines.length };
-            } else {
-                for (let i = 0; i < lines.length; i++) {
-                    context.fillText(lines[i], x, y + (i * lineHeight));
-                }
-            }
+            return lines;
         }
 
         async function processScript() {
