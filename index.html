@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Acceso al Asistente IA v12.6 (Completo y Final)</title>
+  <title>Acceso al Asistente IA v12.7 (Final)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,6 +13,9 @@
       /* Paleta de colores para la UI */
       --input-glow-color: #e025a8;
       --input-bg-color: #1e152a;
+      /* --- CAMBIO: Nuevos colores para la ventana modal --- */
+      --gift-glow-color: #e75480; /* Rosa Cereza */
+      --gift-border-color: #ffb3c1; /* Rosa Pálido */
     }
     html, body {
       height: 100%; margin: 0; padding: 0; overflow: hidden;
@@ -135,11 +138,12 @@
     }
     #gift-modal-overlay.is-visible { opacity: 1; pointer-events: auto; }
     #gift-modal-content {
-        background: #1e152a;
-        border: 2px solid #e025a8;
+        background: var(--input-bg-color);
+        /* --- CAMBIO: Color del borde y brillo --- */
+        border: 2px solid var(--gift-border-color);
         border-radius: 15px;
         padding: 30px 40px;
-        box-shadow: 0 0 25px 10px #e025a8;
+        box-shadow: 0 0 25px 10px var(--gift-glow-color);
         text-align: center;
         transform: scale(0.9);
         transition: transform 0.5s ease;
@@ -159,7 +163,7 @@
         transition: all 0.3s ease;
     }
     .choice-card:hover {
-        border-color: #e025a8;
+        border-color: var(--gift-border-color);
         transform: scale(1.05);
     }
     .choice-card img {
@@ -206,7 +210,8 @@
       <div class="texto-dialogo" id="texto-dialogo"></div>
   </div>
   <div id="explosion-container" style="display:none">
-    <div class="explosion-flash"></div><div class="explosion-shockwave"></div>
+    <div class="explosion-flash"></div>
+    <div class="explosion-shockwave"></div>
     <div id="explosion-particles"></div><div id="energy-tendrils"></div>
   </div>
   <div id="final-scene" style="display:none;">
@@ -220,14 +225,18 @@
   <div id="gift-modal-overlay">
     <div id="gift-modal-content">
         <button class="close-modal-btn" id="close-modal-btn">&times;</button>
-        <h2>Elige tu regalo:</h2>
+        <!-- --- CAMBIO: Título actualizado --- -->
+        <h2>Escoja su regalo</h2>
         <div class="choices-container">
-            <div class="choice-card" data-choice="Discord Nitro">
-                <img src="https://i.imgur.com/sd132li.jpeg" alt="Discord Nitro">
-                <span>Discord Nitro</span>
+            <div class="choice-card" data-choice="Discord Nitro Boost">
+                <!-- --- CAMBIO: Ruta de imagen local --- -->
+                <img src="gift/discord-nitro.png" alt="Discord Nitro">
+                <!-- --- CAMBIO: Texto actualizado --- -->
+                <span>Discord Nitro Boost</span>
             </div>
             <div class="choice-card" data-choice="Star Rail Monthly">
-                <img src="https://i.imgur.com/J32C2QT.jpeg" alt="Star Rail Monthly Pass">
+                <!-- --- CAMBIO: Ruta de imagen local --- -->
+                <img src="gift/star-rail-monhtly.png" alt="Star Rail Monthly Pass">
                 <span>Star Rail Monthly</span>
             </div>
         </div>
@@ -261,10 +270,10 @@
         const skipBtn = document.getElementById('skip-to-cinematic-btn');
         skipBtn.onclick = () => {
             userName = 'Rei';
-            hasCinematicPlayed = true; // Forzar la bandera para el diálogo post-cinemática
+            hasCinematicPlayed = true;
             document.getElementById('main-initial').style.display = 'none';
             document.getElementById('initial-background').style.opacity = '0';
-            showNewDesign(); // Saltar directamente a la escena final
+            showNewDesign();
         };
     });
 
@@ -400,7 +409,7 @@
         if (orbContainer) orbContainer.style.display = 'block';
         
         await new Promise(resolve => setTimeout(resolve, 1500));
-        await new Promise(resolve => escribirTexto(dialogEl, "Bueno… espero que haya entendido el punto de todo esto. Todo esto fue hecho con la mejor intención.", 60, resolve));
+        await new Promise(resolve => escribirTexto(dialogEl, "El objetivo era que entendiera el porqué de todo esto. Este espacio fue 'pensado' con la mejor intención.", 60, resolve));
         await new Promise(resolve => setTimeout(resolve, 2000));
         await new Promise(resolve => escribirTexto(dialogEl, "Me disculpo en nombre del incompetente que tengo por amo.", 60, resolve));
         await new Promise(resolve => setTimeout(resolve, 1500));
@@ -780,8 +789,7 @@
         window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; ctx.imageSmoothingEnabled = false; init(); });
         init(); animate();
     }
-    
-    // Lógica de la Ventana Modal del Regalo
+
     document.addEventListener('DOMContentLoaded', () => {
         const modal = document.getElementById('gift-modal-overlay');
         const closeModalBtn = document.getElementById('close-modal-btn');
