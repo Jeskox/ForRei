@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Acceso al Asistente IA v11.4 (Final)</title>
+  <title>Acceso al Asistente IA v11.4 (Final y Corregido)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -366,8 +366,22 @@
             return;
         }
         
-        const jeskoScale = 1.6;
-        const sophiScale = 1.2;
+        let animationFrameId;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            ctx.imageSmoothingEnabled = false;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const jeskoTargetHeight = canvas.height * 0.60;
+        const jeskoScale = jeskoTargetHeight / assets.jesko.height;
+
+        const sophiTargetHeight = canvas.height * 0.20;
+        const sophiScale = sophiTargetHeight / assets.sophi.height;
+        
         const characters = {
             jesko: { img: assets.jesko, x: 0, y: 0, visible: false, yOffset: 0, w: assets.jesko.width * jeskoScale, h: assets.jesko.height * jeskoScale },
             sophi: { img: assets.sophi, x: 0, y: 0, visible: false, yOffset: 0, w: assets.sophi.width * sophiScale, h: assets.sophi.height * sophiScale }
@@ -377,7 +391,6 @@
         let scriptIndex = 0;
         let dialogueText = '';
         let dialogueProgress = 0;
-        let animationFrameId;
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -425,7 +438,6 @@
             let bubbleX = character.x - bubbleWidth / 2;
             const bubbleY = character.y - (character.h / 2) - bubbleHeight - 20;
 
-            // Evitar que la burbuja se salga de la pantalla
             if (bubbleX < 10) bubbleX = 10;
             if (bubbleX + bubbleWidth > canvas.width - 10) bubbleX = canvas.width - bubbleWidth - 10;
 
@@ -500,13 +512,7 @@
             scriptIndex++;
             processScript();
         }
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            ctx.imageSmoothingEnabled = false;
-        }
-
+        
         function loadImage(src) {
             return new Promise((resolve, reject) => {
                 const img = new Image();
@@ -516,8 +522,6 @@
             });
         }
         
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
         draw();
         processScript();
     }
