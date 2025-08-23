@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Acceso al Asistente IA v12.7 (Final)</title>
+  <title>Acceso al Asistente IA v12.7 (Final Corregido)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,9 +13,13 @@
       /* Paleta de colores para la UI */
       --input-glow-color: #e025a8;
       --input-bg-color: #1e152a;
-      /* --- CAMBIO: Nuevos colores para la ventana modal --- */
-      --gift-glow-color: #e75480; /* Rosa Cereza */
-      --gift-border-color: #ffb3c1; /* Rosa Pálido */
+      /* Nuevos colores para la ventana modal de regalo */
+      --gift-glow-color: #e75480;
+      --gift-border-color: #ffb3c1;
+      /* Colores del orbe final */
+      --final-orb-bg1: #ffb3c1;
+      --final-orb-bg2: #e75480;
+      --final-orb-border: #ffb3c1;
     }
     html, body {
       height: 100%; margin: 0; padding: 0; overflow: hidden;
@@ -110,24 +114,9 @@
     #timeskip-overlay { position: fixed; inset: 0; z-index: 60; background-color: black; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.8s; }
     #timeskip-overlay.is-visible { opacity: 1; }
     #timeskip-text { font-family: 'VT323', monospace; font-size: 2rem; color: white; }
-    #skip-to-cinematic-btn {
-        position: fixed; bottom: 10px; left: 10px; z-index: 100;
-        background: rgba(0,0,0,0.5); color: white; border: 1px solid white;
-        padding: 5px 10px; font-family: 'Poppins', sans-serif; font-size: 12px;
-        cursor: pointer; border-radius: 5px; opacity: 0.7;
-    }
-    #gift-icon-container {
-        position: absolute; top: calc(40% + 120px); left: 50%;
-        transform: translate(-50%, -50%) scale(0);
-        transform-origin: bottom;
-        z-index: 20;
-        cursor: pointer;
-        animation: gift-appear 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-    }
-    @keyframes gift-appear {
-        from { transform: translate(-50%, -50%) scale(0); }
-        to { transform: translate(-50%, -50%) scale(1); }
-    }
+    #skip-to-cinematic-btn { position: fixed; bottom: 10px; left: 10px; z-index: 100; background: rgba(0,0,0,0.5); color: white; border: 1px solid white; padding: 5px 10px; font-family: 'Poppins', sans-serif; font-size: 12px; cursor: pointer; border-radius: 5px; opacity: 0.7; }
+    
+    /* --- ESTILOS DE LA VENTANA MODAL DEL REGALO --- */
     #gift-modal-overlay {
         position: fixed; inset: 0; z-index: 200;
         background: rgba(0,0,0,0.7);
@@ -200,7 +189,7 @@
         <button id="enviar-btn">Confirmar</button>
       </div>
     </div>
-    <button id="skip-to-cinematic-btn">Saltar a Regalo (Test)</button>
+    <button id="skip-to-cinematic-btn">Saltar a Cinemática (Test)</button>
   </div>
   <div id="transition-content" style="display: none;">
       <div class="orbe is-active">
@@ -212,7 +201,8 @@
   <div id="explosion-container" style="display:none">
     <div class="explosion-flash"></div>
     <div class="explosion-shockwave"></div>
-    <div id="explosion-particles"></div><div id="energy-tendrils"></div>
+    <div id="explosion-particles"></div>
+    <div id="energy-tendrils"></div>
   </div>
   <div id="final-scene" style="display:none;">
     <canvas id="petal-canvas"></canvas>
@@ -222,30 +212,40 @@
       <canvas id="cinematic-canvas"></canvas>
   </div>
   <div id="timeskip-overlay" style="display:none;"><span id="timeskip-text"></span></div>
-  <div id="gift-modal-overlay">
-    <div id="gift-modal-content">
-        <button class="close-modal-btn" id="close-modal-btn">&times;</button>
-        <!-- --- CAMBIO: Título actualizado --- -->
-        <h2>Escoja su regalo</h2>
-        <div class="choices-container">
-            <div class="choice-card" data-choice="Discord Nitro Boost">
-                <!-- --- CAMBIO: Ruta de imagen local --- -->
-                <img src="gift/discord-nitro.png" alt="Discord Nitro">
-                <!-- --- CAMBIO: Texto actualizado --- -->
-                <span>Discord Nitro Boost</span>
-            </div>
-            <div class="choice-card" data-choice="Star Rail Monthly">
-                <!-- --- CAMBIO: Ruta de imagen local --- -->
-                <img src="gift/star-rail-monhtly.png" alt="Star Rail Monthly Pass">
-                <span>Star Rail Monthly</span>
-            </div>
-        </div>
-    </div>
+
+  <!-- Ventana Modal para Confirmar Regalo -->
+  <div id="confirm-modal-overlay" class="modal-overlay">
+      <div class="modal-content">
+          <button class="close-modal-btn" id="close-confirm-modal-btn">&times;</button>
+          <p id="confirm-text"></p>
+          <button id="confirm-gift-btn" class="confirm-btn">Aceptar</button>
+      </div>
+  </div>
+
+  <!-- Ventana Modal para la Galería -->
+  <div id="gallery-modal-overlay" class<h1>.modal-overlay">
+      <div id="gallery-modal-content" class="modal-content">
+          <button class="close-modal-btn" id="close-gallery-modal-btn">&times;</button>
+          <h2>Galería de Imágenes</h2>
+          <div class="gallery-display">
+              <img id="main-gallery-image" src="" alt="Gallery Image">
+          </div>
+          <div class="gallery-thumbnails" id="gallery-thumbnails">
+              <!-- Las miniaturas se cargarán dinámicamente -->
+          </div>
+      </div>
   </div>
 
   <script>
     let userName = '';
     let hasCinematicPlayed = false;
+    let giftClaimed = false;
+    let currentGalleryIndex = 0;
+    const galleryImages = [
+        'gift/discord-nitro.png',
+        'gift/star-rail-monhtly.png'
+        // Aquí se añadirían más imágenes si fueran necesarias
+    ];
 
     function escribirTexto(element, text, speed, callback) {
         let i = 0; element.innerHTML = ""; const cursor = document.createElement('span'); cursor.className = 'type-cursor'; cursor.innerHTML = '&nbsp;';
@@ -269,8 +269,8 @@
 
         const skipBtn = document.getElementById('skip-to-cinematic-btn');
         skipBtn.onclick = () => {
-            userName = 'Rei';
-            hasCinematicPlayed = true;
+            userName = 'Rei'; // Forzar el nombre para el diálogo final
+            hasCinematicPlayed = true; // Marcar que la cinemática ha ocurrido
             document.getElementById('main-initial').style.display = 'none';
             document.getElementById('initial-background').style.opacity = '0';
             showNewDesign();
@@ -335,7 +335,7 @@
         }, 1800);
     }
 
-    function showNewDesign(skipToCinematic = false, startIndex = 0) {
+    function showNewDesign() {
         const scene = document.getElementById('final-scene');
         scene.style.display = 'block';
         setTimeout(() => scene.style.opacity = '1', 50);
@@ -343,7 +343,7 @@
         const uiContainer = document.getElementById('final-ui-container');
         uiContainer.innerHTML = `
             <div class="final-orb-container">
-                <div class="final-orb"><div class="scanlines"></div></div>
+                <div class="final-orb"></div>
             </div>
             <div class="final-orb-dialog" id="final-dialog"></div>
             <div id="start-button-container"></div> 
@@ -356,13 +356,6 @@
         
         if (hasCinematicPlayed) {
             iniciarDialogoPostCinematico();
-        } else if (skipToCinematic) {
-            const cinematicScene = document.getElementById('cinematic-scene');
-            cinematicScene.style.display = 'block';
-            setTimeout(() => {
-                cinematicScene.classList.add('is-visible');
-                initCinematic(startIndex);
-            }, 50);
         } else {
             setTimeout(iniciarDialogoFinal, 2000);
         }
@@ -409,7 +402,7 @@
         if (orbContainer) orbContainer.style.display = 'block';
         
         await new Promise(resolve => setTimeout(resolve, 1500));
-        await new Promise(resolve => escribirTexto(dialogEl, "El objetivo era que entendiera el porqué de todo esto. Este espacio fue 'pensado' con la mejor intención.", 60, resolve));
+        await new Promise(resolve => escribirTexto(dialogEl, "Bueno… espero que haya entendido el punto de todo esto. Todo esto fue hecho con la mejor intención.", 60, resolve));
         await new Promise(resolve => setTimeout(resolve, 2000));
         await new Promise(resolve => escribirTexto(dialogEl, "Me disculpo en nombre del incompetente que tengo por amo.", 60, resolve));
         await new Promise(resolve => setTimeout(resolve, 1500));
@@ -789,29 +782,473 @@
         window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; ctx.imageSmoothingEnabled = false; init(); });
         init(); animate();
     }
-
+    
+    // --- LÓGICA DE LA VENTANA MODAL DE CONFIRMACIÓN DE REGALO ---
     document.addEventListener('DOMContentLoaded', () => {
-        const modal = document.getElementById('gift-modal-overlay');
+        const giftModal = document.getElementById('gift-modal-overlay');
+        const confirmModal = document.getElementById('confirm-modal-overlay');
         const closeModalBtn = document.getElementById('close-modal-btn');
         const choices = document.querySelectorAll('.choice-card');
+        const confirmBtn = document.getElementById('confirm-gift-btn');
+        const confirmText = document.getElementById('confirm-text');
+        const giftIcon = document.getElementById('gift-icon-container');
+        const finalDialog = document.getElementById('final-dialog');
 
-        const closeModal = () => {
+        let pendingChoice = null;
+
+        const closeModal = (modalId) => {
+            const modal = document.getElementById(modalId);
             modal.classList.remove('is-visible');
         };
         
-        closeModalBtn.onclick = closeModal;
-        modal.onclick = (event) => {
-            if (event.target === modal) {
-                closeModal();
-            }
+        const showConfirmModal = (choice) => {
+            pendingChoice = choice;
+            confirmText.innerText = `¿Confirmar "${pendingChoice}" como su regalo?`;
+            confirmModal.classList.add('is-visible');
         };
 
+        const processGiftChoice = () => {
+            if (giftClaimed) return; // Si ya se reclamó, no hacer nada
+            giftClaimed = true;
+            closeModal('gift-modal-overlay');
+            closeModal('confirm-modal-overlay');
+            
+            if (giftIcon) {
+                giftIcon.classList.add('is-claimed');
+                giftIcon.style.cursor = 'default';
+            }
+            
+            // Mostrar el diálogo de confirmación del orbe
+            const orbOrb = document.querySelector('.final-orb-container');
+            if (orbOrb) orbOrb.style.display = 'block'; // Asegurarse que el orbe está visible
+            
+            escribirTexto(finalDialog, "Muy bien! Me encargare de la logica para que reciba su regalo en un periodo de 20 minutos max.", 60);
+        };
+
+        // Lógica para el modal de selección de regalo
+        const giftModal = document.getElementById('gift-modal-overlay');
+        closeModalBtn.onclick = () => closeModal('gift-modal-overlay');
+        giftModal.onclick = (event) => { if (event.target === giftModal) closeModal('gift-modal-overlay'); };
         choices.forEach(card => {
-            card.onclick = () => {
-                alert(`Has elegido: ${card.dataset.choice}`);
-                closeModal();
-            };
+            card.onclick = () => showConfirmModal(card.dataset.choice);
         });
+
+        // Lógica para el modal de confirmación
+        confirmBtn.onclick = processGiftChoice;
+    });
+
+    // --- LÓGICA DE LA CINEMÁTICA ---
+    const guion = [
+      { tipo: 'entrar', personaje: 'jesko', pos: { x: 0.30, y: 0.65 } },
+      { tipo: 'entrar', personaje: 'sophi', pos: { x: 0.75, y: 0.55 } },
+      { tipo: 'esperar', duracion: 1500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Vamos a conquistar el mundo, Sophi." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Suena a algo muy ambicioso, señor..." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Haré un viaje fuera del país." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Entiendo, ¿necesita que lo actualice en su calendario?" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "De hecho, necesitaré que te hagas cargo de todo aquí los días que estaré fuera." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Por supuesto, pero he de recordarle que solo puedo ayudarle en todo lo que esté a mi alcance." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Lo sé, por eso voy a integrarte más herramientas..." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Haz una lista de cosas pendientes que debo hacer antes de irme." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Si ese es el caso, cuente con mi ayuda. Estoy lista para tomar nota." },
+      { tipo: 'esperar', duracion: 3000 },
+      { tipo: 'timeskip', texto: 'Más tarde' },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "¿Ya ha considerado comunicarle una despedida a sus familiares y cercanos? De no ser así, puedo programar un mensaje automatizado." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "¿Es necesario?" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Las proyecciones futuras siempre contienen un margen de incertidumbre. No es posible garantizar el resultado de todos los eventos, eso incluye un viaje." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Caramba, suena como si me fuera a morir." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "No puedo morir, Sophi." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "¿No hasta que la muerte se lo gane, verdad?" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Exacto." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Bueno, igual mis padres ya están enterados." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Entiendo, ¿qué hay de la señorita Rei? ¿Ya ha tenido tiempo de hacérselo saber?" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Rei ya debe estar cansada de mí." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "La verdad, viniendo de usted, no me sorprende en absoluto. ¿Tuvieron alguna discusión? Porque si necesita un árbitro con lógica impecable, solo tiene que decirlo." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "No, ninguna." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Bueno, me he comportado como un idiota estos días. He estado muy distante por lo ocupado y pensativo que estoy." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Comprendo la situación. La planificación de un viaje pudo haber incrementado la carga de su poca capacidad cognitiva. Sin embargo, siempre hay tiempo para una comunicación breve." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "¿Me llamas descerebrado y luego te haces la psicóloga?" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Solo intento ser su salvavidas lógico en ese océano de irracionalidad que llama 'pensar'. Dejarlo solo podría causar un error de sistema en su cerebro." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Joder, qué graciosa. Bueno, tampoco es que no tengas razón." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "¿Qué sugieres entonces?" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Le sugiero que intente esa cosa que los humanos hacen: hablar. Podría ser revolucionario explicarle por qué su comportamiento se asemeja al de un electrodoméstico desconectado." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Carajo, Sophi." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "¿Y si estoy ocupado?" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Dato interesante: El tiempo que ha invertido en esa pregunta podría haber sido utilizado para enviar 4.7 mensajes de texto. Si eso es demasiado exigente, intente con un regalo." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Soy muy malo dando regalos, sugiere. Y evita darme diabetes con tus respuestas." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Una buena idea sería darle un regalo que hable por usted. Algo personal: un peluche, una pulsera o un collar." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Claro, seguro se sorprendería... pero de cómo es que yo sabría dónde vive para que le llegue un regalo." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Mencionaste un regalo que hable por mí. Partamos de ahí." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Podría hacerle una página web dedicada a ella. Un gesto detallista y moderno. Demostraría una dedicación y un cariño muy profundos." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Me gusta. Te encargo el HTML y agrégalo a tasks." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Excelente. Ya lo agendo. Es un gesto precioso, y me aseguraré de recordárselo, señor." },
+      { tipo: 'esperar', duracion: 3000 },
+      { tipo: 'timeskip', texto: 'Al día siguiente' },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Para mantenerlo al día, señor: cubrimos el 79% de las tareas. Sigue el Proyecto 'Ciber-Romeo', la página para la señorita Rei." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "¿Quién le puso ese nombre? 'Ciber-Romeo', jajaja." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Bueno, te encargo eso, Sophi. Es una oportunidad para ver qué tan autónoma puedes ser ahora." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Pídeme ayuda si es algo que no está a tu alcance, encárgate del resto tú." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Me pondré en ello entonces." },
+      { tipo: 'esperar', duracion: 3000 },
+      { tipo: 'timeskip', texto: 'Hasta luego, Insensible' },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Hoy es el día, Sophi." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Muy bien, y se ha asegurado de completar todo lo pendiente. Sería buena idea usar estas horas para una última revisión." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "¿Qué hay de lo 'Ciber-Romeo'?" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Dado que se trata de mí, el resultado es increíble. Como último detalle, un mensaje personal suyo la haría aún más especial." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "¿En serio?" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Así es, solo dígame cuándo esté listo." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Está bien, ahí voy." },
+      { tipo: 'esperar', duracion: 1000 },
+      { tipo: 'salir', personaje: 'sophi' },
+      { tipo: 'mover', personaje: 'jesko', pos: { x: 0.5, y: 0.65 } },
+      { tipo: 'esperar', duracion: 1500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Te quiero mucho, princesa." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Perdón por la actitud de electrodoméstico desconectado." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Recuerda no amargarte mucho." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Y cuídense las 3." },
+      { tipo: 'esperar', duracion: 1500 },
+      { tipo: 'mover', personaje: 'jesko', pos: { x: 0.30, y: 0.65 } },
+      { tipo: 'entrar', personaje: 'sophi', pos: { x: 0.75, y: 0.55 } },
+      { tipo: 'esperar', duracion: 1000 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Perfecto. Me encargaré de transmitir su... particular estilo de comunicación. Por otro lado, ¿tienen hijos o mascotas?" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Jajaja. Solo díselo." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Confío en que entenderá sus razones, señor. Es un gesto muy sincero." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Sobre eso, Sophi..." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Utilizaré este viaje para hacer un cambio de aire. Si todo regresa a la normalidad o no, tendrá que verse cuando vuelva." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "De todas maneras, te encargo hacérselo llegar." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Vaya... Siento de pronto que todo el esfuerzo que hemos puesto en esto ha sido en vano. Pero está bien, lo entiendo. Me encargaré de que reciba este presente." },
+      { tipo: 'esperar', duracion: 1000 },
+      { tipo: 'animacion_final' },
+      { tipo: 'fin' }
+    ];
+
+    async function initCinematic(startIndex = 0) {
+        const canvas = document.getElementById('cinematic-canvas');
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = false;
+        let assets;
+        try {
+             assets = {
+                background: await loadImage('assets/salon.png'),
+                jesko: await loadImage('assets/jesko-sprite-1.png'),
+                sophi: await loadImage('assets/sophi-sprite-1.png')
+            };
+        } catch (error) {
+            alert(error);
+            document.getElementById('cinematic-scene').classList.remove('is-visible');
+            document.getElementById('final-scene').style.opacity = 1;
+            return;
+        }
+        let animationFrameId;
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            ctx.imageSmoothingEnabled = false;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const jeskoTargetHeight = canvas.height * 0.54;
+        const jeskoScale = jeskoTargetHeight / assets.jesko.height;
+        const sophiTargetHeight = canvas.height * 0.20;
+        const sophiScale = sophiTargetHeight / assets.sophi.height;
+        
+        const characters = {
+            jesko: { img: assets.jesko, x: 0, y: 0, visible: false, yOffset: 0, w: assets.jesko.width * jeskoScale, h: assets.jesko.height * jeskoScale },
+            sophi: { img: assets.sophi, x: 0, y: 0, visible: false, yOffset: 0, w: assets.sophi.width * sophiScale, h: assets.sophi.height * sophiScale }
+        };
+        let currentAction = null;
+        let scriptIndex = startIndex;
+        let dialogueText = '';
+        let dialogueProgress = 0;
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(assets.background, 0, 0, canvas.width, canvas.height);
+            characters.jesko.yOffset = Math.sin(Date.now() * 0.002) * 2;
+            characters.sophi.yOffset = Math.sin(Date.now() * 0.003) * 3;
+            for (const charName in characters) {
+                const char = characters[charName];
+                if (char.visible) {
+                    ctx.drawImage(char.img, char.x - char.w/2, char.y - char.h/2 + char.yOffset, char.w, char.h);
+                }
+            }
+            if (currentAction && currentAction.tipo === 'dialogo') {
+                if (dialogueProgress < dialogueText.length) {
+                    dialogueProgress += 0.5;
+                }
+                drawSpeechBubble(characters[currentAction.personaje], dialogueText.substring(0, Math.floor(dialogueProgress)));
+            }
+            animationFrameId = requestAnimationFrame(draw);
+        }
+
+        function drawSpeechBubble(character, text) {
+            if (!text) return;
+            const fontSize = 23;
+            const padding = 20;
+            const bubbleMaxWidth = 350;
+            const lineHeight = 30;
+            ctx.font = `${fontSize}px 'VT323', monospace`;
+            const lines = wrapText(ctx, text, bubbleMaxWidth - (padding * 2));
+            const textHeight = (lines.length * lineHeight);
+            let textWidth = 0;
+            for (const line of lines) { textWidth = Math.max(textWidth, ctx.measureText(line).width); }
+            const bubbleWidth = textWidth + (padding * 2);
+            const bubbleHeight = textHeight + padding;
+            let bubbleX = character.x - bubbleWidth / 2;
+            const bubbleY = character.y - (character.h / 2) - bubbleHeight - 20;
+            if (bubbleX < 10) bubbleX = 10;
+            if (bubbleX + bubbleWidth > canvas.width - 10) bubbleX = canvas.width - bubbleWidth - 10;
+            ctx.fillStyle = 'white';
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 3;
+            ctx.fillRect(bubbleX, bubbleY, bubbleWidth, bubbleHeight);
+            ctx.strokeRect(bubbleX, bubbleY, bubbleWidth, bubbleHeight);
+            ctx.beginPath();
+            ctx.moveTo(character.x - 10, bubbleY + bubbleHeight);
+            ctx.lineTo(character.x, bubbleY + bubbleHeight + 10);
+            ctx.lineTo(character.x + 10, bubbleY + bubbleHeight);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = 'black';
+            for (let i = 0; i < lines.length; i++) {
+                ctx.fillText(lines[i], bubbleX + padding, bubbleY + padding + 5 + (i * lineHeight));
+            }
+        }
+
+        function wrapText(context, text, maxWidth) {
+            const words = text.split(' ');
+            let lines = [];
+            let currentLine = words[0] || '';
+            for (let i = 1; i < words.length; i++) {
+                const word = words[i];
+                const width = context.measureText(currentLine + " " + word).width;
+                if (width < maxWidth) {
+                    currentLine += " " + word;
+                } else {
+                    lines.push(currentLine);
+                    currentLine = word;
+                }
+            }
+            lines.push(currentLine);
+            return lines;
+        }
+
+        async function processScript() {
+            if (scriptIndex >= guion.length) return;
+            const action = guion[scriptIndex];
+            currentAction = action;
+            dialogueText = '';
+            dialogueProgress = 0;
+
+            switch (action.tipo) {
+                case 'entrar': characters[action.personaje].visible = true; characters[action.personaje].x = canvas.width * action.pos.x; characters[action.personaje].y = canvas.height * action.pos.y; break;
+                case 'salir': characters[action.personaje].visible = false; break;
+                case 'mover': characters[action.personaje].x = canvas.width * action.pos.x; characters[action.personaje].y = canvas.height * action.pos.y; break;
+                case 'esperar': currentAction = null; await new Promise(r => setTimeout(r, action.duracion)); break;
+                case 'dialogo': dialogueText = action.texto; const duration = dialogueText.length * 50 + (dialogueText.length > 50 ? 2000 : 1000); await new Promise(r => setTimeout(r, duration)); break;
+                case 'timeskip':
+                    const cinematicScene = document.getElementById('cinematic-scene');
+                    const timeskipOverlay = document.getElementById('timeskip-overlay');
+                    const timeskipText = document.getElementById('timeskip-text');
+                    timeskipText.innerText = action.texto;
+                    cinematicScene.style.opacity = 0;
+                    await new Promise(r => setTimeout(r, 800));
+                    timeskipOverlay.style.display = 'flex';
+                    setTimeout(() => timeskipOverlay.classList.add('is-visible'), 10);
+                    await new Promise(r => setTimeout(r, 2500));
+                    timeskipOverlay.classList.remove('is-visible');
+                    await new Promise(r => setTimeout(r, 800));
+                    timeskipOverlay.style.display = 'none';
+                    cinematicScene.style.opacity = 1;
+                    await new Promise(r => setTimeout(r, 800));
+                    break;
+                case 'animacion_final': currentAction = null; await playFinalAnimation(); break;
+                case 'fin':
+                    cancelAnimationFrame(animationFrameId);
+                    hasCinematicPlayed = true;
+                    const sceneEl = document.getElementById('cinematic-scene');
+                    sceneEl.classList.remove('is-visible');
+                    document.getElementById('final-scene').style.opacity = 1;
+                    showNewDesign();
+                    setTimeout(() => sceneEl.style.display = 'none', 1000);
+                    return;
+            }
+            
+            scriptIndex++;
+            processScript();
+        }
+
+        async function playFinalAnimation() {
+            characters.jesko.visible = false;
+            characters.sophi.visible = false;
+            await new Promise(r => setTimeout(r, 500));
+            let opacity = 0; const fadeDuration = 1500; const intervalTime = 1000 / 60; const step = 1 / (fadeDuration / intervalTime);
+            return new Promise(resolve => {
+                const fadeInterval = setInterval(() => {
+                    opacity += step;
+                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    if (opacity >= 1) { clearInterval(fadeInterval); resolve(); }
+                }, intervalTime);
+            });
+        }
+
+        function loadImage(src) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = () => reject(`ERROR: No se pudo cargar la imagen '${src}'. Revisa la carpeta 'assets'.`);
+                img.src = src;
+            });
+        }
+        
+        draw();
+        processScript();
+    }
+    
+    function initOrbParticles(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const radius = 50;
+        canvas.width = radius * 2; canvas.height = radius * 2;
+        let particles = []; const particleCount = 50;
+        class Particle {
+            constructor() { this.reset(); }
+            reset() { this.x = radius; this.y = radius; this.size = Math.random() * 2 + 1; const angle = Math.random() * 360 * (Math.PI/180); const speed = Math.random() * 0.8 + 0.2; this.speedX = Math.cos(angle) * speed; this.speedY = Math.sin(angle) * speed; this.life = 100 + Math.random() * 50; this.sway = (Math.random() - 0.5) * 0.1; }
+            draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fillStyle = `rgba(135, 206, 250, ${this.life / 100 * 0.5})`; ctx.fill(); }
+            update() { this.life--; if(this.life <= 0) this.reset(); this.x += this.speedX; this.y += this.speedY; this.speedX += this.sway; this.speedY += this.sway; const dist = Math.sqrt(Math.pow(this.x - radius, 2) + Math.pow(this.y - radius, 2)); if (dist > radius - this.size) this.reset(); this.draw(); }
+        }
+        function init() { particles = []; for (let i = 0; i < particleCount; i++) { particles.push(new Particle()); } }
+        function animate() { requestAnimationFrame(animate); ctx.clearRect(0, 0, canvas.width, canvas.height); for (let i = 0; i < particles.length; i++) { particles[i].update(); } }
+        init(); animate();
+    }
+
+    function initPetalAnimation() {
+        const canvas = document.getElementById('petal-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight; ctx.imageSmoothingEnabled = false;
+        let petals = []; const petalCount = 40;
+        class Petal {
+            constructor() { this.reset(); this.y = Math.random() * canvas.height; }
+            reset() { this.x = Math.random() * canvas.width; this.y = -10; this.w = 4 + Math.random() * 4; this.h = this.w; this.opacity = 0.5 + (this.w / 8) * 0.5; this.speedY = 0.5 + Math.random() * 0.5; this.sway = 0.5 + Math.random(); this.swayAngle = Math.random() * Math.PI; }
+            draw() { ctx.fillStyle = `rgba(239, 194, 204, ${this.opacity})`; ctx.fillRect(this.x, this.y, this.w, this.h); }
+            update() { this.y += this.speedY; this.swayAngle += 0.05; this.x += Math.sin(this.swayAngle) * this.sway; if (this.y > canvas.height) { this.reset(); } this.draw(); }
+        }
+        function init() { petals = []; for (let i = 0; i < petalCount; i++) { petals.push(new Petal()); } }
+        function animate() { requestAnimationFrame(animate); ctx.clearRect(0, 0, canvas.width, canvas.height); for (let i = 0; i < petals.length; i++) { petals[i].update(); } }
+        window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; ctx.imageSmoothingEnabled = false; init(); });
+        init(); animate();
+    }
+    
+    // --- LÓGICA DE LAS VENTANAS MODALES ---
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- Ventana Modal de Confirmación de Regalo ---
+        const giftModal = document.getElementById('gift-modal-overlay');
+        const confirmModal = document.getElementById('confirm-modal-overlay');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const choices = document.querySelectorAll('.choice-card');
+        const confirmBtn = document.getElementById('confirm-gift-btn');
+        const confirmText = document.getElementById('confirm-text');
+        const giftIcon = document.getElementById('gift-icon-container');
+        const finalDialog = document.getElementById('final-dialog');
+
+        let pendingChoice = null;
+
+        const closeModal = (modalId) => {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('is-visible');
+        };
+        
+        const showConfirmModal = (choice) => {
+            pendingChoice = choice;
+            confirmText.innerText = `¿Confirmar "${pendingChoice}" como su regalo?`;
+            confirmModal.classList.add('is-visible');
+        };
+
+        const processGiftChoice = () => {
+            if (giftClaimed) return;
+            giftClaimed = true;
+            
+            closeModal('gift-modal-overlay');
+            closeModal('confirm-modal-overlay');
+            
+            if (giftIcon) {
+                giftIcon.classList.add('is-claimed');
+                giftIcon.style.cursor = 'default';
+            }
+            
+            const orbOrb = document.querySelector('.final-orb-container');
+            if (orbOrb) orbOrb.style.display = 'block';
+            
+            escribirTexto(finalDialog, "Muy bien! Me encargare de la logica para que reciba su regalo en un periodo de 20 minutos max.", 60);
+        };
+
+        closeModalBtn.onclick = () => closeModal('gift-modal-overlay');
+        giftModal.onclick = (event) => { if (event.target === giftModal) closeModal('gift-modal-overlay'); };
+
+        choices.forEach(card => {
+            card.onclick = () => showConfirmModal(card.dataset.choice);
+        });
+
+        confirmBtn.onclick = processGiftChoice;
     });
   </script>
 </body>
