@@ -81,6 +81,7 @@
     .texto-dialogo { background: linear-gradient(135deg, #00bfffbb, #8A2BE2cc 80%); border: 2px solid #00bfff; border-radius: 13px; color: #fff; font-size: 1em; box-shadow: 0 0 10px #00bfff; padding: 13px 22px; text-shadow: 0 0 8px #fff; min-width: 180px; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.7s forwards; }
     @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
     .futuristic-box { background: linear-gradient(135deg, #2a0047cc 60%, #6500c2cc 100%); border: 2px solid #a500d2; border-radius: 15px; box-shadow: 0 0 16px 2px #a500d288, 0 0 2px #fff; padding: 25px 20px; min-width: 210px; display: flex; flex-direction: column; align-items: center; gap: 13px; animation: fadeIn 0.7s; backdrop-filter: blur(2px); }
+    .input-row { display: flex; align-items: center; gap: 10px; }
     input[type="text"] { padding: 7px 12px; border-radius: 8px; border: 2px solid #a500d2; background: #25003cbb; color: #fff; font-size: 1em; outline: none; box-shadow: 0 0 7px #a500d2; transition: all 0.2s; } input[type="text"]:focus { border-color: #ff38e7; box-shadow: 0 0 10px #ff38e7; }
     input[type="text"]:disabled { opacity: 0.5; cursor: not-allowed; }
     button { padding: 7px 18px; background: linear-gradient(90deg, #a500d2, #ff38e7); border: none; border-radius: 8px; color: #fff; font-weight: bold; font-size: 1em; box-shadow: 0 0 10px #a500d2; cursor: pointer; transition: all 0.2s; } button:hover { background: linear-gradient(90deg, #ff38e7, #a500d2); } button:disabled { opacity: 0.5; cursor: not-allowed; background: #555; }
@@ -184,18 +185,40 @@
     
     #final-message-box {
         position: absolute;
-        bottom: 5%;
+        bottom: 18%; /* Subido para no tapar los iconos */
         left: 50%;
         transform: translateX(-50%) translateY(20px);
         opacity: 0;
         z-index: 21;
         transition: opacity 0.5s, transform 0.5s;
         visibility: hidden;
+        padding: 15px; /* Menos padding vertical */
     }
     #final-message-box.is-visible {
         opacity: 1;
         transform: translateX(-50%) translateY(0);
         visibility: visible;
+    }
+
+    #toast-notification {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(26, 9, 44, 0.9);
+        color: white;
+        padding: 12px 25px;
+        border-radius: 8px;
+        border: 1px solid var(--gift-border-color);
+        box-shadow: 0 0 15px rgba(231, 84, 128, 0.5);
+        opacity: 0;
+        transition: opacity 0.5s, transform 0.5s;
+        pointer-events: none;
+        z-index: 300;
+    }
+    #toast-notification.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-20px);
     }
   </style>
 </head>
@@ -291,6 +314,7 @@
           <div class="thumbnail-container"></div>
       </div>
   </div>
+  <div id="toast-notification"></div>
 
 
   <script>
@@ -300,6 +324,7 @@
     let pendingChoice = null;
     let giftClickCount = 0;
     let hasShownHeartDialog = false;
+    let toastTimeout;
 
     function escribirTexto(element, text, speed, callback, clearAfter = 0) { let i = 0; element.innerHTML = ""; const cursor = document.createElement('span'); cursor.className = 'type-cursor'; cursor.innerHTML = '&nbsp;'; function write() { if (i < text.length) { element.innerHTML = text.substring(0, i + 1); element.appendChild(cursor); i++; setTimeout(write, speed); } else { cursor.remove(); if (clearAfter > 0) { setTimeout(() => { element.innerHTML = ''; }, clearAfter); } if (callback) callback(); } } write(); }
     
@@ -344,7 +369,7 @@
     nombreInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') enviarBtn.click(); });
 
     function showExplosionAndSwitchDesign() { const explosionContainer = document.getElementById('explosion-container'); explosionContainer.style.display = 'flex'; const particlesContainer = document.getElementById('explosion-particles'); const tendrilsContainer = document.getElementById('energy-tendrils'); particlesContainer.innerHTML = ''; tendrilsContainer.innerHTML = ''; for (let i = 0; i < 50; i++) { const p = document.createElement('div'); p.classList.add('particle'); const angle = Math.random() * 360 * (Math.PI / 180); const dist = (Math.random() * 0.5 + 0.5) * window.innerWidth; p.style.setProperty('--x', `${Math.cos(angle) * dist}px`); p.style.setProperty('--y', `${Math.sin(angle) * dist}px`); particlesContainer.appendChild(p); } for (let i = 0; i < 25; i++) { const t = document.createElement('div'); t.classList.add('energy-tendril'); t.style.setProperty('--angle', `${Math.random() * 360}deg`); t.style.animationDelay = `${Math.random() * 0.2}s`; tendrilsContainer.appendChild(t); } setTimeout(() => { document.getElementById('initial-background').style.opacity = '0'; showNewDesign(); explosionContainer.style.display = 'none'; }, 1800); }
-    function showNewDesign(skipToCinematic = false, startIndex = 0) { const scene = document.getElementById('final-scene'); scene.style.display = 'block'; setTimeout(() => scene.style.opacity = '1', 50); const uiContainer = document.getElementById('final-ui-container'); uiContainer.innerHTML = ` <div class="final-orb-container"> <div class="final-orb"><div class="scanlines"></div></div> </div> <div class="final-orb-dialog" id="final-dialog"></div> <div id="start-button-container"></div> <div id="gift-icon-container" style="display: none;"> <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="#ffb3c1" stroke="#fff" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg> </div> <div id="heart-icon-container" class="extra-icon"> <img src="icon-heart.png" alt="Corazón"> </div> <div id="folder-icon-container" class="extra-icon"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ffb3c1" stroke="#fff" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"> <path d="M4 5a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5z"/> </svg> </div> <div id="final-message-box" class="futuristic-box"> <input type="text" id="final-message-input" placeholder="Escriba su mensaje..."> <button id="send-message-btn">Enviar</button> </div>`; initPetalAnimation(); if (hasCinematicPlayed) { iniciarDialogoPostCinematico(); } else if (skipToCinematic) { const cinematicScene = document.getElementById('cinematic-scene'); cinematicScene.style.display = 'block'; setTimeout(() => { cinematicScene.classList.add('is-visible'); initCinematic(startIndex); }, 50); } else { setTimeout(iniciarDialogoFinal, 2000); } document.getElementById('send-message-btn').onclick = () => { const input = document.getElementById('final-message-input'); if(input.value.trim()){ alert('Mensaje enviado.'); input.value = ''; } }; }
+    function showNewDesign(skipToCinematic = false, startIndex = 0) { const scene = document.getElementById('final-scene'); scene.style.display = 'block'; setTimeout(() => scene.style.opacity = '1', 50); const uiContainer = document.getElementById('final-ui-container'); uiContainer.innerHTML = ` <div class="final-orb-container"> <div class="final-orb"><div class="scanlines"></div></div> </div> <div class="final-orb-dialog" id="final-dialog"></div> <div id="start-button-container"></div> <div id="gift-icon-container" style="display: none;"> <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="#ffb3c1" stroke="#fff" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg> </div> <div id="heart-icon-container" class="extra-icon"> <img src="icon-heart.png" alt="Corazón"> </div> <div id="folder-icon-container" class="extra-icon"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ffb3c1" stroke="#fff" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"> <path d="M4 5a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5z"/> </svg> </div> <div id="final-message-box" class="futuristic-box"> <div class="input-row"> <input type="text" id="final-message-input" placeholder="Escriba su mensaje..."> <button id="send-message-btn">Enviar</button> </div> </div>`; initPetalAnimation(); if (hasCinematicPlayed) { iniciarDialogoPostCinematico(); } else if (skipToCinematic) { const cinematicScene = document.getElementById('cinematic-scene'); cinematicScene.style.display = 'block'; setTimeout(() => { cinematicScene.classList.add('is-visible'); initCinematic(startIndex); }, 50); } else { setTimeout(iniciarDialogoFinal, 2000); } document.getElementById('send-message-btn').onclick = () => { const input = document.getElementById('final-message-input'); if(input.value.trim()){ showToast('Mensaje Enviado'); input.value = ''; } }; }
     async function iniciarDialogoFinal() { const dialogEl = document.getElementById('final-dialog'); const buttonContainer = document.getElementById('start-button-container'); await new Promise(resolve => escribirTexto(dialogEl, "Bienvenida, señorita Rei.", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 900)); await new Promise(resolve => escribirTexto(dialogEl, "Mi nombre es Sophi, asistente virtual de Jesko.", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 900)); await new Promise(resolve => escribirTexto(dialogEl, "Este espacio fue hecho como parte de un regalo para usted.", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 600)); await new Promise(resolve => escribirTexto(dialogEl, "Pero...", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 300)); await new Promise(resolve => escribirTexto(dialogEl, "Pero... ¿Por qué?", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 900)); await new Promise(resolve => escribirTexto(dialogEl, "He preparado una manera dinámica para ponerla en contexto.", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 500)); const startButton = document.createElement('button'); startButton.id = 'start-cinematic-btn'; startButton.innerText = 'Iniciar'; buttonContainer.appendChild(startButton); startButton.onclick = () => { document.getElementById('final-scene').style.opacity = 0; const cinematicScene = document.getElementById('cinematic-scene'); cinematicScene.style.display = 'block'; setTimeout(() => { cinematicScene.classList.add('is-visible'); initCinematic(); }, 50); }; }
     function moveGiftIconRandomly() { const container = document.getElementById('gift-icon-container'); const newTop = Math.floor(Math.random() * 70) + 15; const newLeft = Math.floor(Math.random() * 80) + 10; container.style.top = `${newTop}%`; container.style.left = `${newLeft}%`; }
     async function iniciarDialogoPostCinematico() { const dialogEl = document.getElementById('final-dialog'); const giftContainer = document.getElementById('gift-icon-container'); const orbContainer = document.querySelector('.final-orb-container'); if (orbContainer) orbContainer.style.display = 'block'; await new Promise(resolve => setTimeout(resolve, 1500)); await new Promise(resolve => escribirTexto(dialogEl, "El objetivo era que entendiera el porqué de todo esto. Este espacio fue 'pensado' con la mejor intención.", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 2000)); await new Promise(resolve => escribirTexto(dialogEl, "Me disculpo en nombre del incompetente que tengo por amo.", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 1500)); await new Promise(resolve => escribirTexto(dialogEl, "Confío en que la situación se normalizará.", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 1500)); await new Promise(resolve => escribirTexto(dialogEl, "Habiendo dicho esto…", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 1200)); await new Promise(resolve => escribirTexto(dialogEl, "Aun queda una sorpresa más para usted.", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 800)); dialogEl.innerHTML = ''; if (giftContainer) { giftContainer.style.display = 'block'; giftContainer.onclick = () => { if (giftClickCount >= 3) { if (!regaloElegido) document.getElementById('gift-modal-overlay').classList.add('is-visible'); return; } giftClickCount++; moveGiftIconRandomly(); if (giftClickCount === 3) { setTimeout(() => { giftContainer.style.top = ''; giftContainer.style.left = ''; giftContainer.classList.add('is-settled'); document.getElementById('heart-icon-container').classList.add('is-visible'); document.getElementById('folder-icon-container').classList.add('is-visible'); }, 800); } }; } }
@@ -353,6 +378,7 @@
     function initOrbParticles(canvasId) { const canvas = document.getElementById(canvasId); if (!canvas) return; const ctx = canvas.getContext('2d'); const radius = 50; canvas.width = radius * 2; canvas.height = radius * 2; let particles = []; const particleCount = 50; class Particle { constructor() { this.reset(); } reset() { this.x = radius; this.y = radius; this.size = Math.random() * 2 + 1; const angle = Math.random() * 360 * (Math.PI/180); const speed = Math.random() * 0.8 + 0.2; this.speedX = Math.cos(angle) * speed; this.speedY = Math.sin(angle) * speed; this.life = 100 + Math.random() * 50; this.sway = (Math.random() - 0.5) * 0.1; } draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fillStyle = `rgba(135, 206, 250, ${this.life / 100 * 0.5})`; ctx.fill(); } update() { this.life--; if(this.life <= 0) this.reset(); this.x += this.speedX; this.y += this.speedY; this.speedX += this.sway; this.speedY += this.sway; const dist = Math.sqrt(Math.pow(this.x - radius, 2) + Math.pow(this.y - radius, 2)); if (dist > radius - this.size) this.reset(); this.draw(); } } function init() { particles = []; for (let i = 0; i < particleCount; i++) { particles.push(new Particle()); } } function animate() { requestAnimationFrame(animate); ctx.clearRect(0, 0, canvas.width, canvas.height); for (let i = 0; i < particles.length; i++) { particles[i].update(); } } init(); animate(); }
     function initPetalAnimation() { const canvas = document.getElementById('petal-canvas'); const ctx = canvas.getContext('2d'); canvas.width = window.innerWidth; canvas.height = window.innerHeight; ctx.imageSmoothingEnabled = false; let petals = []; const petalCount = 40; class Petal { constructor() { this.reset(); this.y = Math.random() * canvas.height; } reset() { this.x = Math.random() * canvas.width; this.y = -10; this.w = 4 + Math.random() * 4; this.h = this.w; this.opacity = 0.5 + (this.w / 8) * 0.5; this.speedY = 0.5 + Math.random() * 0.5; this.sway = 0.5 + Math.random(); this.swayAngle = Math.random() * Math.PI; } draw() { ctx.fillStyle = `rgba(239, 194, 204, ${this.opacity})`; ctx.fillRect(this.x, this.y, this.w, this.h); } update() { this.y += this.speedY; this.swayAngle += 0.05; this.x += Math.sin(this.swayAngle) * this.sway; if (this.y > canvas.height) { this.reset(); } this.draw(); } } function init() { petals = []; for (let i = 0; i < petalCount; i++) { petals.push(new Petal()); } } function animate() { requestAnimationFrame(animate); ctx.clearRect(0, 0, canvas.width, canvas.height); for (let i = 0; i < petals.length; i++) { petals[i].update(); } } window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; ctx.imageSmoothingEnabled = false; init(); }); init(); animate(); }
     
+    function showToast(message) { clearTimeout(toastTimeout); const toast = document.getElementById('toast-notification'); toast.textContent = message; toast.classList.add('show'); toastTimeout = setTimeout(() => { toast.classList.remove('show'); }, 3000); }
     function launchFireworks() { const container = document.getElementById('fireworks-container'); const fireworksCount = 7; const colors = ['#ffb3c1', '#e75480', '#a955c4', '#fff']; for (let i = 0; i < fireworksCount; i++) { const fwX = Math.random() * window.innerWidth; const fwY = Math.random() * window.innerHeight * 0.7; const particleCount = 50; for (let j = 0; j < particleCount; j++) { const p = document.createElement('div'); p.classList.add('firework-particle'); p.style.left = `${fwX}px`; p.style.top = `${fwY}px`; p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)]; const angle = Math.random() * 360 * (Math.PI / 180); const dist = Math.random() * 150 + 50; p.style.setProperty('--x', `${Math.cos(angle) * dist}px`); p.style.setProperty('--y', `${Math.sin(angle) * dist}px`); p.style.animationDelay = `${Math.random() * 0.3}s`; container.appendChild(p); setTimeout(() => p.remove(), 1500); } } }
     async function iniciarDialogoFinalDespedida() {
         await new Promise(r => setTimeout(r, 2000));
@@ -375,7 +401,6 @@
         await new Promise(r => escribirTexto(dialogEl, "Hasta luego señorita Rei.", 50, r));
         await new Promise(r => setTimeout(r, 1000));
         dialogEl.innerHTML = '';
-        
         const finalOrb = document.querySelector('.final-orb');
         if (finalOrb) {
             const lightEffect = document.createElement('div');
@@ -383,9 +408,9 @@
             finalOrb.appendChild(lightEffect);
             launchFireworks();
             setTimeout(() => {
-                finalOrb.style.background = '';
-                finalOrb.style.borderColor = '';
-                finalOrb.style.boxShadow = '';
+                finalOrb.style.background = 'radial-gradient(circle, #555, #111 70%)';
+                finalOrb.style.borderColor = '#444';
+                finalOrb.style.boxShadow = '0 0 15px 5px #333, inset 0 0 20px 10px #111';
                 finalOrb.style.animation = 'none';
                 lightEffect.remove();
             }, 1500);
@@ -399,7 +424,7 @@
         const choiceTextEl = document.getElementById('choice-text');
         const confirmChoiceBtn = document.getElementById('confirm-choice-btn');
         const cancelChoiceBtn = document.getElementById('cancel-choice-btn');
-        const closeGiftModal = () => giftModal.querySelector('.modal-overlay') || giftModal.classList.remove('is-visible');
+        const closeGiftModal = () => (giftModal.querySelector('.modal-overlay') || giftModal).classList.remove('is-visible');
         giftModal.querySelector('.close-modal-btn').onclick = closeGiftModal;
         giftModal.onclick = (event) => { if (event.target === giftModal) closeGiftModal(); };
         const closeConfirmationModal = () => { confirmationModal.classList.remove('is-visible'); pendingChoice = null; };
