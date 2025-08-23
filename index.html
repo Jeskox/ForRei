@@ -13,8 +13,9 @@
       /* Paleta de colores para la UI */
       --input-glow-color: #e025a8;
       --input-bg-color: #1e152a;
-      --gift-glow-color: #e75480;
-      --gift-border-color: #ffb3c1;
+      /* --- CAMBIO: Nuevos colores para la ventana modal --- */
+      --gift-glow-color: #e75480; /* Rosa Cereza */
+      --gift-border-color: #ffb3c1; /* Rosa Pálido */
     }
     html, body {
       height: 100%; margin: 0; padding: 0; overflow: hidden;
@@ -109,9 +110,24 @@
     #timeskip-overlay { position: fixed; inset: 0; z-index: 60; background-color: black; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.8s; }
     #timeskip-overlay.is-visible { opacity: 1; }
     #timeskip-text { font-family: 'VT323', monospace; font-size: 2rem; color: white; }
-    #skip-to-cinematic-btn { position: fixed; bottom: 10px; left: 10px; z-index: 100; background: rgba(0,0,0,0.5); color: white; border: 1px solid white; padding: 5px 10px; font-family: 'Poppins', sans-serif; font-size: 12px; cursor: pointer; border-radius: 5px; opacity: 0.7; }
-    
-    /* --- ESTILOS DE LA VENTANA MODAL DEL REGALO --- */
+    #skip-to-cinematic-btn {
+        position: fixed; bottom: 10px; left: 10px; z-index: 100;
+        background: rgba(0,0,0,0.5); color: white; border: 1px solid white;
+        padding: 5px 10px; font-family: 'Poppins', sans-serif; font-size: 12px;
+        cursor: pointer; border-radius: 5px; opacity: 0.7;
+    }
+    #gift-icon-container {
+        position: absolute; top: calc(40% + 120px); left: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        transform-origin: bottom;
+        z-index: 20;
+        cursor: pointer;
+        animation: gift-appear 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+    @keyframes gift-appear {
+        from { transform: translate(-50%, -50%) scale(0); }
+        to { transform: translate(-50%, -50%) scale(1); }
+    }
     #gift-modal-overlay {
         position: fixed; inset: 0; z-index: 200;
         background: rgba(0,0,0,0.7);
@@ -123,6 +139,7 @@
     #gift-modal-overlay.is-visible { opacity: 1; pointer-events: auto; }
     #gift-modal-content {
         background: var(--input-bg-color);
+        /* --- CAMBIO: Color del borde y brillo --- */
         border: 2px solid var(--gift-border-color);
         border-radius: 15px;
         padding: 30px 40px;
@@ -183,7 +200,7 @@
         <button id="enviar-btn">Confirmar</button>
       </div>
     </div>
-    <button id="skip-to-cinematic-btn">Saltar a Cinemática (Test)</button>
+    <button id="skip-to-cinematic-btn">Saltar a Regalo (Test)</button>
   </div>
   <div id="transition-content" style="display: none;">
       <div class="orbe is-active">
@@ -195,8 +212,7 @@
   <div id="explosion-container" style="display:none">
     <div class="explosion-flash"></div>
     <div class="explosion-shockwave"></div>
-    <div id="explosion-particles"></div>
-    <div id="energy-tendrils"></div>
+    <div id="explosion-particles"></div><div id="energy-tendrils"></div>
   </div>
   <div id="final-scene" style="display:none;">
     <canvas id="petal-canvas"></canvas>
@@ -206,37 +222,30 @@
       <canvas id="cinematic-canvas"></canvas>
   </div>
   <div id="timeskip-overlay" style="display:none;"><span id="timeskip-text"></span></div>
-
-  <!-- Ventana Modal para la Galería -->
-  <div id="gallery-modal-overlay" class="modal-overlay">
-      <div id="gallery-modal-content" class="modal-content">
-          <button class="close-modal-btn" id="close-gallery-modal-btn">&times;</button>
-          <h2>Galería de Imágenes</h2>
-          <div class="gallery-display">
-              <img id="main-gallery-image" src="" alt="Gallery Image">
-          </div>
-          <div class="gallery-thumbnails" id="gallery-thumbnails">
-              <!-- Las miniaturas se cargarán dinámicamente -->
-          </div>
-      </div>
+  <div id="gift-modal-overlay">
+    <div id="gift-modal-content">
+        <button class="close-modal-btn" id="close-modal-btn">&times;</button>
+        <!-- --- CAMBIO: Título actualizado --- -->
+        <h2>Escoja su regalo</h2>
+        <div class="choices-container">
+            <div class="choice-card" data-choice="Discord Nitro Boost">
+                <!-- --- CAMBIO: Ruta de imagen local --- -->
+                <img src="gift/discord-nitro.png" alt="Discord Nitro">
+                <!-- --- CAMBIO: Texto actualizado --- -->
+                <span>Discord Nitro Boost</span>
+            </div>
+            <div class="choice-card" data-choice="Star Rail Monthly">
+                <!-- --- CAMBIO: Ruta de imagen local --- -->
+                <img src="gift/star-rail-monhtly.png" alt="Star Rail Monthly Pass">
+                <span>Star Rail Monthly</span>
+            </div>
+        </div>
+    </div>
   </div>
 
   <script>
     let userName = '';
     let hasCinematicPlayed = false;
-    let giftClaimed = false;
-    let currentGalleryIndex = 0;
-    const galleryImages = [
-        'screenshots/img1p1.png',
-        'screenshots/img1p2.png',
-        'screenshots/img2p2.png',
-        'screenshots/img3p2.png',
-        'screenshots/img4p2.png',
-        'screenshots/img1p3.png',
-        'screenshots/img1p4.png',
-        'screenshots/img2p4.png',
-        'screenshots/img3p4.png'
-    ];
 
     function escribirTexto(element, text, speed, callback) {
         let i = 0; element.innerHTML = ""; const cursor = document.createElement('span'); cursor.className = 'type-cursor'; cursor.innerHTML = '&nbsp;';
@@ -260,8 +269,8 @@
 
         const skipBtn = document.getElementById('skip-to-cinematic-btn');
         skipBtn.onclick = () => {
-            userName = 'Rei'; // Forzar el nombre para el diálogo final
-            hasCinematicPlayed = true; // Marcar que la cinemática ha ocurrido
+            userName = 'Rei';
+            hasCinematicPlayed = true;
             document.getElementById('main-initial').style.display = 'none';
             document.getElementById('initial-background').style.opacity = '0';
             showNewDesign();
@@ -326,7 +335,7 @@
         }, 1800);
     }
 
-    function showNewDesign() {
+    function showNewDesign(skipToCinematic = false, startIndex = 0) {
         const scene = document.getElementById('final-scene');
         scene.style.display = 'block';
         setTimeout(() => scene.style.opacity = '1', 50);
@@ -341,16 +350,19 @@
             <div id="gift-icon-container" style="display: none;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="#ffb3c1" stroke="#fff" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
             </div>
-            <div id="gallery-icon-container" style="display: none;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-            </div>
         `;
         
         initPetalAnimation();
-        setupGallery();
         
         if (hasCinematicPlayed) {
             iniciarDialogoPostCinematico();
+        } else if (skipToCinematic) {
+            const cinematicScene = document.getElementById('cinematic-scene');
+            cinematicScene.style.display = 'block';
+            setTimeout(() => {
+                cinematicScene.classList.add('is-visible');
+                initCinematic(startIndex);
+            }, 50);
         } else {
             setTimeout(iniciarDialogoFinal, 2000);
         }
@@ -393,7 +405,6 @@
         const dialogEl = document.getElementById('final-dialog');
         const giftContainer = document.getElementById('gift-icon-container');
         const orbContainer = document.querySelector('.final-orb-container');
-        const galleryContainer = document.getElementById('gallery-icon-container');
 
         if (orbContainer) orbContainer.style.display = 'block';
         
@@ -410,8 +421,12 @@
         await new Promise(resolve => setTimeout(resolve, 800));
         
         dialogEl.innerHTML = '';
-        if (giftContainer) giftContainer.style.display = 'block';
-        if (galleryContainer) galleryContainer.style.display = 'block';
+        if (giftContainer) {
+            giftContainer.style.display = 'block';
+            giftContainer.onclick = () => {
+                document.getElementById('gift-modal-overlay').classList.add('is-visible');
+            };
+        }
     }
     
     // --- LÓGICA DE LA CINEMÁTICA ---
@@ -774,116 +789,29 @@
         window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; ctx.imageSmoothingEnabled = false; init(); });
         init(); animate();
     }
-    
-    // --- LÓGICA DE LAS VENTANAS MODALES ---
+
     document.addEventListener('DOMContentLoaded', () => {
-        // --- Ventana Modal de Confirmación de Regalo ---
-        const giftModal = document.getElementById('gift-modal-overlay');
-        const confirmModal = document.getElementById('confirm-modal-overlay');
+        const modal = document.getElementById('gift-modal-overlay');
         const closeModalBtn = document.getElementById('close-modal-btn');
         const choices = document.querySelectorAll('.choice-card');
-        const confirmBtn = document.getElementById('confirm-gift-btn');
-        const confirmText = document.getElementById('confirm-text');
-        const giftIcon = document.getElementById('gift-icon-container');
-        const finalDialog = document.getElementById('final-dialog');
 
-        let pendingChoice = null;
-
-        const closeModal = (modalId) => {
-            const modal = document.getElementById(modalId);
+        const closeModal = () => {
             modal.classList.remove('is-visible');
         };
         
-        const showConfirmModal = (choice) => {
-            pendingChoice = choice;
-            confirmText.innerText = `¿Confirmar "${pendingChoice}" como su regalo?`;
-            confirmModal.classList.add('is-visible');
-        };
-
-        const processGiftChoice = () => {
-            if (giftClaimed) return;
-            giftClaimed = true;
-            
-            closeModal('gift-modal-overlay');
-            closeModal('confirm-modal-overlay');
-            
-            if (giftIcon) {
-                giftIcon.classList.add('is-claimed');
-                giftIcon.style.cursor = 'default';
+        closeModalBtn.onclick = closeModal;
+        modal.onclick = (event) => {
+            if (event.target === modal) {
+                closeModal();
             }
-            
-            const orbOrb = document.querySelector('.final-orb-container');
-            if (orbOrb) orbOrb.style.display = 'block';
-            
-            escribirTexto(finalDialog, "Muy bien! Me encargare de la logica para que reciba su regalo en un periodo de 20 minutos max.", 60);
         };
-
-        closeModalBtn.onclick = () => closeModal('gift-modal-overlay');
-        giftModal.onclick = (event) => { if (event.target === giftModal) closeModal('gift-modal-overlay'); };
 
         choices.forEach(card => {
-            card.onclick = () => showConfirmModal(card.dataset.choice);
-        });
-
-        confirmBtn.onclick = processGiftChoice;
-
-        // --- Lógica de la Galería ---
-        const galleryModal = document.getElementById('gallery-modal-overlay');
-        const closeGalleryBtn = document.getElementById('close-gallery-modal-btn');
-        const mainGalleryImage = document.getElementById('main-gallery-image');
-        const galleryThumbnails = document.getElementById('gallery-thumbnails');
-        const galleryIcon = document.getElementById('gallery-icon-container');
-        
-        const setupGallery = () => {
-            galleryIcon.onclick = () => {
-                showImageInGallery(0);
-                galleryModal.classList.add('is-visible');
+            card.onclick = () => {
+                alert(`Has elegido: ${card.dataset.choice}`);
+                closeModal();
             };
-
-            galleryThumbnails.innerHTML = '';
-            galleryImages.forEach((src, index) => {
-                const thumb = document.createElement('img');
-                thumb.src = src;
-                thumb.onclick = () => showImageInGallery(index);
-                galleryThumbnails.appendChild(thumb);
-            });
-        };
-
-        const showImageInGallery = (index) => {
-            currentGalleryIndex = index;
-            mainGalleryImage.src = galleryImages[index];
-            
-            const thumbnails = galleryThumbnails.querySelectorAll('img');
-            thumbnails.forEach((thumb, i) => {
-                thumb.classList.toggle('active', i === index);
-            });
-        };
-
-        const nextImage = () => {
-            const newIndex = (currentGalleryIndex + 1) % galleryImages.length;
-            showImageInGallery(newIndex);
-        };
-        const prevImage = () => {
-            const newIndex = (currentGalleryIndex - 1 + galleryImages.length) % galleryImages.length;
-            showImageInGallery(newIndex);
-        };
-
-        mainGalleryImage.onclick = nextImage;
-        closeGalleryBtn.onclick = () => closeModal('gallery-modal-overlay');
-        galleryModal.onclick = (event) => { if (event.target === galleryModal) closeModal('gallery-modal-overlay'); };
-
-        // Swipe logic
-        let touchStartX = 0;
-        mainGalleryImage.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
-        mainGalleryImage.addEventListener('touchend', e => {
-            const touchEndX = e.changedTouches[0].clientX;
-            if (touchStartX - touchEndX > 50) nextImage();
-            if (touchStartX - touchEndX < -50) prevImage();
         });
-        
-        // Llamar a setupGallery en la función showNewDesign
-        // (ya que el icono de la galería se crea ahí)
-        window.setupGallery = setupGallery;
     });
   </script>
 </body>
