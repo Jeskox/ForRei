@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Acceso al Asistente IA v11.3 (Final y Corregido)</title>
+  <title>Acceso al Asistente IA v11.4 (Final)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -323,8 +323,8 @@
     
     // --- LÓGICA DE LA CINEMÁTICA ---
     const guion = [
-      { tipo: 'entrar', personaje: 'jesko', pos: { x: 0.25, y: 0.75 } },
-      { tipo: 'entrar', personaje: 'sophi', pos: { x: 0.75, y: 0.65 } },
+      { tipo: 'entrar', personaje: 'jesko', pos: { x: 0.25, y: 0.60 } },
+      { tipo: 'entrar', personaje: 'sophi', pos: { x: 0.75, y: 0.55 } },
       { tipo: 'esperar', duracion: 1500 },
       { tipo: 'dialogo', personaje: 'jesko', texto: "vamos a conquistar el mundo sophi" },
       { tipo: 'esperar', duracion: 500 },
@@ -366,8 +366,8 @@
             return;
         }
         
-        const jeskoScale = 0.8;
-        const sophiScale = 0.6;
+        const jeskoScale = 1.6;
+        const sophiScale = 1.2;
         const characters = {
             jesko: { img: assets.jesko, x: 0, y: 0, visible: false, yOffset: 0, w: assets.jesko.width * jeskoScale, h: assets.jesko.height * jeskoScale },
             sophi: { img: assets.sophi, x: 0, y: 0, visible: false, yOffset: 0, w: assets.sophi.width * sophiScale, h: assets.sophi.height * sophiScale }
@@ -406,24 +406,28 @@
         function drawSpeechBubble(character, text) {
             if (!text) return;
             
-            const fontSize = 16;
-            const padding = 10;
-            const bubbleMaxWidth = 300;
-            const lineHeight = 20;
+            const fontSize = 14;
+            const padding = 12;
+            const bubbleMaxWidth = 250;
+            const lineHeight = 18;
             ctx.font = `${fontSize}px 'Press Start 2P'`;
             
             const lines = wrapText(ctx, text, bubbleMaxWidth);
-            const textHeight = lines.length * lineHeight;
+            const textHeight = (lines.length * lineHeight);
             let textWidth = 0;
             for (const line of lines) {
                 textWidth = Math.max(textWidth, ctx.measureText(line).width);
             }
 
             const bubbleWidth = textWidth + (padding * 2);
-            const bubbleHeight = textHeight + (padding * 2) - 5;
+            const bubbleHeight = textHeight + (padding * 1.5);
             
-            const bubbleX = character.x - bubbleWidth / 2;
+            let bubbleX = character.x - bubbleWidth / 2;
             const bubbleY = character.y - (character.h / 2) - bubbleHeight - 20;
+
+            // Evitar que la burbuja se salga de la pantalla
+            if (bubbleX < 10) bubbleX = 10;
+            if (bubbleX + bubbleWidth > canvas.width - 10) bubbleX = canvas.width - bubbleWidth - 10;
 
             ctx.fillStyle = 'white';
             ctx.strokeStyle = 'black';
@@ -441,7 +445,7 @@
 
             ctx.fillStyle = 'black';
             for (let i = 0; i < lines.length; i++) {
-                ctx.fillText(lines[i], bubbleX + padding, bubbleY + padding + (i * lineHeight) + 5);
+                ctx.fillText(lines[i], bubbleX + padding, bubbleY + padding + (i * lineHeight) + (fontSize / 2));
             }
         }
 
