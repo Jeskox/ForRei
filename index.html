@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Acceso al Asistente IA v12.5 (Final)</title>
+  <title>Acceso al Asistente IA v12.6 (Final)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -330,16 +330,18 @@
         const giftContainer = document.getElementById('gift-icon-container');
         const orbContainer = document.querySelector('.final-orb-container');
 
-        if (orbContainer) orbContainer.style.display = 'none';
+        if (orbContainer) orbContainer.style.display = 'block'; // CAMBIO: Asegurarse de que el orbe esté visible
         
         await new Promise(resolve => setTimeout(resolve, 1500));
-        await new Promise(resolve => escribirTexto(dialogEl, "Bueno… espero que haya entendido el punto de todo esto. Todo esto fue hecho con la mejor intención.", 60, resolve));
+        await new Promise(resolve => escribirTexto(dialogEl, "El objetivo era que entendiera el porqué de todo esto. Este espacio fue 'pensado' con la mejor intención.", 60, resolve));
         await new Promise(resolve => setTimeout(resolve, 2000));
-        await new Promise(resolve => escribirTexto(dialogEl, "Me disculpo en nombre del incompetente que tengo por amo. Confío en que todo vuelva pronto a la normalidad entre ustedes.", 60, resolve));
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        await new Promise(resolve => escribirTexto(dialogEl, "Y dicho esto…", 60, resolve));
+        await new Promise(resolve => escribirTexto(dialogEl, "Me disculpo en nombre del incompetente que tengo por amo.", 60, resolve));
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise(resolve => escribirTexto(dialogEl, "Confío en que la situación se normalizará.", 60, resolve));
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise(resolve => escribirTexto(dialogEl, "Habiendo dicho esto…", 60, resolve));
         await new Promise(resolve => setTimeout(resolve, 1200));
-        await new Promise(resolve => escribirTexto(dialogEl, "Aun queda un regalo para usted.", 60, resolve));
+        await new Promise(resolve => escribirTexto(dialogEl, "Aun queda una sorpresa más para usted.", 60, resolve));
         await new Promise(resolve => setTimeout(resolve, 800));
         
         dialogEl.innerHTML = '';
