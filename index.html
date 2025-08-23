@@ -322,7 +322,6 @@
   </div>
   <div id="toast-notification"></div>
 
-  <!-- NUEVO: Modal de confirmación de acceso -->
   <div id="access-confirmation-overlay" class="modal-overlay">
       <div class="modal-content" style="padding: 30px 40px; border-color: var(--input-glow-color); box-shadow: 0 0 25px 10px var(--input-glow-color);">
         <p style="font-family: 'Poppins', sans-serif; font-size: 1.1rem; color: #ddd; margin-top: 0; margin-bottom: 25px;">Está a punto de acceder al siguiente espacio.</p>
@@ -346,12 +345,23 @@
     document.addEventListener('DOMContentLoaded', () => {
         const orb = document.getElementById('main-orb');
         const promptText = document.getElementById('orb-prompt-text');
+        const nombreInput = document.getElementById('nombre-input');
+        const enviarBtn = document.getElementById('enviar-btn');
+
+        nombreInput.disabled = true;
+        enviarBtn.disabled = true;
+
         setTimeout(() => {
             orb.classList.add('is-active');
             setTimeout(() => {
-                escribirTexto(promptText, "Para asegurarme de que usted es la persona que espero, introduzca su nombre.", 25, null, 0, false);
+                escribirTexto(promptText, "Para asegurarme de que usted es la persona que espero, introduzca su nombre.", 25, () => {
+                    nombreInput.disabled = false;
+                    enviarBtn.disabled = false;
+                    nombreInput.focus();
+                }, 0, false);
             }, 500);
         }, 2200);
+
         const skipBtn = document.getElementById('skip-to-cinematic-btn');
         skipBtn.onclick = () => { userName = 'Rei'; hasCinematicPlayed = true; document.getElementById('main-initial').style.display = 'none'; document.getElementById('initial-background').style.opacity = '0'; showNewDesign(); };
     });
@@ -362,21 +372,28 @@
       const userInput = nombreInput.value.trim().toLowerCase();
       const promptText = document.getElementById('orb-prompt-text');
       const entradaBox = document.getElementById('entrada-box');
+      
+      nombreInput.disabled = true;
+      enviarBtn.disabled = true;
+
       if (securityStep === 0) {
         if (userInput === 'rei') {
           securityStep = 1;
           nombreInput.value = '';
           nombreInput.placeholder = 'Sabor del dulce';
-          await new Promise(r => escribirTexto(promptText, "El señor Jesko usa el nombre de un dulce para referirse a usted de manera afectiva, ¿de qué sabor es el dulce?", 25, r, 0, false));
+          await new Promise(r => escribirTexto(promptText, "El señor Jesko usa el nombre de un dulce para referirse a usted de manera afectiva, ¿de qué sabor es el dulce?", 25, () => {
+            nombreInput.disabled = false;
+            enviarBtn.disabled = false;
+            nombreInput.focus();
+            r();
+          }, 0, false));
         } else { denegarAcceso(); }
       } else if (securityStep === 1) {
         const esValido = userInput.includes('limon') || userInput.includes('caramelito') || userInput.includes('pastelito');
         if (esValido) {
           securityStep = 2;
-          nombreInput.disabled = true;
-          enviarBtn.disabled = true;
           await new Promise(r => escribirTexto(promptText, "Lo siguiente es una experiencia que está programada para ocurrir SOLO UNA VEZ.", 25, r, 0, false));
-          await new Promise(r => setTimeout(r, 1200));
+          await new Promise(r => setTimeout(r, 2500)); // Aumentado el tiempo de espera
           await new Promise(r => escribirTexto(promptText, "Asegúrese de estar en un ordenador para garantizar una mejor experiencia.", 25, r, 0, false));
           
           entradaBox.style.opacity = '0';
@@ -462,7 +479,7 @@
         });
         confirmChoiceBtn.onclick = async () => { if (!pendingChoice) return; regaloElegido = true; choices.forEach(c => c.classList.add('is-disabled')); pendingChoice.classList.add('is-selected'); closeGiftModal(); closeConfirmationModal(); document.getElementById('gift-icon-container').classList.add('is-claimed'); await new Promise(resolve => setTimeout(resolve, 500)); const dialogEl = document.getElementById('final-dialog'); await new Promise(resolve => escribirTexto(dialogEl, "¡Muy bien!", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 900)); await new Promise(resolve => escribirTexto(dialogEl, "Me encargaré de la lógica para que reciba su regalo en 20 minutos como max.", 50, resolve, 2500)); };
         
-        // --- NUEVO: MODAL DE CONFIRMACIÓN DE ACCESO ---
+        // --- MODAL DE CONFIRMACIÓN DE ACCESO ---
         const accessConfirmationModal = document.getElementById('access-confirmation-overlay');
         const confirmAccessBtn = document.getElementById('confirm-access-btn');
         accessConfirmationModal.onclick = (e) => { if (e.target === accessConfirmationModal) accessConfirmationModal.classList.remove('is-visible'); };
