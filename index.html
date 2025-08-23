@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Acceso al Asistente IA v12.3 (Final)</title>
+  <title>Acceso al Asistente IA v12.4 (Final)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -101,12 +101,28 @@
     #start-button-container { position: absolute; bottom: 5%; left: 50%; transform: translateX(-50%); z-index: 20; }
     #start-cinematic-btn { font-family: 'Press Start 2P', cursive; font-size: 1rem; color: #fff; background-color: #1e152a; border: 2px solid #e025a8; padding: 15px 30px; border-radius: 10px; box-shadow: 0 0 10px 0px #e025a8; cursor: pointer; transition: all 0.2s; opacity: 0; animation: fadeIn 1s forwards; }
     #start-cinematic-btn:hover { box-shadow: 0 0 20px 5px #e025a8; transform: scale(1.05); }
-    #cinematic-scene { position: fixed; inset: 0; z-index: 50; opacity: 0; pointer-events: none; transition: opacity 1s; }
+    #cinematic-scene { position: fixed; inset: 0; z-index: 50; opacity: 0; pointer-events: none; transition: opacity 1s; background-color: white; }
     #cinematic-scene.is-visible { opacity: 1; pointer-events: auto; }
     #cinematic-canvas { width: 100%; height: 100%; image-rendering: pixelated; }
     #timeskip-overlay { position: fixed; inset: 0; z-index: 60; background-color: black; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.8s; }
     #timeskip-overlay.is-visible { opacity: 1; }
     #timeskip-text { font-family: 'VT323', monospace; font-size: 2rem; color: white; }
+
+    /* Estilo para el botón de saltar */
+    #skip-to-cinematic-btn {
+        position: fixed;
+        bottom: 10px;
+        left: 10px;
+        z-index: 100;
+        background: rgba(0,0,0,0.5);
+        color: white;
+        border: 1px solid white;
+        padding: 5px 10px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 12px;
+        cursor: pointer;
+        border-radius: 5px;
+    }
   </style>
 </head>
 <body>
@@ -125,6 +141,8 @@
         <button id="enviar-btn">Confirmar</button>
       </div>
     </div>
+    <!-- BOTÓN PARA SALTAR AÑADIDO -->
+    <button id="skip-to-cinematic-btn">Saltar a Cinemática (Test)</button>
   </div>
   <div id="transition-content" style="display: none;">
       <div class="orbe is-active">
@@ -170,6 +188,14 @@
                 escribirTexto(promptText, "Para asegurarme de que usted es la persona que espero, introduzca su nombre.", 30);
             }, 500);
         }, 2200);
+
+        // Lógica del botón de saltar
+        const skipBtn = document.getElementById('skip-to-cinematic-btn');
+        skipBtn.onclick = () => {
+            document.getElementById('main-initial').style.display = 'none';
+            document.getElementById('initial-background').style.opacity = '0';
+            showNewDesign();
+        };
     });
 
     const enviarBtn = document.getElementById('enviar-btn');
@@ -255,19 +281,14 @@
         
         await new Promise(resolve => escribirTexto(dialogEl, "Bienvenida, señorita Rei.", 60, resolve));
         await new Promise(resolve => setTimeout(resolve, 900));
-        
         await new Promise(resolve => escribirTexto(dialogEl, "Mi nombre es Sophi, asistente virtual de Jesko.", 60, resolve));
         await new Promise(resolve => setTimeout(resolve, 900));
-
         await new Promise(resolve => escribirTexto(dialogEl, "Este espacio fue hecho como parte de un regalo para usted.", 60, resolve));
         await new Promise(resolve => setTimeout(resolve, 600));
-
         await new Promise(resolve => escribirTexto(dialogEl, "Pero...", 60, resolve));
         await new Promise(resolve => setTimeout(resolve, 300));
-        
         await new Promise(resolve => escribirTexto(dialogEl, "Pero... ¿Por qué?", 60, resolve));
         await new Promise(resolve => setTimeout(resolve, 900));
-
         await new Promise(resolve => escribirTexto(dialogEl, "He preparado una manera dinámica para ponerla en contexto.", 60, resolve));
         await new Promise(resolve => setTimeout(resolve, 500));
         
@@ -422,7 +443,6 @@
       { tipo: 'dialogo', personaje: 'jesko', texto: "De todas maneras, te encargo hacérselo llegar." },
       { tipo: 'esperar', duracion: 500 },
       { tipo: 'dialogo', personaje: 'sophi', texto: "Vaya... Siento de pronto que todo el esfuerzo que hemos puesto en esto ha sido en vano. Pero está bien, lo entiendo. Me encargaré de que reciba este presente." },
-      // --- CAMBIO: Nueva animación final ---
       { tipo: 'esperar', duracion: 1000 },
       { tipo: 'animacion_final' },
       { tipo: 'fin' }
@@ -499,11 +519,10 @@
         function drawSpeechBubble(character, text) {
             if (!text) return;
             
-            // --- CAMBIO: Ajustes de padding y espaciado ---
             const fontSize = 23;
-            const padding = 20; // Más margen interno
+            const padding = 20;
             const bubbleMaxWidth = 350;
-            const lineHeight = 30; // Más espacio entre líneas
+            const lineHeight = 30;
             ctx.font = `${fontSize}px 'VT323', monospace`;
             
             const lines = wrapText(ctx, text, bubbleMaxWidth - (padding * 2));
@@ -538,7 +557,6 @@
 
             ctx.fillStyle = 'black';
             for (let i = 0; i < lines.length; i++) {
-                // --- CAMBIO: Ajuste de posición vertical del texto ---
                 ctx.fillText(lines[i], bubbleX + padding, bubbleY + padding + 5 + (i * lineHeight));
             }
         }
@@ -611,15 +629,17 @@
                     cinematicScene.style.opacity = 1;
                     await new Promise(r => setTimeout(r, 800));
                     break;
-                // --- CAMBIO: Nueva acción para la animación final ---
                 case 'animacion_final':
                     currentAction = null;
                     await playFinalAnimation();
                     break;
                 case 'fin':
                     cancelAnimationFrame(animationFrameId);
-                    document.getElementById('cinematic-scene').classList.remove('is-visible');
+                    const sceneEl = document.getElementById('cinematic-scene');
+                    sceneEl.classList.remove('is-visible');
                     document.getElementById('final-scene').style.opacity = 1;
+                    // --- CORRECCIÓN: Ocultar la escena por completo ---
+                    setTimeout(() => sceneEl.style.display = 'none', 1000);
                     return;
             }
             
@@ -627,7 +647,6 @@
             processScript();
         }
 
-        // --- CAMBIO: Nueva función para la animación final ---
         async function playFinalAnimation() {
             characters.jesko.visible = false;
             characters.sophi.visible = false;
