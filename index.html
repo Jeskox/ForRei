@@ -68,6 +68,12 @@
     .orbe.is-active::before { background: radial-gradient(circle, #fff, #87ceeb 60%); box-shadow: 0 0 25px 12px #87ceeb; animation: pulse-core 2s infinite ease-in-out; }
     .orbe.is-active::after { background: conic-gradient(transparent 0%, #8A2BE2aa 30%, transparent 60%); }
     .orbe.is-active #orb-particles-canvas { opacity: 1; }
+    
+    /* --- CAMBIO: Se desactiva la onda de energía SÓLO para el orbe inicial --- */
+    #main-orb.is-active::after {
+        background: none;
+    }
+    /* --- FIN CAMBIO --- */
 
     @keyframes pulse-core { 0%, 100% { transform: scale(0.9); } 50% { transform: scale(1.1); } }
     @keyframes rotate-energy { from { transform: translate(-16.66%, -16.66%) rotate(0deg); } to { transform: translate(-16.66%, -16.66%) rotate(360deg); } }
@@ -150,11 +156,9 @@
         opacity: 1;
         transform: translate(-50%, 0) scale(1);
     }
-    /* --- CAMBIO: Aumentada la separación de los iconos --- */
     #heart-icon-container { left: calc(50% - 100px); }
     #folder-icon-container { left: calc(50% + 100px); }
     .extra-icon svg { width: 48px; height: 48px; cursor: pointer; }
-    /* --- FIN CAMBIOS --- */
 
     /* Estilo base para todos los modales */
     .modal-overlay {
@@ -209,7 +213,7 @@
     .choice-card.is-disabled { opacity: 0.6; cursor: not-allowed; pointer-events: none; }
     .choice-card.is-disabled:not(.is-selected) { filter: grayscale(80%); }
 
-    /* --- NUEVO: ESTILOS PARA EL MODAL DE CONFIRMACIÓN --- */
+    /* Estilos del modal de confirmación */
     #confirmation-modal-content p {
         font-family: 'Poppins', sans-serif;
         color: #ddd;
@@ -249,8 +253,6 @@
         background: #888;
         color: white;
     }
-    /* --- FIN DE ESTILOS NUEVOS --- */
-
   </style>
 </head>
 <body>
@@ -310,7 +312,6 @@
     </div>
   </div>
 
-  <!-- NUEVO: Modal de Confirmación -->
   <div id="confirmation-modal-overlay" class="modal-overlay">
       <div id="confirmation-modal-content" class="modal-content">
           <h2>¿Confirmar elección?</h2>
@@ -327,7 +328,9 @@
     let userName = '';
     let hasCinematicPlayed = false;
     let regaloElegido = false;
-    let pendingChoice = null; // Variable para guardar la elección pendiente
+    let pendingChoice = null;
+    // NUEVO: Contador para el icono de regalo juguetón
+    let giftClickCount = 0;
 
     function escribirTexto(element, text, speed, callback, clearAfter = 0) {
         let i = 0; element.innerHTML = ""; const cursor = document.createElement('span'); cursor.className = 'type-cursor'; cursor.innerHTML = '&nbsp;';
@@ -353,9 +356,11 @@
         const promptText = document.getElementById('orb-prompt-text');
         setTimeout(() => {
             orb.classList.add('is-active');
-            initOrbParticles('orb-particles-canvas');
+            // CAMBIO: Ya no se inician las partículas del orbe inicial
+            // initOrbParticles('orb-particles-canvas'); 
             setTimeout(() => {
-                escribirTexto(promptText, "Para asegurarme de que usted es la persona que espero, introduzca su nombre.", 30);
+                // CAMBIO: El texto ahora aparece directamente, sin animación de escritura
+                promptText.textContent = "Para asegurarme de que usted es la persona que espero, introduzca su nombre.";
             }, 500);
         }, 2200);
 
@@ -445,7 +450,6 @@
             </div>
 
             <div id="heart-icon-container" class="extra-icon">
-                <!-- CAMBIO: Nuevo SVG del corazón -->
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#a955c4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                 </svg>
@@ -507,6 +511,15 @@
         };
     }
 
+    // NUEVO: Función para mover el icono del regalo
+    function moveGiftIconRandomly() {
+        const container = document.getElementById('gift-icon-container');
+        const newTop = Math.floor(Math.random() * 70) + 15; // Rango: 15% a 85%
+        const newLeft = Math.floor(Math.random() * 80) + 10; // Rango: 10% a 90%
+        container.style.top = `${newTop}%`;
+        container.style.left = `${newLeft}%`;
+    }
+
     async function iniciarDialogoPostCinematico() {
         const dialogEl = document.getElementById('final-dialog');
         const giftContainer = document.getElementById('gift-icon-container');
@@ -529,8 +542,15 @@
         dialogEl.innerHTML = '';
         if (giftContainer) {
             giftContainer.style.display = 'block';
+            
+            // CAMBIO: Lógica del icono juguetón
             giftContainer.onclick = () => {
-                if (!regaloElegido) {
+                if (regaloElegido) return;
+
+                if (giftClickCount < 3) {
+                    giftClickCount++;
+                    moveGiftIconRandomly();
+                } else {
                     document.getElementById('gift-modal-overlay').classList.add('is-visible');
                 }
             };
@@ -683,7 +703,6 @@
 
     function initPetalAnimation() { const canvas = document.getElementById('petal-canvas'); const ctx = canvas.getContext('2d'); canvas.width = window.innerWidth; canvas.height = window.innerHeight; ctx.imageSmoothingEnabled = false; let petals = []; const petalCount = 40; class Petal { constructor() { this.reset(); this.y = Math.random() * canvas.height; } reset() { this.x = Math.random() * canvas.width; this.y = -10; this.w = 4 + Math.random() * 4; this.h = this.w; this.opacity = 0.5 + (this.w / 8) * 0.5; this.speedY = 0.5 + Math.random() * 0.5; this.sway = 0.5 + Math.random(); this.swayAngle = Math.random() * Math.PI; } draw() { ctx.fillStyle = `rgba(239, 194, 204, ${this.opacity})`; ctx.fillRect(this.x, this.y, this.w, this.h); } update() { this.y += this.speedY; this.swayAngle += 0.05; this.x += Math.sin(this.swayAngle) * this.sway; if (this.y > canvas.height) { this.reset(); } this.draw(); } } function init() { petals = []; for (let i = 0; i < petalCount; i++) { petals.push(new Petal()); } } function animate() { requestAnimationFrame(animate); ctx.clearRect(0, 0, canvas.width, canvas.height); for (let i = 0; i < petals.length; i++) { petals[i].update(); } } window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; ctx.imageSmoothingEnabled = false; init(); }); init(); animate(); }
     
-    // --- LÓGICA MODIFICADA PARA EL FLUJO DE REGALO CON MODAL PERSONALIZADO ---
     document.addEventListener('DOMContentLoaded', () => {
         const giftModal = document.getElementById('gift-modal-overlay');
         const closeGiftModalBtn = document.getElementById('close-gift-modal-btn');
@@ -694,25 +713,22 @@
         const confirmChoiceBtn = document.getElementById('confirm-choice-btn');
         const cancelChoiceBtn = document.getElementById('cancel-choice-btn');
 
-        // --- Manejadores del modal de regalos ---
         const closeGiftModal = () => giftModal.classList.remove('is-visible');
         closeGiftModalBtn.onclick = closeGiftModal;
         giftModal.onclick = (event) => {
             if (event.target === giftModal) closeGiftModal();
         };
 
-        // Al hacer clic en una tarjeta de regalo
         choices.forEach(card => {
             card.onclick = () => {
                 if (regaloElegido) return;
                 
-                pendingChoice = card; // Guarda la tarjeta elegida
-                choiceTextEl.textContent = card.dataset.choice; // Muestra el nombre del regalo
-                confirmationModal.classList.add('is-visible'); // Muestra el modal de confirmación
+                pendingChoice = card;
+                choiceTextEl.textContent = card.dataset.choice;
+                confirmationModal.classList.add('is-visible');
             };
         });
 
-        // --- Manejadores del modal de confirmación ---
         const closeConfirmationModal = () => {
             confirmationModal.classList.remove('is-visible');
             pendingChoice = null;
@@ -728,10 +744,9 @@
             choices.forEach(c => c.classList.add('is-disabled'));
             pendingChoice.classList.add('is-selected');
 
-            closeGiftModal(); // Cierra el modal de regalos si estuviera abierto
-            closeConfirmationModal(); // Cierra el modal de confirmación
+            closeGiftModal();
+            closeConfirmationModal();
 
-            // Inicia la secuencia de animación de iconos
             const giftContainer = document.getElementById('gift-icon-container');
             const heartIcon = document.getElementById('heart-icon-container');
             const folderIcon = document.getElementById('folder-icon-container');
