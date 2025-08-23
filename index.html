@@ -38,7 +38,6 @@
     .center-content {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       min-height: 100vh; width: 100%; 
-      /* --- CAMBIO: Aumentado el espacio para separar el cuadro de texto --- */
       gap: 50px;
       position: relative; z-index: 10;
     }
@@ -78,14 +77,13 @@
     @keyframes scanline-move { from { background-position: 0 0; } to { background-position: 0 -100px; } }
     .orbe-area { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; }
     .orb-prompt { 
-        /* --- CAMBIO: Nueva fuente y tamaño --- */
-        font-family: 'VT323', monospace;
-        font-size: 1.2em;
-        line-height: 1.4;
-        color: #ccc; text-align: center; width: 320px; height: 4.5em; text-shadow: 0 0 5px #fff;
+        font-family: 'Poppins', sans-serif;
+        font-size: 1em;
+        line-height: 1.5;
+        color: #ccc; text-align: center; width: 320px; 
+        min-height: 4.5em; /* Permite que el texto crezca */
+        text-shadow: 0 0 5px #fff;
     }
-    .orb-prompt .type-cursor { display: inline-block; width: 1ch; background: #ccc; animation: blink 0.9s steps(1) infinite; margin-left: 2px; }
-    @keyframes blink { 50% { opacity: 0; } }
     .texto-dialogo { background: linear-gradient(135deg, #00bfffbb, #8A2BE2cc 80%); border: 2px solid #00bfff; border-radius: 13px; color: #fff; font-size: 1em; box-shadow: 0 0 10px #00bfff; padding: 13px 22px; text-shadow: 0 0 8px #fff; min-width: 180px; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.7s forwards; }
     @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
     .futuristic-box { background: linear-gradient(135deg, #2a0047cc 60%, #6500c2cc 100%); border: 2px solid #a500d2; border-radius: 15px; box-shadow: 0 0 16px 2px #a500d288, 0 0 2px #fff; padding: 25px 20px; min-width: 210px; display: flex; flex-direction: column; align-items: center; gap: 13px; animation: fadeIn 0.7s; backdrop-filter: blur(2px); transition: opacity 0.5s; }
@@ -164,7 +162,7 @@
     .choice-card.is-disabled:not(.is-selected) { filter: grayscale(80%); }
 
     /* Estilos del modal de confirmación */
-    #confirmation-modal-content p { font-family: 'Poppins', sans-serif; color: #ddd; font-size: 1.1rem; margin: 10px 0 30px; }
+    #confirmation-modal-content p, #access-confirmation-content p { font-family: 'Poppins', sans-serif; color: #ddd; font-size: 1.1rem; margin: 10px 0 30px; }
     #confirmation-modal-content p strong { color: var(--gift-border-color); font-weight: 600; }
     .confirmation-buttons { display: flex; gap: 20px; justify-content: center; }
     .confirmation-buttons button { font-family: 'Poppins', sans-serif; font-size: 1rem; padding: 10px 25px; border: 2px solid; background: transparent; }
@@ -324,6 +322,14 @@
   </div>
   <div id="toast-notification"></div>
 
+  <!-- NUEVO: Modal de confirmación de acceso -->
+  <div id="access-confirmation-overlay" class="modal-overlay">
+      <div class="modal-content" style="padding: 30px 40px; border-color: var(--input-glow-color); box-shadow: 0 0 25px 10px var(--input-glow-color);">
+        <p style="font-family: 'Poppins', sans-serif; font-size: 1.1rem; color: #ddd; margin-top: 0; margin-bottom: 25px;">Está a punto de acceder al siguiente espacio.</p>
+        <button id="confirm-access-btn">Hecho</button>
+      </div>
+  </div>
+
 
   <script>
     let userName = '';
@@ -377,24 +383,7 @@
           setTimeout(() => {
             entradaBox.innerHTML = `<button id="acceder-btn">Acceder</button>`;
             entradaBox.style.opacity = '1';
-            document.getElementById('acceder-btn').onclick = () => {
-                const btn = document.getElementById('acceder-btn');
-                btn.textContent = 'Accediendo...';
-                btn.disabled = true;
-                setTimeout(() => {
-                    document.getElementById('main-initial').style.display = 'none';
-                    const transitionContent = document.getElementById('transition-content');
-                    transitionContent.style.display = 'flex'; transitionContent.style.flexDirection = 'column'; transitionContent.style.gap = '22px'; transitionContent.style.alignItems = 'center';
-                    initOrbParticles('orb-particles-canvas-transition');
-                    const transitionDialog = document.getElementById('texto-dialogo');
-                    escribirTexto(transitionDialog, "Iniciando secuencia...", 45, () => {
-                        setTimeout(() => {
-                            transitionContent.style.display = 'none';
-                            showExplosionAndSwitchDesign();
-                        }, 500);
-                    });
-                }, 500);
-            };
+            document.getElementById('acceder-btn').onclick = () => document.getElementById('access-confirmation-overlay').classList.add('is-visible');
           }, 500);
         } else { denegarAcceso(); }
       }
@@ -456,6 +445,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        // --- MODALES DE REGALOS Y CONFIRMACIÓN ---
         const giftModal = document.getElementById('gift-modal-overlay');
         const choices = document.querySelectorAll('.choice-card');
         const confirmationModal = document.getElementById('confirmation-modal-overlay');
@@ -471,6 +461,27 @@
             card.onclick = () => { if (regaloElegido) return; pendingChoice = card; choiceTextEl.textContent = card.dataset.choice; confirmationModal.classList.add('is-visible'); };
         });
         confirmChoiceBtn.onclick = async () => { if (!pendingChoice) return; regaloElegido = true; choices.forEach(c => c.classList.add('is-disabled')); pendingChoice.classList.add('is-selected'); closeGiftModal(); closeConfirmationModal(); document.getElementById('gift-icon-container').classList.add('is-claimed'); await new Promise(resolve => setTimeout(resolve, 500)); const dialogEl = document.getElementById('final-dialog'); await new Promise(resolve => escribirTexto(dialogEl, "¡Muy bien!", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 900)); await new Promise(resolve => escribirTexto(dialogEl, "Me encargaré de la lógica para que reciba su regalo en 20 minutos como max.", 50, resolve, 2500)); };
+        
+        // --- NUEVO: MODAL DE CONFIRMACIÓN DE ACCESO ---
+        const accessConfirmationModal = document.getElementById('access-confirmation-overlay');
+        const confirmAccessBtn = document.getElementById('confirm-access-btn');
+        accessConfirmationModal.onclick = (e) => { if (e.target === accessConfirmationModal) accessConfirmationModal.classList.remove('is-visible'); };
+        confirmAccessBtn.onclick = () => {
+            accessConfirmationModal.classList.remove('is-visible');
+            const btn = document.getElementById('acceder-btn');
+            if (btn) { btn.textContent = 'Accediendo...'; btn.disabled = true; }
+            setTimeout(() => {
+                document.getElementById('main-initial').style.display = 'none';
+                const transitionContent = document.getElementById('transition-content');
+                transitionContent.style.display = 'flex'; transitionContent.style.flexDirection = 'column'; transitionContent.style.gap = '22px'; transitionContent.style.alignItems = 'center';
+                initOrbParticles('orb-particles-canvas-transition');
+                const transitionDialog = document.getElementById('texto-dialogo');
+                escribirTexto(transitionDialog, "Iniciando secuencia...", 45, () => {
+                    setTimeout(() => { transitionContent.style.display = 'none'; showExplosionAndSwitchDesign(); }, 500);
+                });
+            }, 500);
+        };
+        
         function initGallery(config) {
             const modal = document.querySelector(config.modalSelector);
             const closeBtn = modal.querySelector('.close-modal-btn');
