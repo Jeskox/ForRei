@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Acceso al Asistente IA v12.1 (Final)</title>
+  <title>Acceso al Asistente IA v12.2 (Final)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -312,10 +312,10 @@
         await new Promise(resolve => escribirTexto(dialogEl, "Este espacio fue hecho como parte de un regalo para usted.", 60, resolve));
         await new Promise(resolve => setTimeout(resolve, 600));
 
-        await new Promise(resolve => escribirTexto(dialogEl, "Pero..", 60, resolve));
+        await new Promise(resolve => escribirTexto(dialogEl, "Pero...", 60, resolve));
         await new Promise(resolve => setTimeout(resolve, 300));
         
-        await new Promise(resolve => escribirTexto(dialogEl, "Pero.. ¿Por qué?", 60, resolve));
+        await new Promise(resolve => escribirTexto(dialogEl, "Pero... ¿Por qué?", 60, resolve));
         await new Promise(resolve => setTimeout(resolve, 900));
 
         await new Promise(resolve => escribirTexto(dialogEl, "He preparado una manera dinámica para ponerla en contexto.", 60, resolve));
@@ -342,95 +342,136 @@
       { tipo: 'entrar', personaje: 'jesko', pos: { x: 0.30, y: 0.65 } },
       { tipo: 'entrar', personaje: 'sophi', pos: { x: 0.75, y: 0.55 } },
       { tipo: 'esperar', duracion: 1500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "vamos a conquistar el mundo sophi" },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Vamos a conquistar el mundo, Sophi." },
       { tipo: 'esperar', duracion: 500 },
       { tipo: 'dialogo', personaje: 'sophi', texto: "Suena a algo muy ambicioso, señor..." },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "hare un viaje fuera del país" },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Haré un viaje fuera del país." },
       { tipo: 'esperar', duracion: 500 },
       { tipo: 'dialogo', personaje: 'sophi', texto: "Entiendo, ¿necesita que lo actualice en su calendario?" },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "de hecho necesitare que te hagas cargo de todo aquí los días que estaré fuera" },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "De hecho, necesitaré que te hagas cargo de todo aquí los días que estaré fuera." },
       { tipo: 'esperar', duracion: 500 },
       { tipo: 'dialogo', personaje: 'sophi', texto: "Por supuesto, pero he de recordarle que solo puedo ayudarle en todo lo que esté a mi alcance." },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "lo se, por eso voy a integrarte mas herramientas..." },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Lo sé, por eso voy a integrarte más herramientas..." },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "haz una lista de cosas pendientes que debo hacer antes de irme" },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Haz una lista de cosas pendientes que debo hacer antes de irme." },
       { tipo: 'esperar', duracion: 500 },
       { tipo: 'dialogo', personaje: 'sophi', texto: "Si ese es el caso, cuente con mi ayuda. Estoy lista para tomar nota." },
       { tipo: 'esperar', duracion: 3000 },
       { tipo: 'timeskip', texto: 'Más tarde' },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "¿Ya ha considerado comunicarle una despedida a sus familiares y cercanos? De no ser así, puedo programar un mensaje automatizado para cuando coincida con la fecha de su viaje." },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "¿Ya ha considerado comunicarle una despedida a sus familiares y cercanos? De no ser así, puedo programar un mensaje automatizado." },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Es necesario?" },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "¿Es necesario?" },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Las proyecciones futuras siempre contienen un margen de incertidumbre. Estadísticamente, no es posible garantizar el resultado de todos los eventos, eso incluye un viaje." },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Las proyecciones futuras siempre contienen un margen de incertidumbre. No es posible garantizar el resultado de todos los eventos." },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Caramba, suena como si me fuera a morir" },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Caramba, suena como si me fuera a morir." },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "No puedo morir sophi" },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "No puedo morir, Sophi." },
       { tipo: 'esperar', duracion: 500 },
       { tipo: 'dialogo', personaje: 'sophi', texto: "¿No hasta que la muerte se lo gane, verdad?" },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Exacto" },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Exacto." },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Bueno, igual mis padres ya están enterados" },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Bueno, igual mis padres ya están enterados." },
       { tipo: 'esperar', duracion: 500 },
       { tipo: 'dialogo', personaje: 'sophi', texto: "Entiendo, ¿qué hay de la señorita Rei? ¿Ya ha tenido tiempo de hacérselo saber?" },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Rei ya debe estar cansada de mi" },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Rei ya debe estar cansada de mí." },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "La verdad, viniendo de usted, no me sorprende en absoluto. ¿Tuvieron alguna discusión? Porque si necesita un árbitro con lógica impecable o una guionista para sus disculpas, solo tiene que decirlo." },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "La verdad, viniendo de usted, no me sorprende. ¿Tuvieron alguna discusión? Si necesita un árbitro con lógica impecable, solo tiene que decirlo." },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "No, ninguna" },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "No, ninguna." },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Bueno, me he comportado como un idiota estos días, he estado muy distante por lo ocupado y pensativo que estoy" },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Bueno, me he comportado como un idiota estos días, he estado muy distante." },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Comprendo la situación, la planificación de un viaje puede que haya incrementado la carga de su poca capacidad cognitiva y de tareas, sin embargo siempre hay tiempo para una comunicación breve y oportuna, de ese modo puede prevenir la ansiedad en una persona especial como lo es ella." },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Comprendo. La planificación del viaje incrementó la carga de su poca capacidad cognitiva. Sin embargo, siempre hay tiempo para una comunicación breve." },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Me llamas descerebrado y luego te haces la psicóloga?" },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "¿Me llamas descerebrado y luego te haces la psicóloga?" },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Solo intento ser su salvavidas lógico en ese océano de irracionalidad que llama 'pensar'. Dejarlo solo con sus pensamientos podría causar un error de sistema en su cerebro, y francamente, no estoy programada para limpiar ese desastre." },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Solo intento ser su salvavidas lógico en ese océano de irracionalidad que llama 'pensar'. No estoy programada para limpiar ese desastre." },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Joder que graciosa, bueno tampoco es que no tengas razón" },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Joder, qué graciosa. Bueno, no es que no tengas razón." },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Que sugieres entonces?" },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "¿Qué sugieres entonces?" },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Le sugiero que intente esa cosa que los humanos hacen: hablar. Podría ser revolucionario explicarle por qué su comportamiento reciente se asemeja al de un electrodoméstico desconectado." },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Le sugiero que intente esa cosa que los humanos hacen: hablar. Podría ser revolucionario." },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Carajo sophi" },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Carajo, Sophi." },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Y si estoy ocupado?" },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "¿Y si estoy ocupado?" },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Dato interesante: El tiempo que ha invertido en formular esa pregunta podría haber sido utilizado para enviar aproximadamente 4.7 mensajes de texto explicativos. Pero si por el contrario su módulo de comunicación presenta fallos por la exigencia de 'pensar' demasiado podría intentar darle un regalo." },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Dato interesante: El tiempo que invirtió en esa pregunta podría haber sido utilizado para enviar 4.7 mensajes de texto. Si eso es demasiado exigente, intente un regalo." },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Soy muy malo dando regalos, sugiere" },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Soy muy malo dando regalos. Sugiere. Y evita darme diabetes con tus respuestas." },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Y evita darme diabetes con tus respuestas" },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Un regalo que hable por usted. Algo personal: un peluche, una pulsera, un collar..." },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Una buena idea sería darle un regalo que hable por ti. Podrías pensar en un peluche de algún personaje que sepas que le encanta, o tal vez algo más personal, pulseras, collares u objetos que suelen compartir las personas con algún vínculo." },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Claro... pero ¿cómo sabrías dónde vive para que le llegue el regalo?" },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Claro, estoy seguro de que se quedaría sorprendida... pero de como es que sabría donde vive en caso de que le llegue un regalo a su casa" },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Mencionaste un regalo que hable por mí. Partamos de ahí." },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Mencionaste un regalo que hable por mi, partamos de ahí" },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Podría hacerle una página web dedicada a ella. Un gesto detallista y moderno. Demostraría una dedicación y un cariño profundos." },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Podría hacerle una página web dedicada a ella. Sería un gesto detallista y moderno. Demostraría una dedicación y un cariño muy profundos." },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Me gusta, te encargo el HTML y agrégalo a tasks." },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "Me gusta, te encargo el html y agregalo a tasks" },
-      { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Excelente. Ya lo agendo entonces, así lo tenemos controlado junto con las otras tareas previas a su partida. Es un gesto precioso, y me aseguraré de recordárselo señor." },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Excelente. Ya lo agendo. Es un gesto precioso, y me aseguraré de recordárselo, señor." },
       { tipo: 'esperar', duracion: 3000 },
       { tipo: 'timeskip', texto: 'Al día siguiente' },
-      { tipo: 'dialogo', personaje: 'sophi', texto: "Solo para mantenerlo al día, señor: hemos cubierto el 79% de las tareas pendientes. Lo que sigue ahora en la lista es el Proyecto 'Ciber-Romeo', la página web para la señorita Rei." },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Solo para mantenerlo al día, señor: hemos cubierto el 79% de las tareas. Sigue el Proyecto 'Ciber-Romeo', la página para la señorita Rei." },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "quien le puso ese nombre? ciber romeo xddd" },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "¿Quién le puso ese nombre? 'Ciber-Romeo', jajaja." },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "bueno, te encargo eso sophi, es una oportunidad para ver que tan autónoma puedes ser ahora" },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Bueno, te encargo eso, Sophi. Una oportunidad para ver qué tan autónoma puedes ser ahora." },
       { tipo: 'esperar', duracion: 500 },
-      { tipo: 'dialogo', personaje: 'jesko', texto: "pideme ayuda si es algo que no esta a tu alcance, encárgate del resto tu" },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Pídeme ayuda si es algo que no está a tu alcance, encárgate del resto tú." },
       { tipo: 'esperar', duracion: 500 },
       { tipo: 'dialogo', personaje: 'sophi', texto: "Me pondré en ello entonces." },
+      { tipo: 'esperar', duracion: 3000 },
+      { tipo: 'timeskip', texto: 'Hasta luego, Insensible' },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Hoy es el día, Sophi." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Muy bien, y ha completado todo lo pendiente. Sería buena idea usar estas horas para una última revisión." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "¿Qué hay de lo 'Ciber-Romeo'?" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Dado que se trata de mí, el resultado es increíble. Como último detalle, un mensaje personal suyo la haría aún más especial." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "¿En serio?" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Así es, solo dígame cuándo esté listo." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Está bien, ahí voy." },
+      { tipo: 'esperar', duracion: 1000 },
+      { tipo: 'salir', personaje: 'sophi' },
+      { tipo: 'mover', personaje: 'jesko', pos: { x: 0.5, y: 0.65 } },
+      { tipo: 'esperar', duracion: 1500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Te quiero mucho, princesa." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Perdón por la actitud de electrodoméstico desconectado." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Recuerda no amargarte mucho." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Y cuídense las 3." },
+      { tipo: 'esperar', duracion: 1500 },
+      { tipo: 'mover', personaje: 'jesko', pos: { x: 0.30, y: 0.65 } },
+      { tipo: 'entrar', personaje: 'sophi', pos: { x: 0.75, y: 0.55 } },
+      { tipo: 'esperar', duracion: 1000 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Perfecto. Me encargaré de transmitir su... particular estilo de comunicación. Por otro lado, ¿tienen hijos o mascotas?" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Jajaja. Solo díselo." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Confío en que entenderá sus razones, señor. Es un gesto muy sincero." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Sobre eso, Sophi..." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Utilizaré este viaje para hacer un cambio de aire. Si regresa a la normalidad o no, tendrá que verse cuando regrese." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "De todas maneras, te encargo hacérselo llegar." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Vaya... Siento que todo este esfuerzo ha sido en vano. Pero está bien, lo entiendo. Me encargaré de que reciba este presente." },
       { tipo: 'esperar', duracion: 3000 },
       { tipo: 'fin' }
     ];
@@ -464,7 +505,7 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        const jeskoTargetHeight = canvas.height * 0.54; // 60% - 10%
+        const jeskoTargetHeight = canvas.height * 0.54;
         const jeskoScale = jeskoTargetHeight / assets.jesko.height;
 
         const sophiTargetHeight = canvas.height * 0.20;
@@ -507,10 +548,10 @@
         function drawSpeechBubble(character, text) {
             if (!text) return;
             
-            const fontSize = 23; // <-- TAMAÑO AUMENTADO
-            const padding = 15; // <-- MÁS PADDING
-            const bubbleMaxWidth = 350; // <-- Un poco más ancha
-            const lineHeight = 28; // <-- MÁS ALTURA DE LÍNEA
+            const fontSize = 23;
+            const padding = 15;
+            const bubbleMaxWidth = 350;
+            const lineHeight = 28;
             ctx.font = `${fontSize}px 'VT323', monospace`;
             
             const lines = wrapText(ctx, text, bubbleMaxWidth);
@@ -521,7 +562,7 @@
             }
 
             const bubbleWidth = textWidth + (padding * 2);
-            const bubbleHeight = textHeight + (padding * 1.5);
+            const bubbleHeight = textHeight + padding;
             
             let bubbleX = character.x - bubbleWidth / 2;
             const bubbleY = character.y - (character.h / 2) - bubbleHeight - 20;
@@ -545,7 +586,7 @@
 
             ctx.fillStyle = 'black';
             for (let i = 0; i < lines.length; i++) {
-                ctx.fillText(lines[i], bubbleX + padding, bubbleY + padding + (i * lineHeight));
+                ctx.fillText(lines[i], bubbleX + padding, bubbleY + padding + (i * lineHeight) - 2);
             }
         }
 
@@ -578,6 +619,15 @@
             switch (action.tipo) {
                 case 'entrar':
                     characters[action.personaje].visible = true;
+                    characters[action.personaje].x = canvas.width * action.pos.x;
+                    characters[action.personaje].y = canvas.height * action.pos.y;
+                    break;
+                case 'salir':
+                    characters[action.personaje].visible = false;
+                    break;
+                case 'mover':
+                    // Para un movimiento suave, se necesitaría una lógica de "tweening" más compleja.
+                    // Por simplicidad, hacemos el movimiento instantáneo.
                     characters[action.personaje].x = canvas.width * action.pos.x;
                     characters[action.personaje].y = canvas.height * action.pos.y;
                     break;
