@@ -37,7 +37,9 @@
     }
     .center-content {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      min-height: 100vh; width: 100%; gap: 40px;
+      min-height: 100vh; width: 100%; 
+      /* --- CAMBIO: Aumentado el espacio para separar el cuadro de texto --- */
+      gap: 50px;
       position: relative; z-index: 10;
     }
 
@@ -75,12 +77,18 @@
     @keyframes rotate-energy { from { transform: translate(-16.66%, -16.66%) rotate(0deg); } to { transform: translate(-16.66%, -16.66%) rotate(360deg); } }
     @keyframes scanline-move { from { background-position: 0 0; } to { background-position: 0 -100px; } }
     .orbe-area { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; }
-    .orb-prompt { font-family: 'Poppins', sans-serif; font-size: 0.9em; color: #ccc; text-align: center; width: 280px; height: 3em; text-shadow: 0 0 5px #fff; }
+    .orb-prompt { 
+        /* --- CAMBIO: Nueva fuente y tamaño --- */
+        font-family: 'VT323', monospace;
+        font-size: 1.2em;
+        line-height: 1.4;
+        color: #ccc; text-align: center; width: 320px; height: 4.5em; text-shadow: 0 0 5px #fff;
+    }
     .orb-prompt .type-cursor { display: inline-block; width: 1ch; background: #ccc; animation: blink 0.9s steps(1) infinite; margin-left: 2px; }
     @keyframes blink { 50% { opacity: 0; } }
     .texto-dialogo { background: linear-gradient(135deg, #00bfffbb, #8A2BE2cc 80%); border: 2px solid #00bfff; border-radius: 13px; color: #fff; font-size: 1em; box-shadow: 0 0 10px #00bfff; padding: 13px 22px; text-shadow: 0 0 8px #fff; min-width: 180px; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.7s forwards; }
     @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
-    .futuristic-box { background: linear-gradient(135deg, #2a0047cc 60%, #6500c2cc 100%); border: 2px solid #a500d2; border-radius: 15px; box-shadow: 0 0 16px 2px #a500d288, 0 0 2px #fff; padding: 25px 20px; min-width: 210px; display: flex; flex-direction: column; align-items: center; gap: 13px; animation: fadeIn 0.7s; backdrop-filter: blur(2px); }
+    .futuristic-box { background: linear-gradient(135deg, #2a0047cc 60%, #6500c2cc 100%); border: 2px solid #a500d2; border-radius: 15px; box-shadow: 0 0 16px 2px #a500d288, 0 0 2px #fff; padding: 25px 20px; min-width: 210px; display: flex; flex-direction: column; align-items: center; gap: 13px; animation: fadeIn 0.7s; backdrop-filter: blur(2px); transition: opacity 0.5s; }
     .input-row { display: flex; align-items: center; gap: 10px; }
     input[type="text"] { padding: 7px 12px; border-radius: 8px; border: 2px solid #a500d2; background: #25003cbb; color: #fff; font-size: 1em; outline: none; box-shadow: 0 0 7px #a500d2; transition: all 0.2s; } input[type="text"]:focus { border-color: #ff38e7; box-shadow: 0 0 10px #ff38e7; }
     input[type="text"]:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -325,27 +333,9 @@
     let giftClickCount = 0;
     let hasShownHeartDialog = false;
     let toastTimeout;
-    // NUEVO: Variable de estado para la seguridad
     let securityStep = 0;
 
-    // --- NUEVO: Función para escribir palabra por palabra ---
-    function escribirPalabras(element, text, speed, callback) {
-        element.innerHTML = "";
-        const words = text.split(' ');
-        let i = 0;
-        function write() {
-            if (i < words.length) {
-                element.innerHTML += (i > 0 ? ' ' : '') + words[i];
-                i++;
-                setTimeout(write, speed);
-            } else {
-                if (callback) callback();
-            }
-        }
-        write();
-    }
-
-    function escribirTexto(element, text, speed, callback, clearAfter = 0) { let i = 0; element.innerHTML = ""; const cursor = document.createElement('span'); cursor.className = 'type-cursor'; cursor.innerHTML = '&nbsp;'; function write() { if (i < text.length) { element.innerHTML = text.substring(0, i + 1); element.appendChild(cursor); i++; setTimeout(write, speed); } else { cursor.remove(); if (clearAfter > 0) { setTimeout(() => { element.innerHTML = ''; }, clearAfter); } if (callback) callback(); } } write(); }
+    function escribirTexto(element, text, speed, callback, clearAfter = 0, showCursor = true) { let i = 0; element.innerHTML = ""; const cursor = document.createElement('span'); cursor.className = 'type-cursor'; cursor.innerHTML = '&nbsp;'; function write() { if (i < text.length) { if(showCursor) { element.innerHTML = text.substring(0, i + 1) + cursor.outerHTML; } else { element.innerHTML = text.substring(0, i + 1); } i++; setTimeout(write, speed); } else { if(showCursor) cursor.remove(); if (clearAfter > 0) { setTimeout(() => { element.innerHTML = ''; }, clearAfter); } if (callback) callback(); } } write(); }
     
     document.addEventListener('DOMContentLoaded', () => {
         const orb = document.getElementById('main-orb');
@@ -353,8 +343,7 @@
         setTimeout(() => {
             orb.classList.add('is-active');
             setTimeout(() => {
-                // CAMBIO: Se usa la nueva función de escritura por palabras
-                escribirPalabras(promptText, "Para asegurarme de que usted es la persona que espero, introduzca su nombre.", 150);
+                escribirTexto(promptText, "Para asegurarme de que usted es la persona que espero, introduzca su nombre.", 25, null, 0, false);
             }, 500);
         }, 2200);
         const skipBtn = document.getElementById('skip-to-cinematic-btn');
@@ -363,51 +352,55 @@
 
     const enviarBtn = document.getElementById('enviar-btn');
     const nombreInput = document.getElementById('nombre-input');
-
-    // --- CAMBIO: Lógica de autenticación de 2 pasos ---
-    enviarBtn.onclick = () => {
+    enviarBtn.onclick = async () => {
       const userInput = nombreInput.value.trim().toLowerCase();
       const promptText = document.getElementById('orb-prompt-text');
-
-      if (securityStep === 0) { // Paso 1: Validar el nombre
+      const entradaBox = document.getElementById('entrada-box');
+      if (securityStep === 0) {
         if (userInput === 'rei') {
           securityStep = 1;
           nombreInput.value = '';
           nombreInput.placeholder = 'Sabor del dulce';
-          escribirPalabras(promptText, "El señor Jesko usa el nombre de un dulce para referirse a usted de manera afectiva, ¿de qué sabor es el dulce?", 100);
-        } else {
-          denegarAcceso();
-        }
-      } else if (securityStep === 1) { // Paso 2: Validar el dulce
+          await new Promise(r => escribirTexto(promptText, "El señor Jesko usa el nombre de un dulce para referirse a usted de manera afectiva, ¿de qué sabor es el dulce?", 25, r, 0, false));
+        } else { denegarAcceso(); }
+      } else if (securityStep === 1) {
         const esValido = userInput.includes('limon') || userInput.includes('caramelito') || userInput.includes('pastelito');
         if (esValido) {
-          // Acceso concedido, iniciar transición
-          document.getElementById('main-initial').style.display = 'none';
-          const transitionContent = document.getElementById('transition-content');
-          transitionContent.style.display = 'flex'; transitionContent.style.flexDirection = 'column'; transitionContent.style.gap = '22px'; transitionContent.style.alignItems = 'center';
-          initOrbParticles('orb-particles-canvas-transition');
-          const transitionDialog = document.getElementById('texto-dialogo');
-          escribirTexto(transitionDialog, "Iniciando secuencia...", 45, () => {
-              setTimeout(() => {
-                  transitionContent.style.display = 'none';
-                  showExplosionAndSwitchDesign();
-              }, 500);
-          });
-        } else {
-          denegarAcceso();
-        }
+          securityStep = 2;
+          nombreInput.disabled = true;
+          enviarBtn.disabled = true;
+          await new Promise(r => escribirTexto(promptText, "Lo siguiente es una experiencia que está programada para ocurrir SOLO UNA VEZ.", 25, r, 0, false));
+          await new Promise(r => setTimeout(r, 1200));
+          await new Promise(r => escribirTexto(promptText, "Asegúrese de estar en un ordenador para garantizar una mejor experiencia.", 25, r, 0, false));
+          
+          entradaBox.style.opacity = '0';
+          setTimeout(() => {
+            entradaBox.innerHTML = `<button id="acceder-btn">Acceder</button>`;
+            entradaBox.style.opacity = '1';
+            document.getElementById('acceder-btn').onclick = () => {
+                const btn = document.getElementById('acceder-btn');
+                btn.textContent = 'Accediendo...';
+                btn.disabled = true;
+                setTimeout(() => {
+                    document.getElementById('main-initial').style.display = 'none';
+                    const transitionContent = document.getElementById('transition-content');
+                    transitionContent.style.display = 'flex'; transitionContent.style.flexDirection = 'column'; transitionContent.style.gap = '22px'; transitionContent.style.alignItems = 'center';
+                    initOrbParticles('orb-particles-canvas-transition');
+                    const transitionDialog = document.getElementById('texto-dialogo');
+                    escribirTexto(transitionDialog, "Iniciando secuencia...", 45, () => {
+                        setTimeout(() => {
+                            transitionContent.style.display = 'none';
+                            showExplosionAndSwitchDesign();
+                        }, 500);
+                    });
+                }, 500);
+            };
+          }, 500);
+        } else { denegarAcceso(); }
       }
     };
     
-    function denegarAcceso() {
-        const orb = document.getElementById('main-orb');
-        const promptText = document.getElementById('orb-prompt-text');
-        nombreInput.disabled = true; 
-        enviarBtn.disabled = true;
-        escribirTexto(promptText, "Lo siento, acceso denegado.", 40, () => {
-            setTimeout(() => { orb.classList.remove('is-active'); }, 500);
-        });
-    }
+    function denegarAcceso() { const orb = document.getElementById('main-orb'); const promptText = document.getElementById('orb-prompt-text'); nombreInput.disabled = true; enviarBtn.disabled = true; escribirTexto(promptText, "Lo siento, acceso denegado.", 40, () => { setTimeout(() => { orb.classList.remove('is-active'); }, 500); }, 0, false); }
     nombreInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') enviarBtn.click(); });
 
     function showExplosionAndSwitchDesign() { const explosionContainer = document.getElementById('explosion-container'); explosionContainer.style.display = 'flex'; const particlesContainer = document.getElementById('explosion-particles'); const tendrilsContainer = document.getElementById('energy-tendrils'); particlesContainer.innerHTML = ''; tendrilsContainer.innerHTML = ''; for (let i = 0; i < 50; i++) { const p = document.createElement('div'); p.classList.add('particle'); const angle = Math.random() * 360 * (Math.PI / 180); const dist = (Math.random() * 0.5 + 0.5) * window.innerWidth; p.style.setProperty('--x', `${Math.cos(angle) * dist}px`); p.style.setProperty('--y', `${Math.sin(angle) * dist}px`); particlesContainer.appendChild(p); } for (let i = 0; i < 25; i++) { const t = document.createElement('div'); t.classList.add('energy-tendril'); t.style.setProperty('--angle', `${Math.random() * 360}deg`); t.style.animationDelay = `${Math.random() * 0.2}s`; tendrilsContainer.appendChild(t); } setTimeout(() => { document.getElementById('initial-background').style.opacity = '0'; showNewDesign(); explosionContainer.style.display = 'none'; }, 1800); }
@@ -454,7 +447,9 @@
                 finalOrb.style.borderColor = '#444';
                 finalOrb.style.boxShadow = '0 0 15px 5px #333, inset 0 0 20px 10px #111';
                 finalOrb.style.animation = 'none';
-                finalOrb.querySelector('::before').style.background = '';
+                if(finalOrb.querySelector('::before')) {
+                    finalOrb.querySelector('::before').style.background = '';
+                }
                 lightEffect.remove();
             }, 1500);
         }
