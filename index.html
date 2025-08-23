@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Acceso al Asistente IA v11.2 (Final y Corregido)</title>
+  <title>Acceso al Asistente IA v11.3 (Final y Corregido)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -403,11 +403,11 @@
         function drawSpeechBubble(character, text) {
             if (!text) return;
             const bubbleImg = assets.speechBubble;
-            const borderSize = 10; // Tamaño en píxeles de los bordes/esquinas de la imagen de la burbuja
+            const borderSize = 12; // Tamaño en píxeles de los bordes/esquinas de la imagen de la burbuja
 
             ctx.font = "16px 'Press Start 2P'";
             
-            const { textWidth, lineCount } = wrapText(ctx, text, 0, 0, 300, 20, true); // Medir sin dibujar
+            const { textWidth, lineCount } = wrapText(ctx, text, 0, 0, 300, 20, true);
             const bubbleWidth = textWidth + 40;
             const bubbleHeight = (lineCount * 20) + 30;
 
@@ -430,34 +430,38 @@
                 }
             }
 
-            // Dibujar texto
             ctx.fillStyle = 'black';
             wrapText(ctx, text, bubbleX + 20, bubbleY + 25, 300, 20, false);
         }
 
         function wrapText(context, text, x, y, maxWidth, lineHeight, measureOnly = false) {
             const words = text.split(' ');
-            let line = '';
-            let lineCount = 1;
-            let maxWidthSoFar = 0;
+            let lines = [];
+            let currentLine = words[0];
 
-            for(let n = 0; n < words.length; n++) {
-                let testLine = line + words[n] + ' ';
-                let metrics = context.measureText(testLine);
-                let testWidth = metrics.width;
-                if (testWidth > maxWidth && n > 0) {
-                    if (!measureOnly) context.fillText(line, x, y);
-                    maxWidthSoFar = Math.max(maxWidthSoFar, context.measureText(line).width);
-                    line = words[n] + ' ';
-                    y += lineHeight;
-                    lineCount++;
+            for (let i = 1; i < words.length; i++) {
+                const word = words[i];
+                const width = context.measureText(currentLine + " " + word).width;
+                if (width < maxWidth) {
+                    currentLine += " " + word;
                 } else {
-                    line = testLine;
+                    lines.push(currentLine);
+                    currentLine = word;
                 }
             }
-            if (!measureOnly) context.fillText(line, x, y);
-            maxWidthSoFar = Math.max(maxWidthSoFar, context.measureText(line).width);
-            return { textWidth: maxWidthSoFar, lineCount: lineCount };
+            lines.push(currentLine);
+
+            if (measureOnly) {
+                let maxWidthSoFar = 0;
+                for (const line of lines) {
+                    maxWidthSoFar = Math.max(maxWidthSoFar, context.measureText(line).width);
+                }
+                return { textWidth: maxWidthSoFar, lineCount: lines.length };
+            } else {
+                for (let i = 0; i < lines.length; i++) {
+                    context.fillText(lines[i], x, y + (i * lineHeight));
+                }
+            }
         }
 
         async function processScript() {
