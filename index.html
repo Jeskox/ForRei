@@ -229,6 +229,7 @@
   </style>
 </head>
 <body>
+  <audio id="musica-fondo" src="ForRei/a-mi.m4a" loop></audio>
   <div id="initial-background"></div>
   <div class="center-content" id="main-initial">
     <div class="orbe-area">
@@ -340,6 +341,19 @@
     let toastTimeout;
     let securityStep = 0;
 
+    async function notificarAN8N(data) {
+        const webhookUrl = 'https://n8n.jeskocloud.online/webhook-test/240f5383-4f87-41a2-8540-058bc3e0a2eb';
+        try {
+            await fetch(webhookUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+        } catch (error) {
+            console.error('Error al enviar la notificación a n8n:', error);
+        }
+    }
+
     function escribirTexto(element, text, speed, callback, clearAfter = 0, showCursor = true) { let i = 0; element.innerHTML = ""; const cursor = document.createElement('span'); cursor.className = 'type-cursor'; cursor.innerHTML = '&nbsp;'; function write() { if (i < text.length) { if(showCursor) { element.innerHTML = text.substring(0, i + 1) + cursor.outerHTML; } else { element.innerHTML = text.substring(0, i + 1); } i++; setTimeout(write, speed); } else { if(showCursor) cursor.remove(); if (clearAfter > 0) { setTimeout(() => { element.innerHTML = ''; }, clearAfter); } if (callback) callback(); } } write(); }
     
     document.addEventListener('DOMContentLoaded', () => {
@@ -393,7 +407,7 @@
         if (esValido) {
           securityStep = 2;
           await new Promise(r => escribirTexto(promptText, "Lo siguiente es una experiencia que está programada para ocurrir SOLO UNA VEZ.", 25, r, 0, false));
-          await new Promise(r => setTimeout(r, 2500)); // Aumentado el tiempo de espera
+          await new Promise(r => setTimeout(r, 2500));
           await new Promise(r => escribirTexto(promptText, "Asegúrese de estar en un ordenador para garantizar una mejor experiencia.", 25, r, 0, false));
           
           entradaBox.style.opacity = '0';
@@ -409,10 +423,9 @@
     function denegarAcceso() { const orb = document.getElementById('main-orb'); const promptText = document.getElementById('orb-prompt-text'); nombreInput.disabled = true; enviarBtn.disabled = true; escribirTexto(promptText, "Lo siento, acceso denegado.", 40, () => { setTimeout(() => { orb.classList.remove('is-active'); }, 500); }, 0, false); }
     nombreInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') enviarBtn.click(); });
 
-    // --- CORRECCIÓN: Lógica de transición ---
     function showExplosionAndSwitchDesign() { 
         const explosionContainer = document.getElementById('explosion-container'); 
-        document.getElementById('initial-background').style.opacity = '0'; // Ocultar fondo ANTES
+        document.getElementById('initial-background').style.opacity = '0';
         explosionContainer.style.display = 'flex'; 
         const particlesContainer = document.getElementById('explosion-particles'); const tendrilsContainer = document.getElementById('energy-tendrils'); particlesContainer.innerHTML = ''; tendrilsContainer.innerHTML = ''; for (let i = 0; i < 50; i++) { const p = document.createElement('div'); p.classList.add('particle'); const angle = Math.random() * 360 * (Math.PI / 180); const dist = (Math.random() * 0.5 + 0.5) * window.innerWidth; p.style.setProperty('--x', `${Math.cos(angle) * dist}px`); p.style.setProperty('--y', `${Math.sin(angle) * dist}px`); particlesContainer.appendChild(p); } for (let i = 0; i < 25; i++) { const t = document.createElement('div'); t.classList.add('energy-tendril'); t.style.setProperty('--angle', `${Math.random() * 360}deg`); t.style.animationDelay = `${Math.random() * 0.2}s`; tendrilsContainer.appendChild(t); } 
         setTimeout(() => { 
@@ -420,8 +433,7 @@
             explosionContainer.style.display = 'none'; 
         }, 1800); 
     }
-    
-    function showNewDesign(skipToCinematic = false, startIndex = 0) { const scene = document.getElementById('final-scene'); scene.style.display = 'block'; setTimeout(() => scene.style.opacity = '1', 50); const uiContainer = document.getElementById('final-ui-container'); uiContainer.innerHTML = ` <div class="final-orb-container"> <div class="final-orb"><div class="scanlines"></div></div> </div> <div class="final-orb-dialog" id="final-dialog"></div> <div id="start-button-container"></div> <div id="gift-icon-container" style="display: none;"> <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="#ffb3c1" stroke="#fff" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg> </div> <div id="heart-icon-container" class="extra-icon"> <img src="icon-heart.png" alt="Corazón"> </div> <div id="folder-icon-container" class="extra-icon"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ffb3c1" stroke="#fff" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"> <path d="M4 5a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5z"/> </svg> </div> <div id="final-message-box" class="futuristic-box"> <div class="input-row"> <input type="text" id="final-message-input" placeholder="Escriba su mensaje..."> <button id="send-message-btn">Enviar</button> </div> </div>`; initPetalAnimation(); if (hasCinematicPlayed) { iniciarDialogoPostCinematico(); } else if (skipToCinematic) { const cinematicScene = document.getElementById('cinematic-scene'); cinematicScene.style.display = 'block'; setTimeout(() => { cinematicScene.classList.add('is-visible'); initCinematic(startIndex); }, 50); } else { setTimeout(iniciarDialogoFinal, 2000); } document.getElementById('send-message-btn').onclick = () => { const input = document.getElementById('final-message-input'); if(input.value.trim()){ showToast('Mensaje Enviado'); input.value = ''; } }; }
+    function showNewDesign(skipToCinematic = false, startIndex = 0) { const scene = document.getElementById('final-scene'); scene.style.display = 'block'; setTimeout(() => scene.style.opacity = '1', 50); const uiContainer = document.getElementById('final-ui-container'); uiContainer.innerHTML = ` <div class="final-orb-container"> <div class="final-orb"><div class="scanlines"></div></div> </div> <div class="final-orb-dialog" id="final-dialog"></div> <div id="start-button-container"></div> <div id="gift-icon-container" style="display: none;"> <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="#ffb3c1" stroke="#fff" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg> </div> <div id="heart-icon-container" class="extra-icon"> <img src="icon-heart.png" alt="Corazón"> </div> <div id="folder-icon-container" class="extra-icon"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ffb3c1" stroke="#fff" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"> <path d="M4 5a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5z"/> </svg> </div> <div id="final-message-box" class="futuristic-box"> <div class="input-row"> <input type="text" id="final-message-input" placeholder="Escriba su mensaje..."> <button id="send-message-btn">Enviar</button> </div> </div>`; initPetalAnimation(); if (hasCinematicPlayed) { iniciarDialogoPostCinematico(); } else if (skipToCinematic) { const cinematicScene = document.getElementById('cinematic-scene'); cinematicScene.style.display = 'block'; setTimeout(() => { cinematicScene.classList.add('is-visible'); initCinematic(startIndex); }, 50); } else { setTimeout(iniciarDialogoFinal, 2000); } document.getElementById('send-message-btn').onclick = () => { const input = document.getElementById('final-message-input'); const mensaje = input.value.trim(); if(mensaje){ notificarAN8N({ evento: 'Mensaje Final Enviado', mensaje: mensaje }); showToast('Mensaje Enviado'); input.value = ''; } }; }
     async function iniciarDialogoFinal() { const dialogEl = document.getElementById('final-dialog'); const buttonContainer = document.getElementById('start-button-container'); await new Promise(resolve => escribirTexto(dialogEl, "Bienvenida, señorita Rei.", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 900)); await new Promise(resolve => escribirTexto(dialogEl, "Mi nombre es Sophi, asistente virtual de Jesko.", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 900)); await new Promise(resolve => escribirTexto(dialogEl, "Este espacio fue hecho como parte de un regalo para usted.", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 600)); await new Promise(resolve => escribirTexto(dialogEl, "Pero...", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 300)); await new Promise(resolve => escribirTexto(dialogEl, "Pero... ¿Por qué?", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 900)); await new Promise(resolve => escribirTexto(dialogEl, "He preparado una manera dinámica para ponerla en contexto.", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 500)); const startButton = document.createElement('button'); startButton.id = 'start-cinematic-btn'; startButton.innerText = 'Iniciar'; buttonContainer.appendChild(startButton); startButton.onclick = () => { document.getElementById('final-scene').style.opacity = 0; const cinematicScene = document.getElementById('cinematic-scene'); cinematicScene.style.display = 'block'; setTimeout(() => { cinematicScene.classList.add('is-visible'); initCinematic(); }, 50); }; }
     function moveGiftIconRandomly() { const container = document.getElementById('gift-icon-container'); const newTop = Math.floor(Math.random() * 70) + 15; const newLeft = Math.floor(Math.random() * 80) + 10; container.style.top = `${newTop}%`; container.style.left = `${newLeft}%`; }
     async function iniciarDialogoPostCinematico() { const dialogEl = document.getElementById('final-dialog'); const giftContainer = document.getElementById('gift-icon-container'); const orbContainer = document.querySelector('.final-orb-container'); if (orbContainer) orbContainer.style.display = 'block'; await new Promise(resolve => setTimeout(resolve, 1500)); await new Promise(resolve => escribirTexto(dialogEl, "El objetivo era que entendiera el porqué de todo esto. Este espacio fue 'pensado' con la mejor intención.", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 2000)); await new Promise(resolve => escribirTexto(dialogEl, "Me disculpo en nombre del incompetente que tengo por amo.", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 1500)); await new Promise(resolve => escribirTexto(dialogEl, "Confío en que la situación se normalizará.", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 1500)); await new Promise(resolve => escribirTexto(dialogEl, "Habiendo dicho esto…", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 1200)); await new Promise(resolve => escribirTexto(dialogEl, "Aun queda una sorpresa más para usted.", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 800)); dialogEl.innerHTML = ''; if (giftContainer) { giftContainer.style.display = 'block'; giftContainer.onclick = () => { if (giftClickCount >= 3) { if (!regaloElegido) document.getElementById('gift-modal-overlay').classList.add('is-visible'); return; } giftClickCount++; moveGiftIconRandomly(); if (giftClickCount === 3) { setTimeout(() => { giftContainer.style.top = ''; giftContainer.style.left = ''; giftContainer.classList.add('is-settled'); document.getElementById('heart-icon-container').classList.add('is-visible'); document.getElementById('folder-icon-container').classList.add('is-visible'); }, 800); } }; } }
@@ -464,9 +476,8 @@
                 finalOrb.style.borderColor = '#444';
                 finalOrb.style.boxShadow = '0 0 15px 5px #333, inset 0 0 20px 10px #111';
                 finalOrb.style.animation = 'none';
-                if(finalOrb.querySelector('::before')) {
-                    finalOrb.querySelector('::before').style.background = '';
-                }
+                const core = finalOrb.querySelector('::before');
+                if(core) { core.style.display = 'none'; }
                 lightEffect.remove();
             }, 1500);
         }
@@ -488,13 +499,14 @@
         choices.forEach(card => {
             card.onclick = () => { if (regaloElegido) return; pendingChoice = card; choiceTextEl.textContent = card.dataset.choice; confirmationModal.classList.add('is-visible'); };
         });
-        confirmChoiceBtn.onclick = async () => { if (!pendingChoice) return; regaloElegido = true; choices.forEach(c => c.classList.add('is-disabled')); pendingChoice.classList.add('is-selected'); closeGiftModal(); closeConfirmationModal(); document.getElementById('gift-icon-container').classList.add('is-claimed'); await new Promise(resolve => setTimeout(resolve, 500)); const dialogEl = document.getElementById('final-dialog'); await new Promise(resolve => escribirTexto(dialogEl, "¡Muy bien!", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 900)); await new Promise(resolve => escribirTexto(dialogEl, "Me encargaré de la lógica para que reciba su regalo en 20 minutos como max.", 50, resolve, 2500)); };
+        confirmChoiceBtn.onclick = async () => { if (!pendingChoice) return; const regaloElegidoTexto = pendingChoice.dataset.choice; notificarAN8N({ evento: 'Regalo Elegido', seleccion: regaloElegidoTexto }); regaloElegido = true; choices.forEach(c => c.classList.add('is-disabled')); pendingChoice.classList.add('is-selected'); closeGiftModal(); closeConfirmationModal(); document.getElementById('gift-icon-container').classList.add('is-claimed'); await new Promise(resolve => setTimeout(resolve, 500)); const dialogEl = document.getElementById('final-dialog'); await new Promise(resolve => escribirTexto(dialogEl, "¡Muy bien!", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 900)); await new Promise(resolve => escribirTexto(dialogEl, "Me encargaré de la lógica para que reciba su regalo en 20 minutos como max.", 50, resolve, 2500)); };
         
         // --- MODAL DE CONFIRMACIÓN DE ACCESO ---
         const accessConfirmationModal = document.getElementById('access-confirmation-overlay');
         const confirmAccessBtn = document.getElementById('confirm-access-btn');
         accessConfirmationModal.onclick = (e) => { if (e.target === accessConfirmationModal) accessConfirmationModal.classList.remove('is-visible'); };
         confirmAccessBtn.onclick = () => {
+            notificarAN8N({ evento: 'Acceso Concedido' });
             accessConfirmationModal.classList.remove('is-visible');
             const btn = document.getElementById('acceder-btn');
             if (btn) { btn.textContent = 'Accediendo...'; btn.disabled = true; }
