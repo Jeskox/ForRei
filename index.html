@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Acceso al Asistente IA v12.0 (Final)</title>
+  <title>Acceso al Asistente IA v12.1 (Final)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -144,7 +144,7 @@
     }
     #timeskip-overlay {
         position: fixed; inset: 0;
-        z-index: 60; /* Encima de la cinemática */
+        z-index: 60;
         background-color: black;
         display: flex; justify-content: center; align-items: center;
         opacity: 0;
@@ -360,7 +360,7 @@
       { tipo: 'esperar', duracion: 500 },
       { tipo: 'dialogo', personaje: 'sophi', texto: "Si ese es el caso, cuente con mi ayuda. Estoy lista para tomar nota." },
       { tipo: 'esperar', duracion: 3000 },
-      { tipo: 'timeskip', texto: 'Al día siguiente' },
+      { tipo: 'timeskip', texto: 'Más tarde' },
       { tipo: 'dialogo', personaje: 'sophi', texto: "¿Ya ha considerado comunicarle una despedida a sus familiares y cercanos? De no ser así, puedo programar un mensaje automatizado para cuando coincida con la fecha de su viaje." },
       { tipo: 'esperar', duracion: 500 },
       { tipo: 'dialogo', personaje: 'jesko', texto: "Es necesario?" },
@@ -420,6 +420,17 @@
       { tipo: 'dialogo', personaje: 'jesko', texto: "Me gusta, te encargo el html y agregalo a tasks" },
       { tipo: 'esperar', duracion: 500 },
       { tipo: 'dialogo', personaje: 'sophi', texto: "Excelente. Ya lo agendo entonces, así lo tenemos controlado junto con las otras tareas previas a su partida. Es un gesto precioso, y me aseguraré de recordárselo señor." },
+      { tipo: 'esperar', duracion: 3000 },
+      { tipo: 'timeskip', texto: 'Al día siguiente' },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Solo para mantenerlo al día, señor: hemos cubierto el 79% de las tareas pendientes. Lo que sigue ahora en la lista es el Proyecto 'Ciber-Romeo', la página web para la señorita Rei." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "quien le puso ese nombre? ciber romeo xddd" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "bueno, te encargo eso sophi, es una oportunidad para ver que tan autónoma puedes ser ahora" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "pideme ayuda si es algo que no esta a tu alcance, encárgate del resto tu" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Me pondré en ello entonces." },
       { tipo: 'esperar', duracion: 3000 },
       { tipo: 'fin' }
     ];
@@ -496,10 +507,10 @@
         function drawSpeechBubble(character, text) {
             if (!text) return;
             
-            const fontSize = 18;
-            const padding = 12;
-            const bubbleMaxWidth = 300;
-            const lineHeight = 22;
+            const fontSize = 23; // <-- TAMAÑO AUMENTADO
+            const padding = 15; // <-- MÁS PADDING
+            const bubbleMaxWidth = 350; // <-- Un poco más ancha
+            const lineHeight = 28; // <-- MÁS ALTURA DE LÍNEA
             ctx.font = `${fontSize}px 'VT323', monospace`;
             
             const lines = wrapText(ctx, text, bubbleMaxWidth);
@@ -510,7 +521,7 @@
             }
 
             const bubbleWidth = textWidth + (padding * 2);
-            const bubbleHeight = textHeight + padding;
+            const bubbleHeight = textHeight + (padding * 1.5);
             
             let bubbleX = character.x - bubbleWidth / 2;
             const bubbleY = character.y - (character.h / 2) - bubbleHeight - 20;
@@ -534,7 +545,7 @@
 
             ctx.fillStyle = 'black';
             for (let i = 0; i < lines.length; i++) {
-                ctx.fillText(lines[i], bubbleX + padding, bubbleY + padding + (i * lineHeight) + (fontSize * 0.2));
+                ctx.fillText(lines[i], bubbleX + padding, bubbleY + padding + (i * lineHeight));
             }
         }
 
