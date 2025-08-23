@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Acceso al Asistente IA v11.1</title>
+  <title>Acceso al Asistente IA v11.2 (Final y Corregido)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -354,11 +354,11 @@
 
         let assets;
         try {
-             // ASSETS DE CINEMÁTICA CON MANEJO DE ERRORES
              assets = {
                 background: await loadImage('assets/salon.png'),
                 jesko: await loadImage('assets/jesko-sprite-1.png'),
-                sophi: await loadImage('assets/sophi-sprite-1.png')
+                sophi: await loadImage('assets/sophi-sprite-1.png'),
+                speechBubble: await loadImage('assets/burbuja-chat.png')
             };
         } catch (error) {
             alert(error);
@@ -367,9 +367,11 @@
             return;
         }
         
+        const jeskoScale = 0.8;
+        const sophiScale = 0.6;
         const characters = {
-            jesko: { img: assets.jesko, x: 0, y: 0, visible: false, yOffset: 0 },
-            sophi: { img: assets.sophi, x: 0, y: 0, visible: false, yOffset: 0 }
+            jesko: { img: assets.jesko, x: 0, y: 0, visible: false, yOffset: 0, w: assets.jesko.width * jeskoScale, h: assets.jesko.height * jeskoScale },
+            sophi: { img: assets.sophi, x: 0, y: 0, visible: false, yOffset: 0, w: assets.sophi.width * sophiScale, h: assets.sophi.height * sophiScale }
         };
         
         let currentAction = null;
@@ -381,47 +383,81 @@
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(assets.background, 0, 0, canvas.width, canvas.height);
-
             characters.jesko.yOffset = Math.sin(Date.now() * 0.002) * 2;
             characters.sophi.yOffset = Math.sin(Date.now() * 0.003) * 3;
-
             for (const charName in characters) {
                 const char = characters[charName];
                 if (char.visible) {
-                    ctx.drawImage(char.img, char.x - char.img.width/2, char.y - char.img.height/2 + char.yOffset);
+                    ctx.drawImage(char.img, char.x - char.w/2, char.y - char.h/2 + char.yOffset, char.w, char.h);
                 }
             }
-            
             if (currentAction && currentAction.tipo === 'dialogo') {
                 if (dialogueProgress < dialogueText.length) {
                     dialogueProgress += 0.5;
                 }
                 drawSpeechBubble(characters[currentAction.personaje], dialogueText.substring(0, Math.floor(dialogueProgress)));
             }
-
             animationFrameId = requestAnimationFrame(draw);
         }
 
         function drawSpeechBubble(character, text) {
             if (!text) return;
-            ctx.font = "16px 'Press Start 2P'";
-            const textWidth = ctx.measureText(text).width;
-            const bubbleWidth = textWidth + 20;
-            const bubbleHeight = 40;
-            const bubbleX = character.x - bubbleWidth / 2;
-            const bubbleY = character.y - (character.img.height/2) - bubbleHeight - 20;
-            
-            ctx.fillStyle = 'white';
-            ctx.strokeStyle = 'black';
-            ctx.lineWidth = 3;
-            
-            ctx.beginPath();
-            ctx.rect(bubbleX, bubbleY, bubbleWidth, bubbleHeight);
-            ctx.fill();
-            ctx.stroke();
+            const bubbleImg = assets.speechBubble;
+            const borderSize = 10; // Tamaño en píxeles de los bordes/esquinas de la imagen de la burbuja
 
+            ctx.font = "16px 'Press Start 2P'";
+            
+            const { textWidth, lineCount } = wrapText(ctx, text, 0, 0, 300, 20, true); // Medir sin dibujar
+            const bubbleWidth = textWidth + 40;
+            const bubbleHeight = (lineCount * 20) + 30;
+
+            const bubbleX = character.x - bubbleWidth / 2;
+            const bubbleY = character.y - (character.h / 2) - bubbleHeight - 20;
+
+            // 9-slice rendering
+            const sx = [0, borderSize, bubbleImg.width - borderSize];
+            const sy = [0, borderSize, bubbleImg.height - borderSize];
+            const sw = [borderSize, bubbleImg.width - 2 * borderSize, borderSize];
+            const sh = [borderSize, bubbleImg.height - 2 * borderSize, borderSize];
+            const dx = [bubbleX, bubbleX + borderSize, bubbleX + bubbleWidth - borderSize];
+            const dy = [bubbleY, bubbleY + borderSize, bubbleY + bubbleHeight - borderSize];
+            const dw = [borderSize, bubbleWidth - 2 * borderSize, borderSize];
+            const dh = [borderSize, bubbleHeight - 2 * borderSize, borderSize];
+
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    ctx.drawImage(bubbleImg, sx[j], sy[i], sw[j], sh[i], dx[j], dy[i], dw[j], dh[i]);
+                }
+            }
+
+            // Dibujar texto
             ctx.fillStyle = 'black';
-            ctx.fillText(text, bubbleX + 10, bubbleY + 25);
+            wrapText(ctx, text, bubbleX + 20, bubbleY + 25, 300, 20, false);
+        }
+
+        function wrapText(context, text, x, y, maxWidth, lineHeight, measureOnly = false) {
+            const words = text.split(' ');
+            let line = '';
+            let lineCount = 1;
+            let maxWidthSoFar = 0;
+
+            for(let n = 0; n < words.length; n++) {
+                let testLine = line + words[n] + ' ';
+                let metrics = context.measureText(testLine);
+                let testWidth = metrics.width;
+                if (testWidth > maxWidth && n > 0) {
+                    if (!measureOnly) context.fillText(line, x, y);
+                    maxWidthSoFar = Math.max(maxWidthSoFar, context.measureText(line).width);
+                    line = words[n] + ' ';
+                    y += lineHeight;
+                    lineCount++;
+                } else {
+                    line = testLine;
+                }
+            }
+            if (!measureOnly) context.fillText(line, x, y);
+            maxWidthSoFar = Math.max(maxWidthSoFar, context.measureText(line).width);
+            return { textWidth: maxWidthSoFar, lineCount: lineCount };
         }
 
         async function processScript() {
