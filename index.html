@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Acceso al Asistente IA v12.2 (Final)</title>
+  <title>Acceso al Asistente IA v12.3 (Final)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -81,7 +81,6 @@
     input[type="text"]:disabled { opacity: 0.5; cursor: not-allowed; }
     button { padding: 7px 18px; background: linear-gradient(90deg, #a500d2, #ff38e7); border: none; border-radius: 8px; color: #fff; font-weight: bold; font-size: 1em; box-shadow: 0 0 10px #a500d2; cursor: pointer; transition: all 0.2s; } button:hover { background: linear-gradient(90deg, #ff38e7, #a500d2); } button:disabled { opacity: 0.5; cursor: not-allowed; background: #555; }
     
-    /* --- Big Bang --- */
     #explosion-container { position: fixed; inset: 0; z-index: 9999; pointer-events: none; }
     .explosion-flash { position: absolute; inset: 0; background: #0d1a26; opacity: 0; animation: flash 1.8s cubic-bezier(.7,0,.3,1) forwards; }
     .explosion-shockwave { position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 20px 10px #0d1a26, 0 0 40px 20px #00bfff, 0 0 80px 40px #005f7f; opacity: 0; transform: translate(-50%, -50%); animation: shockwave 1.8s cubic-bezier(.2,1,.7,1) forwards; animation-delay: 0.05s; }
@@ -93,70 +92,21 @@
     @keyframes fly-out { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; } 100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; } }
     @keyframes tendril-burst { 0% { transform: translate(-50%, -50%) rotate(var(--angle)) scaleY(0); opacity: 0.8; } 100% { transform: translate(-50%, -50%) rotate(var(--angle)) scaleY(1); opacity: 0; } }
     
-    /* --- Estilos de la Escena Final --- */
     #final-scene { position: fixed; inset: 0; z-index: 1; opacity: 0; transition: opacity 2s ease-in; background-image: url('pixel-art-escena.png'); background-size: cover; background-position: center; image-rendering: pixelated; }
     #petal-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; }
     .final-orb-container { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); z-index: 15; opacity: 0; animation: fadeIn 2s 1s forwards; }
     .final-orb { width: 80px; height: 80px; border-radius: 50%; position: relative; overflow: hidden; background: radial-gradient(circle, #ffb3c1, #e75480 70%); border: 2px solid #ffb3c1; animation: pulse-final-orb 4s infinite ease-in-out; }
     @keyframes pulse-final-orb { 0%, 100% { transform: scale(1); box-shadow: 0 0 30px 10px #e75480, inset 0 0 15px 5px #ffc0cb; } 50% { transform: scale(1.05); box-shadow: 0 0 45px 18px #e75480, inset 0 0 15px 5px #ffc0cb; } }
     .final-orb-dialog { position: absolute; top: calc(40% + 60px); left: 50%; transform: translateX(-50%); z-index: 15; opacity: 0; animation: fadeIn 2s 1s forwards; font-family: 'Press Start 2P', cursive; font-size: 1rem; color: #fff; text-shadow: 2px 2px 0px rgba(0,0,0,0.7); width: 600px; text-align: center; min-height: 2.5em; }
-    
-    #start-button-container {
-        position: absolute;
-        bottom: 5%;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 20;
-    }
-    #start-cinematic-btn {
-        font-family: 'Press Start 2P', cursive;
-        font-size: 1rem;
-        color: #fff;
-        background-color: #1e152a;
-        border: 2px solid #e025a8;
-        padding: 15px 30px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px 0px #e025a8;
-        cursor: pointer;
-        transition: all 0.2s;
-        opacity: 0;
-        animation: fadeIn 1s forwards;
-    }
-    #start-cinematic-btn:hover {
-        box-shadow: 0 0 20px 5px #e025a8;
-        transform: scale(1.05);
-    }
-
-    #cinematic-scene {
-        position: fixed; inset: 0;
-        z-index: 50;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 1s;
-    }
-    #cinematic-scene.is-visible {
-        opacity: 1;
-        pointer-events: auto;
-    }
-    #cinematic-canvas {
-        width: 100%; height: 100%;
-        image-rendering: pixelated;
-    }
-    #timeskip-overlay {
-        position: fixed; inset: 0;
-        z-index: 60;
-        background-color: black;
-        display: flex; justify-content: center; align-items: center;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.8s;
-    }
+    #start-button-container { position: absolute; bottom: 5%; left: 50%; transform: translateX(-50%); z-index: 20; }
+    #start-cinematic-btn { font-family: 'Press Start 2P', cursive; font-size: 1rem; color: #fff; background-color: #1e152a; border: 2px solid #e025a8; padding: 15px 30px; border-radius: 10px; box-shadow: 0 0 10px 0px #e025a8; cursor: pointer; transition: all 0.2s; opacity: 0; animation: fadeIn 1s forwards; }
+    #start-cinematic-btn:hover { box-shadow: 0 0 20px 5px #e025a8; transform: scale(1.05); }
+    #cinematic-scene { position: fixed; inset: 0; z-index: 50; opacity: 0; pointer-events: none; transition: opacity 1s; }
+    #cinematic-scene.is-visible { opacity: 1; pointer-events: auto; }
+    #cinematic-canvas { width: 100%; height: 100%; image-rendering: pixelated; }
+    #timeskip-overlay { position: fixed; inset: 0; z-index: 60; background-color: black; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.8s; }
     #timeskip-overlay.is-visible { opacity: 1; }
-    #timeskip-text {
-        font-family: 'VT323', monospace;
-        font-size: 2rem;
-        color: white;
-    }
+    #timeskip-text { font-family: 'VT323', monospace; font-size: 2rem; color: white; }
   </style>
 </head>
 <body>
@@ -472,7 +422,9 @@
       { tipo: 'dialogo', personaje: 'jesko', texto: "De todas maneras, te encargo hacérselo llegar." },
       { tipo: 'esperar', duracion: 500 },
       { tipo: 'dialogo', personaje: 'sophi', texto: "Vaya... Siento de pronto que todo el esfuerzo que hemos puesto en esto ha sido en vano. Pero está bien, lo entiendo. Me encargaré de que reciba este presente." },
-      { tipo: 'esperar', duracion: 3000 },
+      // --- CAMBIO: Nueva animación final ---
+      { tipo: 'esperar', duracion: 1000 },
+      { tipo: 'animacion_final' },
       { tipo: 'fin' }
     ];
 
@@ -507,7 +459,6 @@
 
         const jeskoTargetHeight = canvas.height * 0.54;
         const jeskoScale = jeskoTargetHeight / assets.jesko.height;
-
         const sophiTargetHeight = canvas.height * 0.20;
         const sophiScale = sophiTargetHeight / assets.sophi.height;
         
@@ -548,13 +499,14 @@
         function drawSpeechBubble(character, text) {
             if (!text) return;
             
+            // --- CAMBIO: Ajustes de padding y espaciado ---
             const fontSize = 23;
-            const padding = 15;
+            const padding = 20; // Más margen interno
             const bubbleMaxWidth = 350;
-            const lineHeight = 28;
+            const lineHeight = 30; // Más espacio entre líneas
             ctx.font = `${fontSize}px 'VT323', monospace`;
             
-            const lines = wrapText(ctx, text, bubbleMaxWidth);
+            const lines = wrapText(ctx, text, bubbleMaxWidth - (padding * 2));
             const textHeight = (lines.length * lineHeight);
             let textWidth = 0;
             for (const line of lines) {
@@ -586,7 +538,8 @@
 
             ctx.fillStyle = 'black';
             for (let i = 0; i < lines.length; i++) {
-                ctx.fillText(lines[i], bubbleX + padding, bubbleY + padding + (i * lineHeight));
+                // --- CAMBIO: Ajuste de posición vertical del texto ---
+                ctx.fillText(lines[i], bubbleX + padding, bubbleY + padding + 5 + (i * lineHeight));
             }
         }
 
@@ -658,6 +611,11 @@
                     cinematicScene.style.opacity = 1;
                     await new Promise(r => setTimeout(r, 800));
                     break;
+                // --- CAMBIO: Nueva acción para la animación final ---
+                case 'animacion_final':
+                    currentAction = null;
+                    await playFinalAnimation();
+                    break;
                 case 'fin':
                     cancelAnimationFrame(animationFrameId);
                     document.getElementById('cinematic-scene').classList.remove('is-visible');
@@ -669,11 +627,35 @@
             processScript();
         }
 
+        // --- CAMBIO: Nueva función para la animación final ---
+        async function playFinalAnimation() {
+            characters.jesko.visible = false;
+            characters.sophi.visible = false;
+            await new Promise(r => setTimeout(r, 500));
+
+            let opacity = 0;
+            const fadeDuration = 1500;
+            const intervalTime = 1000 / 60;
+            const step = 1 / (fadeDuration / intervalTime);
+
+            return new Promise(resolve => {
+                const fadeInterval = setInterval(() => {
+                    opacity += step;
+                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    if (opacity >= 1) {
+                        clearInterval(fadeInterval);
+                        resolve();
+                    }
+                }, intervalTime);
+            });
+        }
+
         function loadImage(src) {
             return new Promise((resolve, reject) => {
                 const img = new Image();
                 img.onload = () => resolve(img);
-                img.onerror = () => reject(`ERROR: No se pudo cargar la imagen '${src}'. Revisa que el archivo exista en la carpeta 'assets' y que el nombre sea exacto (mayúsculas/minúsculas).`);
+                img.onerror = () => reject(`ERROR: No se pudo cargar la imagen '${src}'. Revisa que el archivo exista en la carpeta 'assets' y que el nombre sea exacto.`);
                 img.src = src;
             });
         }
