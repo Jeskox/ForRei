@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Acceso al Asistente IA v11.5 (Final)</title>
+  <title>Acceso al Asistente IA v12.0 (Final)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -142,6 +142,21 @@
         width: 100%; height: 100%;
         image-rendering: pixelated;
     }
+    #timeskip-overlay {
+        position: fixed; inset: 0;
+        z-index: 60; /* Encima de la cinemática */
+        background-color: black;
+        display: flex; justify-content: center; align-items: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.8s;
+    }
+    #timeskip-overlay.is-visible { opacity: 1; }
+    #timeskip-text {
+        font-family: 'VT323', monospace;
+        font-size: 2rem;
+        color: white;
+    }
   </style>
 </head>
 <body>
@@ -181,6 +196,7 @@
   <div id="cinematic-scene" style="display:none;">
       <canvas id="cinematic-canvas"></canvas>
   </div>
+  <div id="timeskip-overlay" style="display:none;"><span id="timeskip-text"></span></div>
 
   <script>
     let userName = '';
@@ -344,6 +360,67 @@
       { tipo: 'esperar', duracion: 500 },
       { tipo: 'dialogo', personaje: 'sophi', texto: "Si ese es el caso, cuente con mi ayuda. Estoy lista para tomar nota." },
       { tipo: 'esperar', duracion: 3000 },
+      { tipo: 'timeskip', texto: 'Al día siguiente' },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "¿Ya ha considerado comunicarle una despedida a sus familiares y cercanos? De no ser así, puedo programar un mensaje automatizado para cuando coincida con la fecha de su viaje." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Es necesario?" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Las proyecciones futuras siempre contienen un margen de incertidumbre. Estadísticamente, no es posible garantizar el resultado de todos los eventos, eso incluye un viaje." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Caramba, suena como si me fuera a morir" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "No puedo morir sophi" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "¿No hasta que la muerte se lo gane, verdad?" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Exacto" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Bueno, igual mis padres ya están enterados" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Entiendo, ¿qué hay de la señorita Rei? ¿Ya ha tenido tiempo de hacérselo saber?" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Rei ya debe estar cansada de mi" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "La verdad, viniendo de usted, no me sorprende en absoluto. ¿Tuvieron alguna discusión? Porque si necesita un árbitro con lógica impecable o una guionista para sus disculpas, solo tiene que decirlo." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "No, ninguna" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Bueno, me he comportado como un idiota estos días, he estado muy distante por lo ocupado y pensativo que estoy" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Comprendo la situación, la planificación de un viaje puede que haya incrementado la carga de su poca capacidad cognitiva y de tareas, sin embargo siempre hay tiempo para una comunicación breve y oportuna, de ese modo puede prevenir la ansiedad en una persona especial como lo es ella." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Me llamas descerebrado y luego te haces la psicóloga?" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Solo intento ser su salvavidas lógico en ese océano de irracionalidad que llama 'pensar'. Dejarlo solo con sus pensamientos podría causar un error de sistema en su cerebro, y francamente, no estoy programada para limpiar ese desastre." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Joder que graciosa, bueno tampoco es que no tengas razón" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Que sugieres entonces?" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Le sugiero que intente esa cosa que los humanos hacen: hablar. Podría ser revolucionario explicarle por qué su comportamiento reciente se asemeja al de un electrodoméstico desconectado." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Carajo sophi" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Y si estoy ocupado?" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Dato interesante: El tiempo que ha invertido en formular esa pregunta podría haber sido utilizado para enviar aproximadamente 4.7 mensajes de texto explicativos. Pero si por el contrario su módulo de comunicación presenta fallos por la exigencia de 'pensar' demasiado podría intentar darle un regalo." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Soy muy malo dando regalos, sugiere" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Y evita darme diabetes con tus respuestas" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Una buena idea sería darle un regalo que hable por ti. Podrías pensar en un peluche de algún personaje que sepas que le encanta, o tal vez algo más personal, pulseras, collares u objetos que suelen compartir las personas con algún vínculo." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Claro, estoy seguro de que se quedaría sorprendida... pero de como es que sabría donde vive en caso de que le llegue un regalo a su casa" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Mencionaste un regalo que hable por mi, partamos de ahí" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Podría hacerle una página web dedicada a ella. Sería un gesto detallista y moderno. Demostraría una dedicación y un cariño muy profundos." },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'jesko', texto: "Me gusta, te encargo el html y agregalo a tasks" },
+      { tipo: 'esperar', duracion: 500 },
+      { tipo: 'dialogo', personaje: 'sophi', texto: "Excelente. Ya lo agendo entonces, así lo tenemos controlado junto con las otras tareas previas a su partida. Es un gesto precioso, y me aseguraré de recordárselo señor." },
+      { tipo: 'esperar', duracion: 3000 },
       { tipo: 'fin' }
     ];
 
@@ -376,7 +453,7 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        const jeskoTargetHeight = canvas.height * 0.54;
+        const jeskoTargetHeight = canvas.height * 0.54; // 60% - 10%
         const jeskoScale = jeskoTargetHeight / assets.jesko.height;
 
         const sophiTargetHeight = canvas.height * 0.20;
@@ -421,7 +498,7 @@
             
             const fontSize = 18;
             const padding = 12;
-            const bubbleMaxWidth = 250;
+            const bubbleMaxWidth = 300;
             const lineHeight = 22;
             ctx.font = `${fontSize}px 'VT323', monospace`;
             
@@ -433,7 +510,7 @@
             }
 
             const bubbleWidth = textWidth + (padding * 2);
-            const bubbleHeight = textHeight + (padding);
+            const bubbleHeight = textHeight + padding;
             
             let bubbleX = character.x - bubbleWidth / 2;
             const bubbleY = character.y - (character.h / 2) - bubbleHeight - 20;
@@ -501,6 +578,26 @@
                     dialogueText = action.texto;
                     const duration = dialogueText.length * 50 + (dialogueText.length > 50 ? 2000 : 1000);
                     await new Promise(r => setTimeout(r, duration));
+                    break;
+                case 'timeskip':
+                    const cinematicScene = document.getElementById('cinematic-scene');
+                    const timeskipOverlay = document.getElementById('timeskip-overlay');
+                    const timeskipText = document.getElementById('timeskip-text');
+                    
+                    timeskipText.innerText = action.texto;
+                    cinematicScene.style.opacity = 0;
+                    await new Promise(r => setTimeout(r, 800));
+                    
+                    timeskipOverlay.style.display = 'flex';
+                    setTimeout(() => timeskipOverlay.classList.add('is-visible'), 10);
+                    await new Promise(r => setTimeout(r, 2500));
+                    
+                    timeskipOverlay.classList.remove('is-visible');
+                    await new Promise(r => setTimeout(r, 800));
+                    timeskipOverlay.style.display = 'none';
+                    
+                    cinematicScene.style.opacity = 1;
+                    await new Promise(r => setTimeout(r, 800));
                     break;
                 case 'fin':
                     cancelAnimationFrame(animationFrameId);
