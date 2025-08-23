@@ -325,6 +325,25 @@
     let giftClickCount = 0;
     let hasShownHeartDialog = false;
     let toastTimeout;
+    // NUEVO: Variable de estado para la seguridad
+    let securityStep = 0;
+
+    // --- NUEVO: Función para escribir palabra por palabra ---
+    function escribirPalabras(element, text, speed, callback) {
+        element.innerHTML = "";
+        const words = text.split(' ');
+        let i = 0;
+        function write() {
+            if (i < words.length) {
+                element.innerHTML += (i > 0 ? ' ' : '') + words[i];
+                i++;
+                setTimeout(write, speed);
+            } else {
+                if (callback) callback();
+            }
+        }
+        write();
+    }
 
     function escribirTexto(element, text, speed, callback, clearAfter = 0) { let i = 0; element.innerHTML = ""; const cursor = document.createElement('span'); cursor.className = 'type-cursor'; cursor.innerHTML = '&nbsp;'; function write() { if (i < text.length) { element.innerHTML = text.substring(0, i + 1); element.appendChild(cursor); i++; setTimeout(write, speed); } else { cursor.remove(); if (clearAfter > 0) { setTimeout(() => { element.innerHTML = ''; }, clearAfter); } if (callback) callback(); } } write(); }
     
@@ -334,7 +353,8 @@
         setTimeout(() => {
             orb.classList.add('is-active');
             setTimeout(() => {
-                promptText.textContent = "Para asegurarme de que usted es la persona que espero, introduzca su nombre.";
+                // CAMBIO: Se usa la nueva función de escritura por palabras
+                escribirPalabras(promptText, "Para asegurarme de que usted es la persona que espero, introduzca su nombre.", 150);
             }, 500);
         }, 2200);
         const skipBtn = document.getElementById('skip-to-cinematic-btn');
@@ -343,29 +363,51 @@
 
     const enviarBtn = document.getElementById('enviar-btn');
     const nombreInput = document.getElementById('nombre-input');
+
+    // --- CAMBIO: Lógica de autenticación de 2 pasos ---
     enviarBtn.onclick = () => {
-      userName = nombreInput.value.trim();
-      if (userName.toLowerCase() === 'rei') {
-        document.getElementById('main-initial').style.display = 'none';
-        const transitionContent = document.getElementById('transition-content');
-        transitionContent.style.display = 'flex'; transitionContent.style.flexDirection = 'column'; transitionContent.style.gap = '22px'; transitionContent.style.alignItems = 'center';
-        initOrbParticles('orb-particles-canvas-transition');
-        const transitionDialog = document.getElementById('texto-dialogo');
-        escribirTexto(transitionDialog, "Iniciando secuencia...", 45, () => {
-            setTimeout(() => {
-                transitionContent.style.display = 'none';
-                showExplosionAndSwitchDesign();
-            }, 500);
-        });
-      } else {
+      const userInput = nombreInput.value.trim().toLowerCase();
+      const promptText = document.getElementById('orb-prompt-text');
+
+      if (securityStep === 0) { // Paso 1: Validar el nombre
+        if (userInput === 'rei') {
+          securityStep = 1;
+          nombreInput.value = '';
+          nombreInput.placeholder = 'Sabor del dulce';
+          escribirPalabras(promptText, "El señor Jesko usa el nombre de un dulce para referirse a usted de manera afectiva, ¿de qué sabor es el dulce?", 100);
+        } else {
+          denegarAcceso();
+        }
+      } else if (securityStep === 1) { // Paso 2: Validar el dulce
+        const esValido = userInput.includes('limon') || userInput.includes('caramelito') || userInput.includes('pastelito');
+        if (esValido) {
+          // Acceso concedido, iniciar transición
+          document.getElementById('main-initial').style.display = 'none';
+          const transitionContent = document.getElementById('transition-content');
+          transitionContent.style.display = 'flex'; transitionContent.style.flexDirection = 'column'; transitionContent.style.gap = '22px'; transitionContent.style.alignItems = 'center';
+          initOrbParticles('orb-particles-canvas-transition');
+          const transitionDialog = document.getElementById('texto-dialogo');
+          escribirTexto(transitionDialog, "Iniciando secuencia...", 45, () => {
+              setTimeout(() => {
+                  transitionContent.style.display = 'none';
+                  showExplosionAndSwitchDesign();
+              }, 500);
+          });
+        } else {
+          denegarAcceso();
+        }
+      }
+    };
+    
+    function denegarAcceso() {
         const orb = document.getElementById('main-orb');
         const promptText = document.getElementById('orb-prompt-text');
-        nombreInput.disabled = true; enviarBtn.disabled = true;
+        nombreInput.disabled = true; 
+        enviarBtn.disabled = true;
         escribirTexto(promptText, "Lo siento, acceso denegado.", 40, () => {
             setTimeout(() => { orb.classList.remove('is-active'); }, 500);
         });
-      }
-    };
+    }
     nombreInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') enviarBtn.click(); });
 
     function showExplosionAndSwitchDesign() { const explosionContainer = document.getElementById('explosion-container'); explosionContainer.style.display = 'flex'; const particlesContainer = document.getElementById('explosion-particles'); const tendrilsContainer = document.getElementById('energy-tendrils'); particlesContainer.innerHTML = ''; tendrilsContainer.innerHTML = ''; for (let i = 0; i < 50; i++) { const p = document.createElement('div'); p.classList.add('particle'); const angle = Math.random() * 360 * (Math.PI / 180); const dist = (Math.random() * 0.5 + 0.5) * window.innerWidth; p.style.setProperty('--x', `${Math.cos(angle) * dist}px`); p.style.setProperty('--y', `${Math.sin(angle) * dist}px`); particlesContainer.appendChild(p); } for (let i = 0; i < 25; i++) { const t = document.createElement('div'); t.classList.add('energy-tendril'); t.style.setProperty('--angle', `${Math.random() * 360}deg`); t.style.animationDelay = `${Math.random() * 0.2}s`; tendrilsContainer.appendChild(t); } setTimeout(() => { document.getElementById('initial-background').style.opacity = '0'; showNewDesign(); explosionContainer.style.display = 'none'; }, 1800); }
@@ -412,6 +454,7 @@
                 finalOrb.style.borderColor = '#444';
                 finalOrb.style.boxShadow = '0 0 15px 5px #333, inset 0 0 20px 10px #111';
                 finalOrb.style.animation = 'none';
+                finalOrb.querySelector('::before').style.background = '';
                 lightEffect.remove();
             }, 1500);
         }
