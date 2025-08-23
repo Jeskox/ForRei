@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Acceso al Asistente IA v12.6 (Final)</title>
+  <title>Acceso al Asistente IA v12.6 (Completo y Final)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -125,6 +125,59 @@
         from { transform: translate(-50%, -50%) scale(0); }
         to { transform: translate(-50%, -50%) scale(1); }
     }
+    #gift-modal-overlay {
+        position: fixed; inset: 0; z-index: 200;
+        background: rgba(0,0,0,0.7);
+        backdrop-filter: blur(5px);
+        display: flex; justify-content: center; align-items: center;
+        opacity: 0; pointer-events: none;
+        transition: opacity 0.5s ease;
+    }
+    #gift-modal-overlay.is-visible { opacity: 1; pointer-events: auto; }
+    #gift-modal-content {
+        background: #1e152a;
+        border: 2px solid #e025a8;
+        border-radius: 15px;
+        padding: 30px 40px;
+        box-shadow: 0 0 25px 10px #e025a8;
+        text-align: center;
+        transform: scale(0.9);
+        transition: transform 0.5s ease;
+    }
+    #gift-modal-overlay.is-visible #gift-modal-content { transform: scale(1); }
+    #gift-modal-content h2 {
+        font-family: 'Press Start 2P', cursive;
+        color: white; margin-top: 0; margin-bottom: 25px;
+        font-size: 1.2rem;
+    }
+    .choices-container { display: flex; gap: 25px; }
+    .choice-card {
+        border: 2px solid transparent;
+        border-radius: 10px;
+        padding: 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .choice-card:hover {
+        border-color: #e025a8;
+        transform: scale(1.05);
+    }
+    .choice-card img {
+        width: 150px; height: 150px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+    .choice-card span {
+        display: block;
+        margin-top: 10px;
+        color: white;
+        font-family: 'Poppins', sans-serif;
+    }
+    .close-modal-btn {
+        position: absolute; top: 10px; right: 10px;
+        background: transparent; border: none;
+        color: white; font-size: 24px; cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -143,7 +196,7 @@
         <button id="enviar-btn">Confirmar</button>
       </div>
     </div>
-    <button id="skip-to-cinematic-btn">Saltar a Cinemática (Final)</button>
+    <button id="skip-to-cinematic-btn">Saltar a Regalo (Test)</button>
   </div>
   <div id="transition-content" style="display: none;">
       <div class="orbe is-active">
@@ -153,10 +206,8 @@
       <div class="texto-dialogo" id="texto-dialogo"></div>
   </div>
   <div id="explosion-container" style="display:none">
-    <div class="explosion-flash"></div>
-    <div class="explosion-shockwave"></div>
-    <div id="explosion-particles"></div>
-    <div id="energy-tendrils"></div>
+    <div class="explosion-flash"></div><div class="explosion-shockwave"></div>
+    <div id="explosion-particles"></div><div id="energy-tendrils"></div>
   </div>
   <div id="final-scene" style="display:none;">
     <canvas id="petal-canvas"></canvas>
@@ -166,6 +217,22 @@
       <canvas id="cinematic-canvas"></canvas>
   </div>
   <div id="timeskip-overlay" style="display:none;"><span id="timeskip-text"></span></div>
+  <div id="gift-modal-overlay">
+    <div id="gift-modal-content">
+        <button class="close-modal-btn" id="close-modal-btn">&times;</button>
+        <h2>Elige tu regalo:</h2>
+        <div class="choices-container">
+            <div class="choice-card" data-choice="Discord Nitro">
+                <img src="https://i.imgur.com/sd132li.jpeg" alt="Discord Nitro">
+                <span>Discord Nitro</span>
+            </div>
+            <div class="choice-card" data-choice="Star Rail Monthly">
+                <img src="https://i.imgur.com/J32C2QT.jpeg" alt="Star Rail Monthly Pass">
+                <span>Star Rail Monthly</span>
+            </div>
+        </div>
+    </div>
+  </div>
 
   <script>
     let userName = '';
@@ -194,10 +261,10 @@
         const skipBtn = document.getElementById('skip-to-cinematic-btn');
         skipBtn.onclick = () => {
             userName = 'Rei';
+            hasCinematicPlayed = true; // Forzar la bandera para el diálogo post-cinemática
             document.getElementById('main-initial').style.display = 'none';
             document.getElementById('initial-background').style.opacity = '0';
-            const skipToIndex = guion.findIndex(action => action.tipo === 'timeskip' && action.texto === 'Hasta luego, Insensible');
-            showNewDesign(true, skipToIndex);
+            showNewDesign(); // Saltar directamente a la escena final
         };
     });
 
@@ -330,10 +397,10 @@
         const giftContainer = document.getElementById('gift-icon-container');
         const orbContainer = document.querySelector('.final-orb-container');
 
-        if (orbContainer) orbContainer.style.display = 'block'; // CAMBIO: Asegurarse de que el orbe esté visible
+        if (orbContainer) orbContainer.style.display = 'block';
         
         await new Promise(resolve => setTimeout(resolve, 1500));
-        await new Promise(resolve => escribirTexto(dialogEl, "El objetivo era que entendiera el porqué de todo esto. Este espacio fue 'pensado' con la mejor intención.", 60, resolve));
+        await new Promise(resolve => escribirTexto(dialogEl, "Bueno… espero que haya entendido el punto de todo esto. Todo esto fue hecho con la mejor intención.", 60, resolve));
         await new Promise(resolve => setTimeout(resolve, 2000));
         await new Promise(resolve => escribirTexto(dialogEl, "Me disculpo en nombre del incompetente que tengo por amo.", 60, resolve));
         await new Promise(resolve => setTimeout(resolve, 1500));
@@ -345,9 +412,15 @@
         await new Promise(resolve => setTimeout(resolve, 800));
         
         dialogEl.innerHTML = '';
-        if (giftContainer) giftContainer.style.display = 'block';
+        if (giftContainer) {
+            giftContainer.style.display = 'block';
+            giftContainer.onclick = () => {
+                document.getElementById('gift-modal-overlay').classList.add('is-visible');
+            };
+        }
     }
     
+    // --- LÓGICA DE LA CINEMÁTICA ---
     const guion = [
       { tipo: 'entrar', personaje: 'jesko', pos: { x: 0.30, y: 0.65 } },
       { tipo: 'entrar', personaje: 'sophi', pos: { x: 0.75, y: 0.55 } },
@@ -707,6 +780,31 @@
         window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; ctx.imageSmoothingEnabled = false; init(); });
         init(); animate();
     }
+    
+    // Lógica de la Ventana Modal del Regalo
+    document.addEventListener('DOMContentLoaded', () => {
+        const modal = document.getElementById('gift-modal-overlay');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const choices = document.querySelectorAll('.choice-card');
+
+        const closeModal = () => {
+            modal.classList.remove('is-visible');
+        };
+        
+        closeModalBtn.onclick = closeModal;
+        modal.onclick = (event) => {
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+
+        choices.forEach(card => {
+            card.onclick = () => {
+                alert(`Has elegido: ${card.dataset.choice}`);
+                closeModal();
+            };
+        });
+    });
   </script>
 </body>
 </html>
