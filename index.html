@@ -101,6 +101,12 @@
     .final-orb-container { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); z-index: 15; opacity: 0; animation: fadeIn 2s 1s forwards; }
     .final-orb { width: 80px; height: 80px; border-radius: 50%; position: relative; overflow: hidden; background: radial-gradient(circle, #ffb3c1, #e75480 70%); border: 2px solid #ffb3c1; animation: pulse-final-orb 4s infinite ease-in-out; }
     @keyframes pulse-final-orb { 0%, 100% { transform: scale(1); box-shadow: 0 0 30px 10px #e75480, inset 0 0 15px 5px #ffc0cb; } 50% { transform: scale(1.05); box-shadow: 0 0 45px 18px #e75480, inset 0 0 15px 5px #ffc0cb; } }
+    /* --- NUEVO: Animación de disipación del orbe --- */
+    .final-orb.is-dissipating { animation: dissipate-orb 2s forwards; }
+    @keyframes dissipate-orb {
+        0% { transform: scale(1); opacity: 1; }
+        100% { transform: scale(25); opacity: 0; }
+    }
     .final-orb-dialog { position: absolute; top: calc(40% + 60px); left: 50%; transform: translateX(-50%); z-index: 15; opacity: 0; animation: fadeIn 2s 1s forwards; font-family: 'Press Start 2P', cursive; font-size: 1rem; color: #fff; text-shadow: 2px 2px 0px rgba(0,0,0,0.7); width: 600px; text-align: center; min-height: 2.5em; }
     #start-button-container { position: absolute; bottom: 5%; left: 50%; transform: translateX(-50%); z-index: 20; }
     #start-cinematic-btn { font-family: 'Press Start 2P', cursive; font-size: 1rem; color: #fff; background-color: #1e152a; border: 2px solid #e025a8; padding: 15px 30px; border-radius: 10px; box-shadow: 0 0 10px 0px #e025a8; cursor: pointer; transition: all 0.2s; opacity: 0; animation: fadeIn 1s forwards; }
@@ -156,17 +162,14 @@
     #folder-icon-container { left: calc(50% + 100px); }
     .extra-icon svg { width: 48px; height: 48px; cursor: pointer; }
 
-    /* --- NUEVO: Animación hover para iconos --- */
     #gift-icon-container:not(.is-claimed):hover,
     .extra-icon:hover {
         transform: translate(-50%, 0) scale(1.15);
     }
     #gift-icon-container.is-settled:not(.is-claimed):hover {
-        transform: translate(-50%, -5px) scale(1.15); /* Compensar el movimiento vertical en la parte inferior */
+        transform: translate(-50%, -5px) scale(1.15);
     }
     
-    /* --- FIN DE CAMBIOS --- */
-
     /* Estilo base para todos los modales */
     .modal-overlay {
         position: fixed; inset: 0; z-index: 200;
@@ -262,73 +265,30 @@
     }
     
     /* Estilos para Galerías (reutilizables) */
-    .gallery-content {
-        display: flex;
-        flex-direction: column;
-        width: 80vw;
-        height: 85vh;
-        max-width: 1200px;
-        padding: 20px;
-    }
-    .main-image-container {
-        flex-grow: 1;
-        position: relative;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-bottom: 15px;
-        overflow: hidden;
-        cursor: grab;
-    }
-    .gallery-main-image {
-        max-width: 100%;
-        max-height: 100%;
-        display: block;
-        transition: opacity 0.3s ease;
-        user-select: none;
-    }
-    .nav-arrow {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        background-color: rgba(0, 0, 0, 0.4);
-        color: white;
-        border: none;
-        font-size: 2rem;
-        padding: 10px 15px;
-        cursor: pointer;
-        transition: background-color 0.2s;
-        z-index: 5;
-        border-radius: 5px;
-    }
+    .gallery-content { display: flex; flex-direction: column; width: 80vw; height: 85vh; max-width: 1200px; padding: 20px; }
+    .main-image-container { flex-grow: 1; position: relative; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; overflow: hidden; cursor: grab; }
+    .gallery-main-image { max-width: 100%; max-height: 100%; display: block; transition: opacity 0.3s ease; user-select: none; }
+    .nav-arrow { position: absolute; top: 50%; transform: translateY(-50%); background-color: rgba(0, 0, 0, 0.4); color: white; border: none; font-size: 2rem; padding: 10px 15px; cursor: pointer; transition: background-color 0.2s; z-index: 5; border-radius: 5px; }
     .nav-arrow:hover { background-color: rgba(0, 0, 0, 0.7); }
     .prev-btn { left: 10px; }
     .next-btn { right: 10px; }
-
-    .thumbnail-container {
-        flex-shrink: 0;
-        width: 100%;
-        overflow-x: auto;
-        white-space: nowrap;
-        padding-bottom: 10px; /* Para la barra de scroll */
-        text-align: center;
+    .thumbnail-container { flex-shrink: 0; width: 100%; overflow-x: auto; white-space: nowrap; padding-bottom: 10px; text-align: center; }
+    .thumbnail-img { width: 80px; height: 60px; object-fit: cover; margin: 0 5px; cursor: pointer; border: 2px solid transparent; border-radius: 5px; transition: border-color 0.3s, transform 0.3s; }
+    .thumbnail-img:hover { transform: scale(1.05); }
+    .thumbnail-img.active { border-color: var(--gift-border-color); box-shadow: 0 0 10px var(--gift-border-color); }
+    
+    /* --- NUEVO: ESTILOS PARA FUEGOS ARTIFICIALES --- */
+    #fireworks-container { position: fixed; inset: 0; z-index: 25; pointer-events: none; }
+    .firework-particle {
+        position: absolute;
+        width: 4px; height: 4px;
+        border-radius: 50%;
+        opacity: 0;
+        animation: firework-fly 1.2s cubic-bezier(0.3, 0.5, 0.5, 1) forwards;
     }
-    .thumbnail-img {
-        width: 80px;
-        height: 60px;
-        object-fit: cover;
-        margin: 0 5px;
-        cursor: pointer;
-        border: 2px solid transparent;
-        border-radius: 5px;
-        transition: border-color 0.3s, transform 0.3s;
-    }
-    .thumbnail-img:hover {
-        transform: scale(1.05);
-    }
-    .thumbnail-img.active {
-        border-color: var(--gift-border-color);
-        box-shadow: 0 0 10px var(--gift-border-color);
+    @keyframes firework-fly {
+        0% { transform: translate(0, 0) scale(1.5); opacity: 1; }
+        100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; }
     }
   </style>
 </head>
@@ -365,6 +325,8 @@
   <div id="final-scene" style="display:none;">
     <canvas id="petal-canvas"></canvas>
     <div id="final-ui-container"></div>
+    <!-- NUEVO: Contenedor para los fuegos artificiales -->
+    <div id="fireworks-container"></div>
   </div>
   <div id="cinematic-scene" style="display:none;">
       <canvas id="cinematic-canvas"></canvas>
@@ -401,27 +363,26 @@
   </div>
 
   <div id="gallery-modal-overlay" class="modal-overlay">
-      <div class="modal-content gallery-content">
+      <div class="gallery-content modal-content">
           <button class="close-modal-btn" id="close-gallery-modal-btn">&times;</button>
           <div class="main-image-container">
-              <button id="gallery-prev-btn" class="nav-arrow prev-btn">&lt;</button>
+              <button class="nav-arrow prev-btn">&lt;</button>
               <img src="" alt="Imagen de la galería" class="gallery-main-image">
-              <button id="gallery-next-btn" class="nav-arrow next-btn">&gt;</button>
+              <button class="nav-arrow next-btn">&gt;</button>
           </div>
-          <div class="thumbnail-container" id="gallery-thumbnail-container"></div>
+          <div class="thumbnail-container"></div>
       </div>
   </div>
 
-  <!-- NUEVO: Modal de Galería de GIFs -->
   <div id="gif-gallery-modal-overlay" class="modal-overlay">
-      <div class="modal-content gallery-content">
+      <div class="gallery-content modal-content">
           <button class="close-modal-btn" id="close-gif-gallery-modal-btn">&times;</button>
           <div class="main-image-container">
-              <button id="gif-gallery-prev-btn" class="nav-arrow prev-btn">&lt;</button>
+              <button class="nav-arrow prev-btn">&lt;</button>
               <img src="" alt="GIF de la galería" class="gallery-main-image">
-              <button id="gif-gallery-next-btn" class="nav-arrow next-btn">&gt;</button>
+              <button class="nav-arrow next-btn">&gt;</button>
           </div>
-          <div class="thumbnail-container" id="gif-gallery-thumbnail-container"></div>
+          <div class="thumbnail-container"></div>
       </div>
   </div>
 
@@ -432,27 +393,9 @@
     let regaloElegido = false;
     let pendingChoice = null;
     let giftClickCount = 0;
-    // NUEVO: Bandera para el diálogo del corazón
     let hasShownHeartDialog = false;
 
-    function escribirTexto(element, text, speed, callback, clearAfter = 0) {
-        let i = 0; element.innerHTML = ""; const cursor = document.createElement('span'); cursor.className = 'type-cursor'; cursor.innerHTML = '&nbsp;';
-        function write() {
-            if (i < text.length) { 
-                element.innerHTML = text.substring(0, i + 1); 
-                element.appendChild(cursor); 
-                i++; 
-                setTimeout(write, speed); 
-            } else { 
-                cursor.remove(); 
-                if (clearAfter > 0) {
-                    setTimeout(() => { element.innerHTML = ''; }, clearAfter);
-                }
-                if (callback) callback(); 
-            }
-        }
-        write();
-    }
+    function escribirTexto(element, text, speed, callback, clearAfter = 0) { let i = 0; element.innerHTML = ""; const cursor = document.createElement('span'); cursor.className = 'type-cursor'; cursor.innerHTML = '&nbsp;'; function write() { if (i < text.length) { element.innerHTML = text.substring(0, i + 1); element.appendChild(cursor); i++; setTimeout(write, speed); } else { cursor.remove(); if (clearAfter > 0) { setTimeout(() => { element.innerHTML = ''; }, clearAfter); } if (callback) callback(); } } write(); }
     
     document.addEventListener('DOMContentLoaded', () => {
         const orb = document.getElementById('main-orb');
@@ -463,15 +406,8 @@
                 promptText.textContent = "Para asegurarme de que usted es la persona que espero, introduzca su nombre.";
             }, 500);
         }, 2200);
-
         const skipBtn = document.getElementById('skip-to-cinematic-btn');
-        skipBtn.onclick = () => {
-            userName = 'Rei';
-            hasCinematicPlayed = true;
-            document.getElementById('main-initial').style.display = 'none';
-            document.getElementById('initial-background').style.opacity = '0';
-            showNewDesign();
-        };
+        skipBtn.onclick = () => { userName = 'Rei'; hasCinematicPlayed = true; document.getElementById('main-initial').style.display = 'none'; document.getElementById('initial-background').style.opacity = '0'; showNewDesign(); };
     });
 
     const enviarBtn = document.getElementById('enviar-btn');
@@ -493,8 +429,7 @@
       } else {
         const orb = document.getElementById('main-orb');
         const promptText = document.getElementById('orb-prompt-text');
-        nombreInput.disabled = true;
-        enviarBtn.disabled = true;
+        nombreInput.disabled = true; enviarBtn.disabled = true;
         escribirTexto(promptText, "Lo siento, acceso denegado.", 40, () => {
             setTimeout(() => { orb.classList.remove('is-active'); }, 500);
         });
@@ -502,151 +437,70 @@
     };
     nombreInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') enviarBtn.click(); });
 
-    function showExplosionAndSwitchDesign() {
-        const explosionContainer = document.getElementById('explosion-container');
-        explosionContainer.style.display = 'flex';
-        const particlesContainer = document.getElementById('explosion-particles');
-        const tendrilsContainer = document.getElementById('energy-tendrils');
-        particlesContainer.innerHTML = ''; tendrilsContainer.innerHTML = '';
-        for (let i = 0; i < 50; i++) {
-            const p = document.createElement('div'); p.classList.add('particle');
-            const angle = Math.random() * 360 * (Math.PI / 180); const dist = (Math.random() * 0.5 + 0.5) * window.innerWidth;
-            p.style.setProperty('--x', `${Math.cos(angle) * dist}px`); p.style.setProperty('--y', `${Math.sin(angle) * dist}px`);
-            particlesContainer.appendChild(p);
-        }
-        for (let i = 0; i < 25; i++) {
-            const t = document.createElement('div'); t.classList.add('energy-tendril');
-            t.style.setProperty('--angle', `${Math.random() * 360}deg`);
-            t.style.animationDelay = `${Math.random() * 0.2}s`;
-            tendrilsContainer.appendChild(t);
-        }
-        setTimeout(() => {
-            document.getElementById('initial-background').style.opacity = '0';
-            showNewDesign();
-            explosionContainer.style.display = 'none';
-        }, 1800);
-    }
-
-    function showNewDesign(skipToCinematic = false, startIndex = 0) {
-        const scene = document.getElementById('final-scene');
-        scene.style.display = 'block';
-        setTimeout(() => scene.style.opacity = '1', 50);
-        const uiContainer = document.getElementById('final-ui-container');
-        uiContainer.innerHTML = `
-            <div class="final-orb-container">
-                <div class="final-orb"><div class="scanlines"></div></div>
-            </div>
-            <div class="final-orb-dialog" id="final-dialog"></div>
-            <div id="start-button-container"></div> 
-            <div id="gift-icon-container" style="display: none;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="#ffb3c1" stroke="#fff" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
-            </div>
-            <div id="heart-icon-container" class="extra-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#a955c4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                </svg>
-            </div>
-            <div id="folder-icon-container" class="extra-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ffb3c1" stroke="#fff" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 5a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5z"/>
-                </svg>
-            </div>
-        `;
-        initPetalAnimation();
-        if (hasCinematicPlayed) {
-            iniciarDialogoPostCinematico();
-        } else if (skipToCinematic) {
-            const cinematicScene = document.getElementById('cinematic-scene');
-            cinematicScene.style.display = 'block';
-            setTimeout(() => { cinematicScene.classList.add('is-visible'); initCinematic(startIndex); }, 50);
-        } else {
-            setTimeout(iniciarDialogoFinal, 2000);
-        }
-    }
-
-    async function iniciarDialogoFinal() {
-        const dialogEl = document.getElementById('final-dialog');
-        const buttonContainer = document.getElementById('start-button-container');
-        await new Promise(resolve => escribirTexto(dialogEl, "Bienvenida, señorita Rei.", 60, resolve));
-        await new Promise(resolve => setTimeout(resolve, 900));
-        await new Promise(resolve => escribirTexto(dialogEl, "Mi nombre es Sophi, asistente virtual de Jesko.", 60, resolve));
-        await new Promise(resolve => setTimeout(resolve, 900));
-        await new Promise(resolve => escribirTexto(dialogEl, "Este espacio fue hecho como parte de un regalo para usted.", 60, resolve));
-        await new Promise(resolve => setTimeout(resolve, 600));
-        await new Promise(resolve => escribirTexto(dialogEl, "Pero...", 60, resolve));
-        await new Promise(resolve => setTimeout(resolve, 300));
-        await new Promise(resolve => escribirTexto(dialogEl, "Pero... ¿Por qué?", 60, resolve));
-        await new Promise(resolve => setTimeout(resolve, 900));
-        await new Promise(resolve => escribirTexto(dialogEl, "He preparado una manera dinámica para ponerla en contexto.", 60, resolve));
-        await new Promise(resolve => setTimeout(resolve, 500));
-        const startButton = document.createElement('button');
-        startButton.id = 'start-cinematic-btn';
-        startButton.innerText = 'Iniciar';
-        buttonContainer.appendChild(startButton);
-        startButton.onclick = () => {
-            document.getElementById('final-scene').style.opacity = 0;
-            const cinematicScene = document.getElementById('cinematic-scene');
-            cinematicScene.style.display = 'block';
-            setTimeout(() => { cinematicScene.classList.add('is-visible'); initCinematic(); }, 50);
-        };
-    }
-
-    function moveGiftIconRandomly() {
-        const container = document.getElementById('gift-icon-container');
-        const newTop = Math.floor(Math.random() * 70) + 15;
-        const newLeft = Math.floor(Math.random() * 80) + 10;
-        container.style.top = `${newTop}%`;
-        container.style.left = `${newLeft}%`;
-    }
-
-    async function iniciarDialogoPostCinematico() {
-        const dialogEl = document.getElementById('final-dialog');
-        const giftContainer = document.getElementById('gift-icon-container');
-        const orbContainer = document.querySelector('.final-orb-container');
-
-        if (orbContainer) orbContainer.style.display = 'block';
-        
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        await new Promise(resolve => escribirTexto(dialogEl, "El objetivo era que entendiera el porqué de todo esto. Este espacio fue 'pensado' con la mejor intención.", 60, resolve));
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        await new Promise(resolve => escribirTexto(dialogEl, "Me disculpo en nombre del incompetente que tengo por amo.", 60, resolve));
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        await new Promise(resolve => escribirTexto(dialogEl, "Confío en que la situación se normalizará.", 60, resolve));
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        await new Promise(resolve => escribirTexto(dialogEl, "Habiendo dicho esto…", 60, resolve));
-        await new Promise(resolve => setTimeout(resolve, 1200));
-        await new Promise(resolve => escribirTexto(dialogEl, "Aun queda una sorpresa más para usted.", 60, resolve));
-        await new Promise(resolve => setTimeout(resolve, 800));
-        
-        dialogEl.innerHTML = '';
-        if (giftContainer) {
-            giftContainer.style.display = 'block';
-            giftContainer.onclick = () => {
-                if (regaloElegido) return;
-                if (giftClickCount < 3) {
-                    giftClickCount++;
-                    moveGiftIconRandomly();
-                    if (giftClickCount === 3) {
-                        setTimeout(() => {
-                            giftContainer.classList.add('is-settled');
-                            document.getElementById('heart-icon-container').classList.add('is-visible');
-                            document.getElementById('folder-icon-container').classList.add('is-visible');
-                        }, 800); // Esperar a que termine la animación de movimiento
-                    }
-                } else {
-                    document.getElementById('gift-modal-overlay').classList.add('is-visible');
-                }
-            };
-        }
-    }
-    
-    // --- DIÁLOGO DE LA CINEMÁTICA ---
+    function showExplosionAndSwitchDesign() { const explosionContainer = document.getElementById('explosion-container'); explosionContainer.style.display = 'flex'; const particlesContainer = document.getElementById('explosion-particles'); const tendrilsContainer = document.getElementById('energy-tendrils'); particlesContainer.innerHTML = ''; tendrilsContainer.innerHTML = ''; for (let i = 0; i < 50; i++) { const p = document.createElement('div'); p.classList.add('particle'); const angle = Math.random() * 360 * (Math.PI / 180); const dist = (Math.random() * 0.5 + 0.5) * window.innerWidth; p.style.setProperty('--x', `${Math.cos(angle) * dist}px`); p.style.setProperty('--y', `${Math.sin(angle) * dist}px`); particlesContainer.appendChild(p); } for (let i = 0; i < 25; i++) { const t = document.createElement('div'); t.classList.add('energy-tendril'); t.style.setProperty('--angle', `${Math.random() * 360}deg`); t.style.animationDelay = `${Math.random() * 0.2}s`; tendrilsContainer.appendChild(t); } setTimeout(() => { document.getElementById('initial-background').style.opacity = '0'; showNewDesign(); explosionContainer.style.display = 'none'; }, 1800); }
+    function showNewDesign(skipToCinematic = false, startIndex = 0) { const scene = document.getElementById('final-scene'); scene.style.display = 'block'; setTimeout(() => scene.style.opacity = '1', 50); const uiContainer = document.getElementById('final-ui-container'); uiContainer.innerHTML = ` <div class="final-orb-container"> <div class="final-orb"><div class="scanlines"></div></div> </div> <div class="final-orb-dialog" id="final-dialog"></div> <div id="start-button-container"></div> <div id="gift-icon-container" style="display: none;"> <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="#ffb3c1" stroke="#fff" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg> </div> <div id="heart-icon-container" class="extra-icon"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#a955c4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/> </svg> </div> <div id="folder-icon-container" class="extra-icon"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ffb3c1" stroke="#fff" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"> <path d="M4 5a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5z"/> </svg> </div> `; initPetalAnimation(); if (hasCinematicPlayed) { iniciarDialogoPostCinematico(); } else if (skipToCinematic) { const cinematicScene = document.getElementById('cinematic-scene'); cinematicScene.style.display = 'block'; setTimeout(() => { cinematicScene.classList.add('is-visible'); initCinematic(startIndex); }, 50); } else { setTimeout(iniciarDialogoFinal, 2000); } }
+    async function iniciarDialogoFinal() { const dialogEl = document.getElementById('final-dialog'); const buttonContainer = document.getElementById('start-button-container'); await new Promise(resolve => escribirTexto(dialogEl, "Bienvenida, señorita Rei.", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 900)); await new Promise(resolve => escribirTexto(dialogEl, "Mi nombre es Sophi, asistente virtual de Jesko.", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 900)); await new Promise(resolve => escribirTexto(dialogEl, "Este espacio fue hecho como parte de un regalo para usted.", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 600)); await new Promise(resolve => escribirTexto(dialogEl, "Pero...", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 300)); await new Promise(resolve => escribirTexto(dialogEl, "Pero... ¿Por qué?", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 900)); await new Promise(resolve => escribirTexto(dialogEl, "He preparado una manera dinámica para ponerla en contexto.", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 500)); const startButton = document.createElement('button'); startButton.id = 'start-cinematic-btn'; startButton.innerText = 'Iniciar'; buttonContainer.appendChild(startButton); startButton.onclick = () => { document.getElementById('final-scene').style.opacity = 0; const cinematicScene = document.getElementById('cinematic-scene'); cinematicScene.style.display = 'block'; setTimeout(() => { cinematicScene.classList.add('is-visible'); initCinematic(); }, 50); }; }
+    function moveGiftIconRandomly() { const container = document.getElementById('gift-icon-container'); const newTop = Math.floor(Math.random() * 70) + 15; const newLeft = Math.floor(Math.random() * 80) + 10; container.style.top = `${newTop}%`; container.style.left = `${newLeft}%`; }
+    async function iniciarDialogoPostCinematico() { const dialogEl = document.getElementById('final-dialog'); const giftContainer = document.getElementById('gift-icon-container'); const orbContainer = document.querySelector('.final-orb-container'); if (orbContainer) orbContainer.style.display = 'block'; await new Promise(resolve => setTimeout(resolve, 1500)); await new Promise(resolve => escribirTexto(dialogEl, "El objetivo era que entendiera el porqué de todo esto. Este espacio fue 'pensado' con la mejor intención.", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 2000)); await new Promise(resolve => escribirTexto(dialogEl, "Me disculpo en nombre del incompetente que tengo por amo.", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 1500)); await new Promise(resolve => escribirTexto(dialogEl, "Confío en que la situación se normalizará.", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 1500)); await new Promise(resolve => escribirTexto(dialogEl, "Habiendo dicho esto…", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 1200)); await new Promise(resolve => escribirTexto(dialogEl, "Aun queda una sorpresa más para usted.", 60, resolve)); await new Promise(resolve => setTimeout(resolve, 800)); dialogEl.innerHTML = ''; if (giftContainer) { giftContainer.style.display = 'block'; giftContainer.onclick = () => { if (giftClickCount >= 3) { if (!regaloElegido) document.getElementById('gift-modal-overlay').classList.add('is-visible'); return; } giftClickCount++; moveGiftIconRandomly(); if (giftClickCount === 3) { setTimeout(() => { giftContainer.style.top = ''; giftContainer.style.left = ''; giftContainer.classList.add('is-settled'); document.getElementById('heart-icon-container').classList.add('is-visible'); document.getElementById('folder-icon-container').classList.add('is-visible'); }, 800); } }; } }
     const guion = [ { tipo: 'entrar', personaje: 'jesko', pos: { x: 0.30, y: 0.65 } }, { tipo: 'entrar', personaje: 'sophi', pos: { x: 0.75, y: 0.55 } }, { tipo: 'esperar', duracion: 1500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Vamos a conquistar el mundo, Sophi." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Suena a algo muy ambicioso, señor..." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Haré un viaje fuera del país." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Entiendo, ¿necesita que lo actualice en su calendario?" }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "De hecho, necesitaré que te hagas cargo de todo aquí los días que estaré fuera." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Por supuesto, pero he de recordarle que solo puedo ayudarle en todo lo que esté a mi alcance." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Lo sé, por eso voy a integrarte más herramientas..." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Haz una lista de cosas pendientes que debo hacer antes de irme." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Si ese es el caso, cuente con mi ayuda. Estoy lista para tomar nota." }, { tipo: 'esperar', duracion: 3000 }, { tipo: 'timeskip', texto: 'Más tarde' }, { tipo: 'dialogo', personaje: 'sophi', texto: "¿Ya ha considerado comunicarle una despedida a sus familiares y cercanos? De no ser así, puedo programar un mensaje automatizado." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "¿Es necesario?" }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Las proyecciones futuras siempre contienen un margen de incertidumbre. No es posible garantizar el resultado de todos los eventos, eso incluye un viaje." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Caramba, suena como si me fuera a morir." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "No puedo morir, Sophi." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "¿No hasta que la muerte se lo gane, verdad?" }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Exacto." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Bueno, igual mis padres ya están enterados." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Entiendo, ¿qué hay de la señorita Rei? ¿Ya ha tenido tiempo de hacérselo saber?" }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Rei ya debe estar cansada de mí." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "La verdad, viniendo de usted, no me sorprende en absoluto. ¿Tuvieron alguna discusión? Porque si necesita un árbitro con lógica impecable, solo tiene que decirlo." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "No, ninguna." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Bueno, me he comportado como un idiota estos días. He estado muy distante por lo ocupado y pensativo que estoy." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Comprendo la situación. La planificación de un viaje pudo haber incrementado la carga de su poca capacidad cognitiva. Sin embargo, siempre hay tiempo para una comunicación breve." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "¿Me llamas descerebrado y luego te haces la psicóloga?" }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Solo intento ser su salvavidas lógico en ese océano de irracionalidad que llama 'pensar'. Dejarlo solo podría causar un error de sistema en su cerebro." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Joder, qué graciosa. Bueno, tampoco es que no tengas razón." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "¿Qué sugieres entonces?" }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Le sugiero que intente esa cosa que los humanos hacen: hablar. Podría ser revolucionario explicarle por qué su comportamiento se asemeja al de un electrodoméstico desconectado." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Carajo, Sophi." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "¿Y si estoy ocupado?" }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Dato interesante: El tiempo que ha invertido en esa pregunta podría haber sido utilizado para enviar 4.7 mensajes de texto. Si eso es demasiado exigente, intente con un regalo." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Soy muy malo dando regalos, sugiere. Y evita darme diabetes con tus respuestas." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Una buena idea sería darle un regalo que hable por usted. Algo personal: un peluche, una pulsera o un collar." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Claro, seguro se sorprendería... pero de cómo es que yo sabría dónde vive para que le llegue un regalo." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Mencionaste un regalo que hable por mí. Partamos de ahí." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Podría hacerle una página web dedicada a ella. Un gesto detallista y moderno. Demostraría una dedicación y un cariño muy profundos." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Me gusta. Te encargo el HTML y agrégalo a tasks." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Excelente. Ya lo agendo. Es un gesto precioso, y me aseguraré de recordárselo, señor." }, { tipo: 'esperar', duracion: 3000 }, { tipo: 'timeskip', texto: 'Al día siguiente' }, { tipo: 'dialogo', personaje: 'sophi', texto: "Para mantenerlo al día, señor: cubrimos el 79% de las tareas. Sigue el Proyecto 'Ciber-Romeo', la página para la señorita Rei." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "¿Quién le puso ese nombre? 'Ciber-Romeo', jajaja." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Bueno, te encargo eso, Sophi. Es una oportunidad para ver qué tan autónoma puedes ser ahora." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Pídeme ayuda si es algo que no está a tu alcance, encárgate del resto tú." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Me pondré en ello entonces." }, { tipo: 'esperar', duracion: 3000 }, { tipo: 'timeskip', texto: 'Hasta luego, Insensible' }, { tipo: 'dialogo', personaje: 'jesko', texto: "Hoy es el día, Sophi." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Muy bien, y se ha asegurado de completar todo lo pendiente. Sería buena idea usar estas horas para una última revisión." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "¿Qué hay de lo 'Ciber-Romeo'?" }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Dado que se trata de mí, el resultado es increíble. Como último detalle, un mensaje personal suyo la haría aún más especial." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "¿En serio?" }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Así es, solo dígame cuándo esté listo." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Está bien, ahí voy." }, { tipo: 'esperar', duracion: 1000 }, { tipo: 'salir', personaje: 'sophi' }, { tipo: 'mover', personaje: 'jesko', pos: { x: 0.5, y: 0.65 } }, { tipo: 'esperar', duracion: 1500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Te quiero mucho, princesa." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Perdón por la actitud de electrodoméstico desconectado." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Recuerda no amargarte mucho." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Y cuídense las 3." }, { tipo: 'esperar', duracion: 1500 }, { tipo: 'mover', personaje: 'jesko', pos: { x: 0.30, y: 0.65 } }, { tipo: 'entrar', personaje: 'sophi', pos: { x: 0.75, y: 0.55 } }, { tipo: 'esperar', duracion: 1000 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Perfecto. Me encargaré de transmitir su... particular estilo de comunicación. Por otro lado, ¿tienen hijos o mascotas?" }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Jajaja. Solo díselo." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Confío en que entenderá sus razones, señor. Es un gesto muy sincero." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Sobre eso, Sophi..." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "Utilizaré este viaje para hacer un cambio de aire. Si todo regresa a la normalidad o no, tendrá que verse cuando vuelva." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'jesko', texto: "De todas maneras, te encargo hacérselo llegar." }, { tipo: 'esperar', duracion: 500 }, { tipo: 'dialogo', personaje: 'sophi', texto: "Vaya... Siento de pronto que todo el esfuerzo que hemos puesto en esto ha sido en vano. Pero está bien, lo entiendo. Me encargaré de que reciba este presente." }, { tipo: 'esperar', duracion: 1000 }, { tipo: 'animacion_final' }, { tipo: 'fin' } ];
     async function initCinematic(startIndex = 0) { const canvas = document.getElementById('cinematic-canvas'); const ctx = canvas.getContext('2d'); ctx.imageSmoothingEnabled = false; let assets; try { assets = { background: await loadImage('assets/salon.png'), jesko: await loadImage('assets/jesko-sprite-1.png'), sophi: await loadImage('assets/sophi-sprite-1.png') }; } catch (error) { alert(error); document.getElementById('cinematic-scene').classList.remove('is-visible'); document.getElementById('final-scene').style.opacity = 1; return; } let animationFrameId; function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; ctx.imageSmoothingEnabled = false; } window.addEventListener('resize', resizeCanvas); resizeCanvas(); const jeskoTargetHeight = canvas.height * 0.54; const jeskoScale = jeskoTargetHeight / assets.jesko.height; const sophiTargetHeight = canvas.height * 0.20; const sophiScale = sophiTargetHeight / assets.sophi.height; const characters = { jesko: { img: assets.jesko, x: 0, y: 0, visible: false, yOffset: 0, w: assets.jesko.width * jeskoScale, h: assets.jesko.height * jeskoScale }, sophi: { img: assets.sophi, x: 0, y: 0, visible: false, yOffset: 0, w: assets.sophi.width * sophiScale, h: assets.sophi.height * sophiScale } }; let currentAction = null; let scriptIndex = startIndex; let dialogueText = ''; let dialogueProgress = 0; function draw() { ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.drawImage(assets.background, 0, 0, canvas.width, canvas.height); characters.jesko.yOffset = Math.sin(Date.now() * 0.002) * 2; characters.sophi.yOffset = Math.sin(Date.now() * 0.003) * 3; for (const charName in characters) { const char = characters[charName]; if (char.visible) { ctx.drawImage(char.img, char.x - char.w/2, char.y - char.h/2 + char.yOffset, char.w, char.h); } } if (currentAction && currentAction.tipo === 'dialogo') { if (dialogueProgress < dialogueText.length) { dialogueProgress += 0.5; } drawSpeechBubble(characters[currentAction.personaje], dialogueText.substring(0, Math.floor(dialogueProgress))); } animationFrameId = requestAnimationFrame(draw); } function drawSpeechBubble(character, text) { if (!text) return; const fontSize = 23; const padding = 20; const bubbleMaxWidth = 350; const lineHeight = 30; ctx.font = `${fontSize}px 'VT323', monospace`; const lines = wrapText(ctx, text, bubbleMaxWidth - (padding * 2)); const textHeight = (lines.length * lineHeight); let textWidth = 0; for (const line of lines) { textWidth = Math.max(textWidth, ctx.measureText(line).width); } const bubbleWidth = textWidth + (padding * 2); const bubbleHeight = textHeight + padding; let bubbleX = character.x - bubbleWidth / 2; const bubbleY = character.y - (character.h / 2) - bubbleHeight - 20; if (bubbleX < 10) bubbleX = 10; if (bubbleX + bubbleWidth > canvas.width - 10) bubbleX = canvas.width - bubbleWidth - 10; ctx.fillStyle = 'white'; ctx.strokeStyle = 'black'; ctx.lineWidth = 3; ctx.fillRect(bubbleX, bubbleY, bubbleWidth, bubbleHeight); ctx.strokeRect(bubbleX, bubbleY, bubbleWidth, bubbleHeight); ctx.beginPath(); ctx.moveTo(character.x - 10, bubbleY + bubbleHeight); ctx.lineTo(character.x, bubbleY + bubbleHeight + 10); ctx.lineTo(character.x + 10, bubbleY + bubbleHeight); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle = 'black'; for (let i = 0; i < lines.length; i++) { ctx.fillText(lines[i], bubbleX + padding, bubbleY + padding + 5 + (i * lineHeight)); } } function wrapText(context, text, maxWidth) { const words = text.split(' '); let lines = []; let currentLine = words[0] || ''; for (let i = 1; i < words.length; i++) { const word = words[i]; const width = context.measureText(currentLine + " " + word).width; if (width < maxWidth) { currentLine += " " + word; } else { lines.push(currentLine); currentLine = word; } } lines.push(currentLine); return lines; } async function processScript() { if (scriptIndex >= guion.length) return; const action = guion[scriptIndex]; currentAction = action; dialogueText = ''; dialogueProgress = 0; switch (action.tipo) { case 'entrar': characters[action.personaje].visible = true; characters[action.personaje].x = canvas.width * action.pos.x; characters[action.personaje].y = canvas.height * action.pos.y; break; case 'salir': characters[action.personaje].visible = false; break; case 'mover': characters[action.personaje].x = canvas.width * action.pos.x; characters[action.personaje].y = canvas.height * action.pos.y; break; case 'esperar': currentAction = null; await new Promise(r => setTimeout(r, action.duracion)); break; case 'dialogo': dialogueText = action.texto; const duration = dialogueText.length * 50 + (dialogueText.length > 50 ? 2000 : 1000); await new Promise(r => setTimeout(r, duration)); break; case 'timeskip': const cinematicScene = document.getElementById('cinematic-scene'); const timeskipOverlay = document.getElementById('timeskip-overlay'); const timeskipText = document.getElementById('timeskip-text'); timeskipText.innerText = action.texto; cinematicScene.style.opacity = 0; await new Promise(r => setTimeout(r, 800)); timeskipOverlay.style.display = 'flex'; setTimeout(() => timeskipOverlay.classList.add('is-visible'), 10); await new Promise(r => setTimeout(r, 2500)); timeskipOverlay.classList.remove('is-visible'); await new Promise(r => setTimeout(r, 800)); timeskipOverlay.style.display = 'none'; cinematicScene.style.opacity = 1; await new Promise(r => setTimeout(r, 800)); break; case 'animacion_final': currentAction = null; await playFinalAnimation(); break; case 'fin': cancelAnimationFrame(animationFrameId); hasCinematicPlayed = true; const sceneEl = document.getElementById('cinematic-scene'); sceneEl.classList.remove('is-visible'); document.getElementById('final-scene').style.opacity = 1; showNewDesign(); setTimeout(() => sceneEl.style.display = 'none', 1000); return; } scriptIndex++; processScript(); } async function playFinalAnimation() { characters.jesko.visible = false; characters.sophi.visible = false; await new Promise(r => setTimeout(r, 500)); let opacity = 0; const fadeDuration = 1500; const intervalTime = 1000 / 60; const step = 1 / (fadeDuration / intervalTime); return new Promise(resolve => { const fadeInterval = setInterval(() => { opacity += step; ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`; ctx.fillRect(0, 0, canvas.width, canvas.height); if (opacity >= 1) { clearInterval(fadeInterval); resolve(); } }, intervalTime); }); } function loadImage(src) { return new Promise((resolve, reject) => { const img = new Image(); img.onload = () => resolve(img); img.onerror = () => reject(`ERROR: No se pudo cargar la imagen '${src}'. Revisa la carpeta 'assets'.`); img.src = src; }); } draw(); processScript(); }
     function initOrbParticles(canvasId) { const canvas = document.getElementById(canvasId); if (!canvas) return; const ctx = canvas.getContext('2d'); const radius = 50; canvas.width = radius * 2; canvas.height = radius * 2; let particles = []; const particleCount = 50; class Particle { constructor() { this.reset(); } reset() { this.x = radius; this.y = radius; this.size = Math.random() * 2 + 1; const angle = Math.random() * 360 * (Math.PI/180); const speed = Math.random() * 0.8 + 0.2; this.speedX = Math.cos(angle) * speed; this.speedY = Math.sin(angle) * speed; this.life = 100 + Math.random() * 50; this.sway = (Math.random() - 0.5) * 0.1; } draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fillStyle = `rgba(135, 206, 250, ${this.life / 100 * 0.5})`; ctx.fill(); } update() { this.life--; if(this.life <= 0) this.reset(); this.x += this.speedX; this.y += this.speedY; this.speedX += this.sway; this.speedY += this.sway; const dist = Math.sqrt(Math.pow(this.x - radius, 2) + Math.pow(this.y - radius, 2)); if (dist > radius - this.size) this.reset(); this.draw(); } } function init() { particles = []; for (let i = 0; i < particleCount; i++) { particles.push(new Particle()); } } function animate() { requestAnimationFrame(animate); ctx.clearRect(0, 0, canvas.width, canvas.height); for (let i = 0; i < particles.length; i++) { particles[i].update(); } } init(); animate(); }
     function initPetalAnimation() { const canvas = document.getElementById('petal-canvas'); const ctx = canvas.getContext('2d'); canvas.width = window.innerWidth; canvas.height = window.innerHeight; ctx.imageSmoothingEnabled = false; let petals = []; const petalCount = 40; class Petal { constructor() { this.reset(); this.y = Math.random() * canvas.height; } reset() { this.x = Math.random() * canvas.width; this.y = -10; this.w = 4 + Math.random() * 4; this.h = this.w; this.opacity = 0.5 + (this.w / 8) * 0.5; this.speedY = 0.5 + Math.random() * 0.5; this.sway = 0.5 + Math.random(); this.swayAngle = Math.random() * Math.PI; } draw() { ctx.fillStyle = `rgba(239, 194, 204, ${this.opacity})`; ctx.fillRect(this.x, this.y, this.w, this.h); } update() { this.y += this.speedY; this.swayAngle += 0.05; this.x += Math.sin(this.swayAngle) * this.sway; if (this.y > canvas.height) { this.reset(); } this.draw(); } } function init() { petals = []; for (let i = 0; i < petalCount; i++) { petals.push(new Petal()); } } function animate() { requestAnimationFrame(animate); ctx.clearRect(0, 0, canvas.width, canvas.height); for (let i = 0; i < petals.length; i++) { petals[i].update(); } } window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; ctx.imageSmoothingEnabled = false; init(); }); init(); animate(); }
     
-    // --- LÓGICA DE MODALES Y GALERÍA ---
+    // --- NUEVO: Función para fuegos artificiales ---
+    function launchFireworks() {
+        const container = document.getElementById('fireworks-container');
+        const fireworksCount = 7;
+        const colors = ['#ffb3c1', '#e75480', '#a955c4', '#fff'];
+        for (let i = 0; i < fireworksCount; i++) {
+            const fwX = Math.random() * window.innerWidth;
+            const fwY = Math.random() * window.innerHeight * 0.7; // Explotan en la parte superior
+            const particleCount = 50;
+            for (let j = 0; j < particleCount; j++) {
+                const p = document.createElement('div');
+                p.classList.add('firework-particle');
+                p.style.left = `${fwX}px`;
+                p.style.top = `${fwY}px`;
+                p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                const angle = Math.random() * 360 * (Math.PI / 180);
+                const dist = Math.random() * 150 + 50;
+                p.style.setProperty('--x', `${Math.cos(angle) * dist}px`);
+                p.style.setProperty('--y', `${Math.sin(angle) * dist}px`);
+                p.style.animationDelay = `${Math.random() * 0.3}s`;
+                container.appendChild(p);
+                setTimeout(() => p.remove(), 1500);
+            }
+        }
+    }
+    
+    // --- NUEVO: Secuencia de despedida ---
+    async function iniciarDialogoFinalDespedida() {
+        await new Promise(r => setTimeout(r, 2000));
+        const dialogEl = document.getElementById('final-dialog');
+        await new Promise(r => escribirTexto(dialogEl, "Me alegro de que haya llegado hasta aquí.", 50, r));
+        await new Promise(r => setTimeout(r, 1200));
+        await new Promise(r => escribirTexto(dialogEl, "Ha sido un placer acompañarla en este mundo.", 50, r));
+        await new Promise(r => setTimeout(r, 1200));
+        await new Promise(r => escribirTexto(dialogEl, "Ahora... He cumplido mi deber de haberle hecho presente este regalo.", 50, r));
+        await new Promise(r => setTimeout(r, 1200));
+        await new Promise(r => escribirTexto(dialogEl, "Aunque no pueda asistirle por más tiempo, puedo hacer algo por usted.", 50, r));
+        await new Promise(r => setTimeout(r, 1200));
+        await new Promise(r => escribirTexto(dialogEl, "Como ultimo obsequio puedo hacerle llegar un mensaje suyo si así lo desea.", 50, r));
+        await new Promise(r => setTimeout(r, 1200));
+        await new Promise(r => escribirTexto(dialogEl, "Hasta luego señorita Rei.", 50, r));
+        await new Promise(r => setTimeout(r, 1000));
+        
+        dialogEl.innerHTML = '';
+        const finalOrb = document.querySelector('.final-orb');
+        if (finalOrb) {
+            finalOrb.classList.add('is-dissipating');
+            launchFireworks();
+            setTimeout(() => {
+                finalOrb.classList.remove('is-active'); // Apaga el orbe
+            }, 2000);
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         const giftModal = document.getElementById('gift-modal-overlay');
         const closeGiftModalBtn = document.getElementById('close-gift-modal-btn');
@@ -687,86 +541,46 @@
             await new Promise(resolve => escribirTexto(dialogEl, "Me encargaré de la lógica para que reciba su regalo en 20 minutos como max.", 50, resolve, 2500));
         };
 
-        // --- FÁBRICA DE GALERÍAS (NUEVO) ---
         function initGallery(config) {
             const modal = document.querySelector(config.modalSelector);
-            const closeBtn = document.querySelector(config.closeBtnSelector);
+            const closeBtn = modal.querySelector('.close-modal-btn');
             const mainImage = modal.querySelector('.gallery-main-image');
             const thumbnailContainer = modal.querySelector('.thumbnail-container');
             const prevBtn = modal.querySelector('.prev-btn');
             const nextBtn = modal.querySelector('.next-btn');
             const imageContainer = modal.querySelector('.main-image-container');
             let currentImageIndex = 0;
-
-            const showImage = (index) => {
-                if (index < 0 || index >= config.paths.length) return;
-                currentImageIndex = index;
-                mainImage.style.opacity = 0;
-                setTimeout(() => {
-                    mainImage.src = config.paths[currentImageIndex];
-                    mainImage.style.opacity = 1;
-                }, 300);
-                thumbnailContainer.querySelectorAll('.thumbnail-img').forEach((img, i) => {
-                    img.classList.toggle('active', i === currentImageIndex);
-                    if (i === currentImageIndex) img.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-                });
-                prevBtn.style.display = (index === 0) ? 'none' : 'block';
-                nextBtn.style.display = (index === config.paths.length - 1) ? 'none' : 'block';
-            };
-            
-            config.paths.forEach((path, index) => {
-                const thumb = document.createElement('img');
-                thumb.src = path;
-                thumb.classList.add('thumbnail-img');
-                thumb.onclick = () => showImage(index);
-                thumbnailContainer.appendChild(thumb);
-            });
-
+            const showImage = (index) => { if (index < 0 || index >= config.paths.length) return; currentImageIndex = index; mainImage.style.opacity = 0; setTimeout(() => { mainImage.src = config.paths[currentImageIndex]; mainImage.style.opacity = 1; }, 300); thumbnailContainer.querySelectorAll('.thumbnail-img').forEach((img, i) => { img.classList.toggle('active', i === currentImageIndex); if (i === currentImageIndex) img.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); }); prevBtn.style.display = (index === 0) ? 'none' : 'block'; nextBtn.style.display = (index === config.paths.length - 1) ? 'none' : 'block'; };
+            if (thumbnailContainer.children.length === 0) {
+                config.paths.forEach((path, index) => { const thumb = document.createElement('img'); thumb.src = path; thumb.classList.add('thumbnail-img'); thumb.onclick = () => showImage(index); thumbnailContainer.appendChild(thumb); });
+            }
             const openModal = () => { showImage(0); modal.classList.add('is-visible'); };
             const closeModal = () => { modal.classList.remove('is-visible'); if (config.onClose) config.onClose(); };
-
             document.addEventListener('click', e => { if (e.target.closest(config.triggerSelector)) openModal(); });
             closeBtn.onclick = closeModal;
             modal.onclick = e => { if (e.target === modal) closeModal(); };
             prevBtn.onclick = () => showImage(currentImageIndex - 1);
             nextBtn.onclick = () => showImage(currentImageIndex + 1);
-            
-            document.addEventListener('keydown', e => {
-                if (modal.classList.contains('is-visible')) {
-                    if (e.key === 'ArrowLeft') showImage(currentImageIndex - 1);
-                    if (e.key === 'ArrowRight') showImage(currentImageIndex + 1);
-                    if (e.key === 'Escape') closeModal();
-                }
-            });
-
+            document.addEventListener('keydown', e => { if (modal.classList.contains('is-visible')) { if (e.key === 'ArrowLeft') showImage(currentImageIndex - 1); if (e.key === 'ArrowRight') showImage(currentImageIndex + 1); if (e.key === 'Escape') closeModal(); } });
             let isDragging = false, startX, diffX;
             const dragStart = (e) => { isDragging = true; startX = e.pageX || e.touches[0].pageX; imageContainer.style.cursor = 'grabbing'; };
             const dragMove = (e) => { if (!isDragging) return; e.preventDefault(); const currentX = e.pageX || e.touches[0].pageX; diffX = startX - currentX; };
             const dragEnd = () => { isDragging = false; imageContainer.style.cursor = 'grab'; if (Math.abs(diffX) > 50) { if (diffX > 0) nextBtn.click(); else prevBtn.click(); } };
-            
-            imageContainer.addEventListener('mousedown', dragStart); imageContainer.addEventListener('mousemove', dragMove); imageContainer.addEventListener('mouseup', dragEnd);
-            imageContainer.addEventListener('mouseleave', dragEnd); imageContainer.addEventListener('touchstart', dragStart); imageContainer.addEventListener('touchmove', dragMove);
-            imageContainer.addEventListener('touchend', dragEnd);
+            imageContainer.addEventListener('mousedown', dragStart); imageContainer.addEventListener('mousemove', dragMove); imageContainer.addEventListener('mouseup', dragEnd); imageContainer.addEventListener('mouseleave', dragEnd); imageContainer.addEventListener('touchstart', dragStart); imageContainer.addEventListener('touchmove', dragMove); imageContainer.addEventListener('touchend', dragEnd);
         }
-
-        // Inicializar galería de screenshots
         initGallery({
-            triggerSelector: '#folder-icon-container',
-            modalSelector: '#gallery-modal-overlay',
-            closeBtnSelector: '#close-gallery-modal-btn',
+            triggerSelector: '#folder-icon-container', modalSelector: '#gallery-modal-overlay',
             paths: [ "screenshots/img1p1.png", "screenshots/img1p2.png", "screenshots/img2p2.png", "screenshots/img3p2.png", "screenshots/img4p2.png", "screenshots/img1p3.png", "screenshots/img1p4.png", "screenshots/img2p4.png", "screenshots/img3p4.png" ]
         });
-
-        // Inicializar galería de GIFs
         initGallery({
-            triggerSelector: '#heart-icon-container',
-            modalSelector: '#gif-gallery-modal-overlay',
-            closeBtnSelector: '#close-gif-gallery-modal-btn',
+            triggerSelector: '#heart-icon-container', modalSelector: '#gif-gallery-modal-overlay',
             paths: ["gifs/for.rei.gif", "gifs/ilyrei.gif"],
             onClose: () => {
                 if (!hasShownHeartDialog) {
                     hasShownHeartDialog = true;
-                    escribirTexto(document.getElementById('final-dialog'), 'Eso ultimo ha sido un "sello" suyo.', 50, null, 2000);
+                    escribirTexto(document.getElementById('final-dialog'), 'Eso ultimo ha sido un "sello" suyo.', 50, () => {
+                        iniciarDialogoFinalDespedida();
+                    }, 1500);
                 }
             }
         });
