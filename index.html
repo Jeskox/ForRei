@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>For Rei</title>
+  <link rel="icon" type="image/png" href="jotchua.png">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -225,9 +226,26 @@
         opacity: 1;
         transform: translateX(-50%) translateY(-20px);
     }
+
+    /* Estilos para la Pantalla de Bloqueo de Orientación */
+    #orientation-lock { display: none; position: fixed; inset: 0; z-index: 10000; background-color: #181622; color: white; font-family: 'Poppins', sans-serif; }
+    .lock-content { display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; height: 100%; text-align: center; }
+    .lock-content p { margin-top: 20px; font-size: 1.1rem; line-height: 1.6; }
+    .lock-content svg { animation: rotate-icon 2s infinite ease-in-out; }
+    @keyframes rotate-icon { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(90deg); } }
+    @media (orientation: portrait) { #orientation-lock { display: block; } }
   </style>
 </head>
 <body>
+  <div id="orientation-lock">
+    <div class="lock-content">
+      <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 4h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-2"/><path d="M8 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m12 8 4 4-4 4M4 12h12"/>
+      </svg>
+      <p>Para una mejor experiencia,<br>por favor, gire su dispositivo.</p>
+    </div>
+  </div>
+
   <audio id="musica-fondo" src="ForRei/a-mi.m4a" loop></audio>
   <div id="initial-background"></div>
   <div class="center-content" id="main-initial">
@@ -339,8 +357,45 @@
     let toastTimeout;
     let securityStep = 0;
 
+    // --- LÓGICA DE PAUSA PARA ORIENTACIÓN ---
+    let isPaused = false;
+    function isMobileDevice() { return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1); };
+    function checkOrientation() {
+        if (window.innerHeight > window.innerWidth && isMobileDevice()) {
+            isPaused = true;
+        } else {
+            isPaused = false;
+        }
+    }
+    window.addEventListener('resize', checkOrientation);
+    window.addEventListener('load', checkOrientation);
+
     async function notificarAN8N(data) { const webhookUrl = 'https://n8n.jeskocloud.online/webhook/240f5383-4f87-41a2-8540-058bc3e0a2eb'; try { await fetch(webhookUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }); } catch (error) { console.error('Error al enviar la notificación a n8n:', error); } }
-    function escribirTexto(element, text, speed, callback, clearAfter = 0, showCursor = true) { let i = 0; element.innerHTML = ""; const cursor = document.createElement('span'); cursor.className = 'type-cursor'; cursor.innerHTML = '&nbsp;'; function write() { if (i < text.length) { if(showCursor) { element.innerHTML = text.substring(0, i + 1) + cursor.outerHTML; } else { element.innerHTML = text.substring(0, i + 1); } i++; setTimeout(write, speed); } else { if(showCursor) cursor.remove(); if (clearAfter > 0) { setTimeout(() => { element.innerHTML = ''; }, clearAfter); } if (callback) callback(); } } write(); }
+    
+    function escribirTexto(element, text, speed, callback, clearAfter = 0, showCursor = true) {
+        let i = 0;
+        element.innerHTML = "";
+        const cursor = document.createElement('span');
+        cursor.className = 'type-cursor';
+        cursor.innerHTML = '&nbsp;';
+        
+        function write() {
+            if (isPaused) {
+                setTimeout(write, 100);
+                return;
+            }
+            if (i < text.length) {
+                if(showCursor) { element.innerHTML = text.substring(0, i + 1) + cursor.outerHTML; } else { element.innerHTML = text.substring(0, i + 1); }
+                i++;
+                setTimeout(write, speed);
+            } else {
+                if(showCursor) cursor.remove();
+                if (clearAfter > 0) { setTimeout(() => { element.innerHTML = ''; }, clearAfter); }
+                if (callback) callback();
+            }
+        }
+        write();
+    }
     
     document.addEventListener('DOMContentLoaded', () => {
         if (localStorage.getItem('experienciaCompletada') === 'true') {
@@ -426,7 +481,16 @@
     function denegarAcceso() { const orb = document.getElementById('main-orb'); const promptText = document.getElementById('orb-prompt-text'); nombreInput.disabled = true; enviarBtn.disabled = true; escribirTexto(promptText, "Lo siento, acceso denegado.", 40, () => { setTimeout(() => { orb.classList.remove('is-active'); }, 500); }, 0, false); }
     nombreInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') enviarBtn.click(); });
 
-    function showExplosionAndSwitchDesign() { const explosionContainer = document.getElementById('explosion-container'); document.getElementById('initial-background').style.opacity = '0'; explosionContainer.style.display = 'flex'; const particlesContainer = document.getElementById('explosion-particles'); const tendrilsContainer = document.getElementById('energy-tendrils'); particlesContainer.innerHTML = ''; tendrilsContainer.innerHTML = ''; for (let i = 0; i < 50; i++) { const p = document.createElement('div'); p.classList.add('particle'); const angle = Math.random() * 360 * (Math.PI / 180); const dist = (Math.random() * 0.5 + 0.5) * window.innerWidth; p.style.setProperty('--x', `${Math.cos(angle) * dist}px`); p.style.setProperty('--y', `${Math.sin(angle) * dist}px`); particlesContainer.appendChild(p); } for (let i = 0; i < 25; i++) { const t = document.createElement('div'); t.classList.add('energy-tendril'); t.style.setProperty('--angle', `${Math.random() * 360}deg`); t.style.animationDelay = `${Math.random() * 0.2}s`; tendrilsContainer.appendChild(t); } setTimeout(() => { showNewDesign(); explosionContainer.style.display = 'none'; }, 1800); }
+    function showExplosionAndSwitchDesign() { 
+        const explosionContainer = document.getElementById('explosion-container'); 
+        document.getElementById('initial-background').style.opacity = '0';
+        explosionContainer.style.display = 'flex'; 
+        const particlesContainer = document.getElementById('explosion-particles'); const tendrilsContainer = document.getElementById('energy-tendrils'); particlesContainer.innerHTML = ''; tendrilsContainer.innerHTML = ''; for (let i = 0; i < 50; i++) { const p = document.createElement('div'); p.classList.add('particle'); const angle = Math.random() * 360 * (Math.PI / 180); const dist = (Math.random() * 0.5 + 0.5) * window.innerWidth; p.style.setProperty('--x', `${Math.cos(angle) * dist}px`); p.style.setProperty('--y', `${Math.sin(angle) * dist}px`); particlesContainer.appendChild(p); } for (let i = 0; i < 25; i++) { const t = document.createElement('div'); t.classList.add('energy-tendril'); t.style.setProperty('--angle', `${Math.random() * 360}deg`); t.style.animationDelay = `${Math.random() * 0.2}s`; tendrilsContainer.appendChild(t); } 
+        setTimeout(() => { 
+            showNewDesign(); 
+            explosionContainer.style.display = 'none'; 
+        }, 1800); 
+    }
     
     function showNewDesign(skipToCinematic = false, startIndex = 0, esEstadoFinal = false) {
         const scene = document.getElementById('final-scene');
